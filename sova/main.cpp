@@ -29,6 +29,7 @@ int main() {
   global_context = new Context(nullptr);
 
   register_builtin_functions(global_context);
+  set_infix_precedence(":=", 4, true);
   set_infix_precedence("=", 5, true);
   set_infix_precedence("+", 10, false);
   set_infix_precedence("-", 10, false);

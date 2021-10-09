@@ -30,7 +30,24 @@ public:
   }
 };
 
+bool set(Context* ctx, std::string name, Object* value) {
+  if (ctx->resolve_map.contains(name)) {
+    ctx->define(name, value);
+    return true;
+  }
+  else if (ctx->parent) {
+    return set(ctx->parent, name, value);
+  }
+
+  return false;
+}
+
 class AssignForm : public Form {
+public:
+  bool isNew;
+
+  AssignForm(bool isNew) : isNew(isNew) {};
+
   virtual Object* invoke_form(Context* ctx, std::vector<Object*>& args) override {
     if (args.size() != 2)
       return nullptr;
@@ -40,7 +57,13 @@ class AssignForm : public Form {
       return nullptr;
 
     Object* evaled_rhs = eval(ctx, args[1]);
-    ctx->define(lhs->name, evaled_rhs);
+    if (isNew) {
+      ctx->define(lhs->name, evaled_rhs);
+    } else {
+      if (!set(ctx, lhs->name, evaled_rhs))
+        return nullptr;
+    }
+
     return evaled_rhs;
   }
 };
@@ -55,5 +78,6 @@ void register_builtin_functions(Context* ctx) {
   ctx->define("-", new ArithmeticFunction<sub>());
   ctx->define("*", new ArithmeticFunction<mul>());
   ctx->define("/", new ArithmeticFunction<div>());
-  ctx->define("=", new AssignForm());
+  ctx->define(":=", new AssignForm(true));
+  ctx->define("=", new AssignForm(false));
 }
