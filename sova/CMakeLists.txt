@@ -7,6 +7,7 @@ add_executable(sova
   Call.cpp
   Form.cpp
   Function.cpp
+  Lambda.cpp
   Context.cpp
   Reference.cpp
   BuiltinFunctions.cpp

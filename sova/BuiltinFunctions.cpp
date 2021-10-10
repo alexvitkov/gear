@@ -2,6 +2,7 @@
 #include "Form.h"
 #include "Function.h"
 #include "Number.h"
+#include "Lambda.h"
 #include "Reference.h"
 #include <assert.h>
 
@@ -80,4 +81,5 @@ void register_builtin_functions(Context* ctx) {
   ctx->define("/", new ArithmeticFunction<div>());
   ctx->define(":=", new AssignForm(true));
   ctx->define("=", new AssignForm(false));
+  ctx->define("=>", new ArrowForm());
 }

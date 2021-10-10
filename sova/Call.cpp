@@ -1,5 +1,6 @@
 #include "Call.h"
 #include "Form.h"
+#include "Reference.h"
 
 Call::Call(Object *fn, std::vector<Object *> args) : fn(fn), args(args) {}
 
@@ -23,4 +24,12 @@ void Call::print(std::ostream &o) {
       o << " ";
   }
   o << ")";
+}
+
+bool Call::is_comma_list() {
+  Reference* r = dynamic_cast<Reference*>(fn);
+  if (!r)
+    return false;
+
+  return r->name == ",";
 }
