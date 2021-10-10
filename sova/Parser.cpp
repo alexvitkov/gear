@@ -230,7 +230,7 @@ NextToken:;
     if (!pop_token(t))
       assert(!"parse error - out of tokens");
 
-    if (delim1 && t.prim == delim1 || delim2 && t.prim == delim2) {
+    if ((delim1 && t.prim == delim1) || (delim2 && t.prim == delim2)) {
       rewind_token();
       return;
     }
@@ -308,7 +308,7 @@ NextToken:;
                 assert(!"parse error - out of tokens while looking for "
                         "matching )");
 
-              if (closingBracket.prim != '(')
+              if (closingBracket.prim != ')')
                 assert(!"parse error - unexpectedd token while looking for "
                         "matching )");
 
@@ -324,7 +324,7 @@ NextToken:;
 
       case Token::INFIX: {
         // parse the rhs
-        parse();
+        parse(delim1, delim2, in_brackets);
 
         Object* lhs = stack[stack.size() - 2];
         Object* rhs = stack[stack.size() - 1];
