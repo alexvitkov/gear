@@ -26,31 +26,10 @@ void repl() {
   }
 }
 
-int main() {
+int main(int argc, const char** argv) {
   global_context = new Context(nullptr);
 
-  // ',' < '+'
-  // ',' < '=>'
-
-  register_builtin_functions(global_context);
-  set_infix_precedence(":=", 10, Associativity::Right);
-  set_infix_precedence(",", 20, Associativity::FoldToVector);
-  set_infix_precedence("=>", 30, Associativity::Right);
-  set_infix_precedence("=", 40, Associativity::Right);
-
-  set_infix_precedence("==", 70, Associativity::Left);
-  set_infix_precedence("!=", 70, Associativity::Left);
-
-  set_infix_precedence("<", 80, Associativity::Left);
-  set_infix_precedence(">", 80, Associativity::Left);
-  set_infix_precedence(">=", 80, Associativity::Left);
-  set_infix_precedence("<=", 80, Associativity::Left);
-
-  set_infix_precedence("+", 100, Associativity::Left);
-  set_infix_precedence("-", 110, Associativity::Left);
-  set_infix_precedence("*", 120, Associativity::Left);
-  set_infix_precedence("/", 130, Associativity::Left);
-
+  setup_global_context(global_context);
   repl();
 
   return 0;

@@ -4,6 +4,7 @@
 #include "Function.h"
 #include "Lambda.h"
 #include "Number.h"
+#include "Parser.h"
 #include "Reference.h"
 #include <assert.h>
 
@@ -105,7 +106,25 @@ static bool le(double a, double b) { return a <= b; }
 static bool eq(double a, double b) { return a == b; }
 static bool ne(double a, double b) { return a != b; }
 
-void register_builtin_functions(Context *ctx) {
+void setup_global_context(Context *ctx) {
+  set_infix_precedence(":=", 10, Associativity::Right);
+  set_infix_precedence(",", 20, Associativity::FoldToVector);
+  set_infix_precedence("=>", 30, Associativity::Right);
+  set_infix_precedence("=", 40, Associativity::Right);
+
+  set_infix_precedence("==", 70, Associativity::Left);
+  set_infix_precedence("!=", 70, Associativity::Left);
+
+  set_infix_precedence("<", 80, Associativity::Left);
+  set_infix_precedence(">", 80, Associativity::Left);
+  set_infix_precedence(">=", 80, Associativity::Left);
+  set_infix_precedence("<=", 80, Associativity::Left);
+
+  set_infix_precedence("+", 100, Associativity::Left);
+  set_infix_precedence("-", 110, Associativity::Left);
+  set_infix_precedence("*", 120, Associativity::Left);
+  set_infix_precedence("/", 130, Associativity::Left);
+
   ctx->define("+", new ArithmeticFunction<add>());
   ctx->define("-", new ArithmeticFunction<sub>());
   ctx->define("*", new ArithmeticFunction<mul>());
