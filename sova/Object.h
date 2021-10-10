@@ -3,8 +3,9 @@
 
 class Object {
 public:
-  virtual Object* interpret(class Context*) = 0;
+  virtual Object* interpret(class Context*);
   virtual void print(std::ostream& o) = 0;
+  virtual bool equals(Object* other);
 };
 
 std::ostream& operator<<(std::ostream& o, Object* obj);

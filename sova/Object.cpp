@@ -14,3 +14,11 @@ Object* eval(Context* ctx, Object* obj) {
 
   return obj->interpret(ctx);
 }
+
+bool Object::equals(Object* other) {
+  return this == other;
+}
+
+Object* Object::interpret(class Context*) {
+  return this;
+}
