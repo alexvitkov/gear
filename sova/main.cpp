@@ -38,6 +38,14 @@ int main() {
   set_infix_precedence("=>", 30, Associativity::Right);
   set_infix_precedence("=", 40, Associativity::Right);
 
+  set_infix_precedence("==", 70, Associativity::Left);
+  set_infix_precedence("!=", 70, Associativity::Left);
+
+  set_infix_precedence("<", 80, Associativity::Left);
+  set_infix_precedence(">", 80, Associativity::Left);
+  set_infix_precedence(">=", 80, Associativity::Left);
+  set_infix_precedence("<=", 80, Associativity::Left);
+
   set_infix_precedence("+", 100, Associativity::Left);
   set_infix_precedence("-", 110, Associativity::Left);
   set_infix_precedence("*", 120, Associativity::Left);

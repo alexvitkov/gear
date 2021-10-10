@@ -5,9 +5,11 @@
 #include "Lambda.h"
 #include "Reference.h"
 #include <assert.h>
+#include <clocale>
 
 
 using Accumulator = double(*)(double,double);
+using Comparator = bool(*)(double,double);
 
 template <Accumulator Acc>
 class ArithmeticFunction : public Function {
@@ -28,6 +30,23 @@ public:
     }
 
     return new Number(val);
+  }
+};
+
+template <Comparator Compare>
+class ComparisonFunction : public Function {
+
+  virtual Object* call_fn(Context*, std::vector<Object*>& args) override {
+    if (args.size() != 2)
+      return nullptr;
+
+    Number* lhs = dynamic_cast<Number*>(args[0]);
+    Number* rhs = dynamic_cast<Number*>(args[1]);
+
+    if (!lhs || !rhs)
+      return nullptr;
+
+    return new Number(Compare(lhs->value, rhs->value) ? 1 : 0);
   }
 };
 
@@ -69,16 +88,31 @@ public:
   }
 };
 
-double add(double a, double b) { return a + b; }
-double sub(double a, double b) { return a - b; }
-double mul(double a, double b) { return a * b; }
-double div(double a, double b) { return a / b; }
+static double add(double a, double b) { return a + b; }
+static double sub(double a, double b) { return a - b; }
+static double mul(double a, double b) { return a * b; }
+static double div(double a, double b) { return a / b; }
+
+static bool gt(double a, double b) { return a > b; }
+static bool lt(double a, double b) { return a < b; }
+static bool ge(double a, double b) { return a >= b; }
+static bool le(double a, double b) { return a <= b; }
+static bool eq(double a, double b) { return a == b; }
+static bool ne(double a, double b) { return a != b; }
 
 void register_builtin_functions(Context* ctx) {
   ctx->define("+", new ArithmeticFunction<add>());
   ctx->define("-", new ArithmeticFunction<sub>());
   ctx->define("*", new ArithmeticFunction<mul>());
   ctx->define("/", new ArithmeticFunction<div>());
+
+  ctx->define(">", new ComparisonFunction<gt>());
+  ctx->define("<", new ComparisonFunction<lt>());
+  ctx->define(">=", new ComparisonFunction<ge>());
+  ctx->define("<=", new ComparisonFunction<le>());
+  ctx->define("==", new ComparisonFunction<eq>());
+  ctx->define("!=", new ComparisonFunction<ne>());
+
   ctx->define(":=", new AssignForm(true));
   ctx->define("=", new AssignForm(false));
   ctx->define("=>", new ArrowForm());
