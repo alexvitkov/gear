@@ -14,13 +14,13 @@ Object *Call::interpret(Context* ctx) {
 }
 
 void Call::print(std::ostream &o) {
-  o << fn << "(";
+  o << "(" << fn << " ";
 
   for (int i = 0; i < args.size(); i++) {
     o << args[i];
 
     if (i != args.size() - 1)
-      o << ", ";
+      o << " ";
   }
   o << ")";
 }

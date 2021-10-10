@@ -4,6 +4,12 @@
 #include <unordered_map>
 #include <vector>
 
-void set_infix_precedence(std::string op, int precedence, bool is_right_assoc);
+enum class Associativity {
+  Left,
+  Right,
+  FoldToVector
+};
+
+void set_infix_precedence(std::string op, int precedence, Associativity assoc);
 
 bool parse(const char *code, Object **out);

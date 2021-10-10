@@ -8,7 +8,7 @@
 
 struct InfixOperatorData {
   int precedence;
-  bool is_right_assoc;
+  Associativity assoc;
 };
 
 struct Token {
@@ -27,12 +27,13 @@ struct Token {
 };
 
 struct CallInfixData {
+  std::string op;
   InfixOperatorData infix;
   bool has_brackets;
 };
 
 std::unordered_map<std::string, InfixOperatorData> infix_precedence;
-std::unordered_map<Call*, CallInfixData> infix_calls;
+std::unordered_map<Call *, CallInfixData> infix_calls;
 std::vector<Token> tokens;
 std::vector<Object *> stack;
 int current_token = 0;
@@ -53,8 +54,8 @@ bool peek_token(Token &out) {
 
 void rewind_token() { current_token--; }
 
-Call* fix_precedence(Call* call) {
-  if (call->args.size() != 2)
+Call *fix_precedence(Call *call) {
+  if (call->args.size() < 2)
     return call;
 
   auto it = infix_calls.find(call);
@@ -62,7 +63,7 @@ Call* fix_precedence(Call* call) {
     return call;
   CallInfixData data = it->second;
 
-  Call* rhs = dynamic_cast<Call*>(call->args[1]);
+  Call *rhs = dynamic_cast<Call *>(call->args.back());
   if (!rhs)
     return call;
 
@@ -74,11 +75,19 @@ Call* fix_precedence(Call* call) {
   if (rhs_data.has_brackets)
     return call;
 
-  if (rhs_data.infix.precedence < data.infix.precedence + !data.infix.is_right_assoc) {
+  if (data.infix.assoc == Associativity::FoldToVector &&
+      data.op == rhs_data.op) {
+    call->args.pop_back();
+
+    for (auto arg : rhs->args)
+      call->args.push_back(arg);
+  } else if (rhs_data.infix.precedence <
+             data.infix.precedence +
+                 (data.infix.assoc == Associativity::Left)) {
     auto tmp = rhs->args[0];
     rhs->args[0] = call;
-    call->args[1] = tmp;
-    
+    call->args.back() = tmp;
+
     return rhs;
   }
 
@@ -119,8 +128,8 @@ bool get_infix_precedence(std::string op, InfixOperatorData &out) {
   return true;
 }
 
-void set_infix_precedence(std::string op, int precedence, bool right_assoc) {
-  infix_precedence[op] = {precedence, right_assoc};
+void set_infix_precedence(std::string op, int precedence, Associativity assoc) {
+  infix_precedence[op] = {precedence, assoc};
 }
 
 bool lex(const char *code) {
@@ -142,8 +151,8 @@ bool lex(const char *code) {
       break;
     }
 
-    else if (ch == '(' || ch == ',' || ch == ')' || ch == '{' || ch == '}' ||
-             ch == '[' || ch == ']' || isspace(ch)) {
+    else if (ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '[' ||
+             ch == ']' || isspace(ch)) {
 
       if (start >= 0) {
         tokens.push_back(Token{
@@ -220,19 +229,19 @@ bool lex(const char *code) {
   return true;
 }
 
-void parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
+bool parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
   Token t;
 
   bool last = false;
+  bool parsed_something = false;
 
-NextToken:;
   while (current_token < tokens.size()) {
     if (!pop_token(t))
       assert(!"parse error - out of tokens");
 
     if ((delim1 && t.prim == delim1) || (delim2 && t.prim == delim2)) {
       rewind_token();
-      return;
+      return parsed_something;
     }
 
     switch (t.type) {
@@ -257,68 +266,37 @@ NextToken:;
       case Token::PRIM: {
         switch (t.prim) {
           case '(':
+            bool has_args = parse(')', 0, true);
+
+            Token closingBracket;
+            if (!pop_token(closingBracket))
+              assert(!"parse error - out of tokens while looking for "
+                      "matching )");
+
+            if (closingBracket.prim != ')')
+              assert(!"parse error - unexpectedd token while looking for "
+                      "matching )");
+
             if (last) {
-              // parse a function call
-              std::vector<Object *> args;
-
-              while (true) {
-
-                Token closingBracket;
-                if (!peek_token(closingBracket))
-                  assert(!"parse error - out of tokens");
-
-                if (closingBracket.prim == ')') {
-                  pop_token(closingBracket);
-                  goto DoneParsingArgs;
-                }
-
-                parse(')', ',');
-                args.push_back(stack.back());
+              if (has_args) {
+                auto in_brackets = stack.back();
                 stack.pop_back();
 
-                Token commaOrClosingBracket;
+                Object *fn = stack.back();
+                stack.pop_back();
 
-                if (!pop_token(commaOrClosingBracket))
-                  assert(!"parse error - out of tokens");
-
-                switch (commaOrClosingBracket.prim) {
-                  case ',':
-                    goto NextArg;
-                  case ')':
-                    goto DoneParsingArgs;
-                  default:
-                    assert(!"parse error - expected , or )");
-                }
-              NextArg:;
+                Call *args = dynamic_cast<Call *>(in_brackets);
+                if (args)
+                  stack.push_back(new Call(fn, args->args));
+                else
+                  stack.push_back(new Call(fn, {in_brackets}));
+              } else {
+                Object *fn = stack.back();
+                stack.back() = new Call(fn, {});
               }
-
-            DoneParsingArgs:
-              assert(!stack.empty());
-              Object *fn = stack.back();
-              stack.pop_back();
-              stack.push_back(new Call(fn, args));
-              goto NextToken;
             }
 
-            else {
-              parse(')', 0, true);
-
-              Token closingBracket;
-              if (!pop_token(closingBracket))
-                assert(!"parse error - out of tokens while looking for "
-                        "matching )");
-
-              if (closingBracket.prim != ')')
-                assert(!"parse error - unexpectedd token while looking for "
-                        "matching )");
-
-              goto NextToken;
-            }
-
-            break;
-
-          default:
-            assert(!"parse error - not implemented");
+            goto NextToken;
         }
       }
 
@@ -326,17 +304,18 @@ NextToken:;
         // parse the rhs
         parse(delim1, delim2, in_brackets);
 
-        Object* lhs = stack[stack.size() - 2];
-        Object* rhs = stack[stack.size() - 1];
+        Object *lhs = stack[stack.size() - 2];
+        Object *rhs = stack[stack.size() - 1];
 
-        Call* call = new Call(new Reference(t.name), { lhs, rhs });
+        Call *call = new Call(new Reference(t.name), {lhs, rhs});
         infix_calls[call] = {
-          .infix = t.infix_data,
-          .has_brackets = false,
+            .op = t.name,
+            .infix = t.infix_data,
+            .has_brackets = false,
         };
 
         call = fix_precedence(call);
-        
+
         stack.pop_back();
         stack.back() = call;
         goto NextToken;
@@ -345,9 +324,12 @@ NextToken:;
       default:
         assert(!"parse error - not implemented");
     }
+  NextToken:;
+    parsed_something = true;
   }
-}
 
+  return parsed_something;
+}
 
 bool parse(const char *code, Object **out) {
   tokens.clear();

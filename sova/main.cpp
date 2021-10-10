@@ -21,20 +21,27 @@ void repl() {
       continue;
     }
 
-    std::cout << eval(global_context, obj) << "\n";
+    std::cout << obj << "\n";
+    // std::cout << eval(global_context, obj) << "\n";
   }
 }
 
 int main() {
   global_context = new Context(nullptr);
 
+  // ',' < '+'
+  // ',' < '=>'
+
   register_builtin_functions(global_context);
-  set_infix_precedence(":=", 4, true);
-  set_infix_precedence("=", 5, true);
-  set_infix_precedence("+", 10, false);
-  set_infix_precedence("-", 10, false);
-  set_infix_precedence("*", 20, false);
-  set_infix_precedence("/", 20, false);
+  set_infix_precedence(":=", 10, Associativity::Right);
+  set_infix_precedence(",", 20, Associativity::FoldToVector);
+  set_infix_precedence("=>", 30, Associativity::Right);
+  set_infix_precedence("=", 40, Associativity::Right);
+
+  set_infix_precedence("+", 100, Associativity::Left);
+  set_infix_precedence("-", 110, Associativity::Left);
+  set_infix_precedence("*", 120, Associativity::Left);
+  set_infix_precedence("/", 130, Associativity::Left);
 
   repl();
 
