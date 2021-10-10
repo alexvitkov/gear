@@ -21,7 +21,7 @@ void repl() {
       continue;
     }
 
-    // std::cout << obj << "\n";
+    std::cout << obj << "\n";
     std::cout << eval(global_context, obj) << "\n";
   }
 }

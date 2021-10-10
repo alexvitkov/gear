@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "Call.h"
+#include "If.h"
 #include "Number.h"
 #include "Reference.h"
 #include <assert.h>
@@ -9,6 +10,10 @@
 struct InfixOperatorData {
   int precedence;
   Associativity assoc;
+};
+
+enum class TokenType {
+  Else = 257,
 };
 
 struct Token {
@@ -21,7 +26,7 @@ struct Token {
 
   std::string name;
   double number;
-  char prim;
+  int prim;
 
   InfixOperatorData infix_data;
 };
@@ -132,6 +137,16 @@ void set_infix_precedence(std::string op, int precedence, Associativity assoc) {
   infix_precedence[op] = {precedence, assoc};
 }
 
+void emit_id(const char *code, int start, int i) {
+
+  std::string str(code + start, i - start);
+
+  if (str == "else")
+    tokens.push_back(Token{.type = Token::PRIM, .prim = (int)TokenType::Else});
+  else
+    tokens.push_back(Token{.type = Token::ID, .name = str});
+}
+
 bool lex(const char *code) {
   tokens.clear();
 
@@ -142,10 +157,7 @@ bool lex(const char *code) {
 
     if (ch == '\0') {
       if (start >= 0) {
-        tokens.push_back(Token{
-            .type = Token::ID,
-            .name = std::string(code + start, i - start),
-        });
+        emit_id(code, start, i);
         start = -1;
       }
       break;
@@ -155,10 +167,7 @@ bool lex(const char *code) {
              ch == ']' || isspace(ch)) {
 
       if (start >= 0) {
-        tokens.push_back(Token{
-            .type = Token::ID,
-            .name = std::string(code + start, i - start),
-        });
+        emit_id(code, start, i);
         start = -1;
       }
 
@@ -199,10 +208,7 @@ bool lex(const char *code) {
 
         if (is_infix) {
           if (start >= 0) {
-            tokens.push_back(Token{
-                .type = Token::ID,
-                .name = std::string(code + start, i - start),
-            });
+            emit_id(code, start, i);
             start = -1;
           }
 
@@ -229,7 +235,9 @@ bool lex(const char *code) {
   return true;
 }
 
-bool parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
+bool parse_if(int delims_count, int* delims);
+
+bool parse__(int delims_count, int *delims, bool in_brackets = false) {
   Token t;
 
   bool last = false;
@@ -239,13 +247,22 @@ bool parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
     if (!pop_token(t))
       assert(!"parse error - out of tokens");
 
-    if ((delim1 && t.prim == delim1) || (delim2 && t.prim == delim2)) {
-      rewind_token();
-      return parsed_something;
+    for (int i = 0; i < delims_count; i++) {
+      if (delims[i] == t.prim) {
+        rewind_token();
+        return parsed_something;
+      }
     }
 
     switch (t.type) {
       case Token::ID: {
+
+        if (t.name == "if") {
+          if (!parse_if(delims_count, delims))
+            return false;
+          goto NextToken;
+        }
+
         if (last)
           assert(!"parse error - identifier after 'last' was set");
 
@@ -266,7 +283,8 @@ bool parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
       case Token::PRIM: {
         switch (t.prim) {
           case '(':
-            bool has_args = parse(')', 0, true);
+            int delims[] = { ')' };
+            bool has_args = parse__(1, delims, true);
 
             Token closingBracket;
             if (!pop_token(closingBracket))
@@ -302,7 +320,7 @@ bool parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
 
       case Token::INFIX: {
         // parse the rhs
-        parse(delim1, delim2, in_brackets);
+        parse__(delims_count, delims, in_brackets);
 
         Object *lhs = stack[stack.size() - 2];
         Object *rhs = stack[stack.size() - 1];
@@ -331,6 +349,52 @@ bool parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
   return parsed_something;
 }
 
+bool parse_if(int delims_count, int* delims) {
+  Object *cond = nullptr;
+  Object *if_true = nullptr;
+  Object *if_false = nullptr;
+
+  Token openingBracket;
+  if (!pop_token(openingBracket) || openingBracket.prim != '(')
+    return false;
+
+  // parse the condition
+  int delims2[] = { ')' };
+  if (!parse__(1, delims2, true))
+    return false;
+  cond = stack.back();
+  stack.pop_back();
+
+  Token closing_bracket;
+  pop_token(closing_bracket);
+
+  // parse the if_true
+  int delims3[delims_count + 1];
+  for (int i = 0; i < delims_count; i++)
+    delims3[i] = delims[i];
+  delims3[delims_count] = (int)TokenType::Else;
+
+  if (!parse__(delims_count + 1, delims3, false))
+    return false;
+
+  if_true = stack.back();
+  stack.pop_back();
+
+  Token else_token;
+  if (peek_token(else_token) && else_token.prim == (int)TokenType::Else) {
+    pop_token(else_token);
+
+    // parse the if_false
+    if (!parse__(delims_count, delims, false))
+      return false;
+    if_false = stack.back();
+    stack.pop_back();
+  }
+
+  stack.push_back(new If(cond, if_true, if_false));
+  return true;
+}
+
 bool parse(const char *code, Object **out) {
   tokens.clear();
   stack.clear();
@@ -342,7 +406,7 @@ bool parse(const char *code, Object **out) {
 
   // for (Token &t : tokens)
   //   std::cout << t << "\n";
-  parse();
+  parse__(0, nullptr, false);
 
   if (stack.empty())
     *out = nullptr;

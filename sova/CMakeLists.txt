@@ -10,6 +10,7 @@ add_executable(sova
   Lambda.cpp
   Context.cpp
   Reference.cpp
+  If.cpp
   BuiltinFunctions.cpp
   Parser.cpp
   main.cpp
