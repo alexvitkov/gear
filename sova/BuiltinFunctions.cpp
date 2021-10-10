@@ -6,7 +6,6 @@
 #include "Number.h"
 #include "Reference.h"
 #include <assert.h>
-#include <clocale>
 
 using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);

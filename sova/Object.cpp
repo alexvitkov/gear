@@ -2,7 +2,7 @@
 
 std::ostream &operator<<(std::ostream &o, Object *obj) {
   if (!obj)
-    std::cout << "null";
+    std::cout << "nil";
   else
     obj->print(o);
   return o;

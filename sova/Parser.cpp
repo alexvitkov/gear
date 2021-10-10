@@ -18,6 +18,7 @@ enum class TokenType {
   Else = 257,
   True,
   False,
+  Nil,
 };
 
 struct Token {
@@ -151,6 +152,8 @@ void emit_id(const char *code, int start, int i) {
     tokens.push_back(Token{.type = Token::PRIM, .prim = (int)TokenType::True});
   else if (str == "false")
     tokens.push_back(Token{.type = Token::PRIM, .prim = (int)TokenType::False});
+  else if (str == "nil")
+    tokens.push_back(Token{.type = Token::PRIM, .prim = (int)TokenType::Nil});
   else
     tokens.push_back(Token{.type = Token::ID, .name = str});
 }
@@ -307,6 +310,14 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
             if (last)
               assert(!"parse error - bool constant after 'last' was set");
             stack.push_back(&False);
+            last = true;
+            goto NextToken;
+          }
+
+          case (int)TokenType::Nil: {
+            if (last)
+              assert(!"parse error - nil after 'last' was set");
+            stack.push_back(nullptr);
             last = true;
             goto NextToken;
           }
