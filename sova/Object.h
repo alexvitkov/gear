@@ -10,3 +10,5 @@ public:
 
 std::ostream& operator<<(std::ostream& o, Object* obj);
 Object* eval(Context* ctx, Object* obj);
+
+bool equals(Object*, Object*);

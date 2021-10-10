@@ -1,9 +1,10 @@
 #include "Parser.h"
+#include "Bool.h"
 #include "Call.h"
 #include "If.h"
-#include "While.h"
 #include "Number.h"
 #include "Reference.h"
+#include "While.h"
 #include <assert.h>
 #include <bits/floatn-common.h>
 #include <stdlib.h>
@@ -15,6 +16,8 @@ struct InfixOperatorData {
 
 enum class TokenType {
   Else = 257,
+  True,
+  False,
 };
 
 struct Token {
@@ -144,6 +147,10 @@ void emit_id(const char *code, int start, int i) {
 
   if (str == "else")
     tokens.push_back(Token{.type = Token::PRIM, .prim = (int)TokenType::Else});
+  else if (str == "true")
+    tokens.push_back(Token{.type = Token::PRIM, .prim = (int)TokenType::True});
+  else if (str == "false")
+    tokens.push_back(Token{.type = Token::PRIM, .prim = (int)TokenType::False});
   else
     tokens.push_back(Token{.type = Token::ID, .name = str});
 }
@@ -236,8 +243,8 @@ bool lex(const char *code) {
   return true;
 }
 
-bool parse_if(int delims_count, int* delims);
-bool parse_while(int delims_count, int* delims);
+bool parse_if(int delims_count, int *delims);
+bool parse_while(int delims_count, int *delims);
 
 bool parse__(int delims_count, int *delims, bool in_brackets = false) {
   Token t;
@@ -263,8 +270,7 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
           if (!parse_if(delims_count, delims))
             return false;
           goto NextToken;
-        }
-        else if (t.name == "while") {
+        } else if (t.name == "while") {
           if (!parse_while(delims_count, delims))
             return false;
           goto NextToken;
@@ -289,8 +295,24 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
 
       case Token::PRIM: {
         switch (t.prim) {
+          case (int)TokenType::True: {
+            if (last)
+              assert(!"parse error - bool constant after 'last' was set");
+            stack.push_back(&True);
+            last = true;
+            goto NextToken;
+          }
+
+          case (int)TokenType::False: {
+            if (last)
+              assert(!"parse error - bool constant after 'last' was set");
+            stack.push_back(&False);
+            last = true;
+            goto NextToken;
+          }
+
           case '(':
-            int delims[] = { ')' };
+            int delims[] = {')'};
             bool has_args = parse__(1, delims, true);
 
             Token closingBracket;
@@ -356,7 +378,7 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
   return parsed_something;
 }
 
-bool parse_if(int delims_count, int* delims) {
+bool parse_if(int delims_count, int *delims) {
   Object *cond = nullptr;
   Object *if_true = nullptr;
   Object *if_false = nullptr;
@@ -366,7 +388,7 @@ bool parse_if(int delims_count, int* delims) {
     return false;
 
   // parse the condition
-  int delims2[] = { ')' };
+  int delims2[] = {')'};
   if (!parse__(1, delims2, true))
     return false;
   cond = stack.back();
@@ -402,7 +424,7 @@ bool parse_if(int delims_count, int* delims) {
   return true;
 }
 
-bool parse_while(int delims_count, int* delims) {
+bool parse_while(int delims_count, int *delims) {
   Object *cond = nullptr;
   Object *body = nullptr;
 
@@ -411,7 +433,7 @@ bool parse_while(int delims_count, int* delims) {
     return false;
 
   // parse the condition
-  int delims2[] = { ')' };
+  int delims2[] = {')'};
   if (!parse__(1, delims2, true))
     return false;
   cond = stack.back();

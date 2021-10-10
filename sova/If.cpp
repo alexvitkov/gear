@@ -1,11 +1,12 @@
 #include "If.h"
+#include "Bool.h"
 #include "Number.h"
 
 If::If(Object *condition, Object *if_true, Object *if_false)
     : condition(condition), if_true(if_true), if_false(if_false) {}
 
 bool truthy(Object *o) {
-  if (!o)
+  if (!o || o == &False)
     return false;
 
   Number *num = dynamic_cast<Number *>(o);
