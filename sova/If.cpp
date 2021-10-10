@@ -4,20 +4,20 @@
 If::If(Object *condition, Object *if_true, Object *if_false)
     : condition(condition), if_true(if_true), if_false(if_false) {}
 
-Object *If::interpret(Context * ctx) {
-  Object* evaled_cond = eval(ctx, condition);
+bool truthy(Object *o) {
+  if (!o)
+    return false;
 
-  bool is_true = true;
-  if (!evaled_cond)
-    is_true = false;
+  Number *num = dynamic_cast<Number *>(o);
+  if (num && num->value == 0.0)
+    return false;
 
-  else {
-    Number* num = dynamic_cast<Number*>(evaled_cond);
-    if (num && num->value == 0.0)
-      is_true = false;
-  }
-  
-  return eval(ctx, is_true ? if_true : if_false);
+  return true;
+}
+
+Object *If::interpret(Context *ctx) {
+  Object *evaled_cond = eval(ctx, condition);
+  return eval(ctx, truthy(evaled_cond) ? if_true : if_false);
 }
 
 void If::print(std::ostream &o) {

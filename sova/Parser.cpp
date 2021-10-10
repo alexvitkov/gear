@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "Call.h"
 #include "If.h"
+#include "While.h"
 #include "Number.h"
 #include "Reference.h"
 #include <assert.h>
@@ -236,6 +237,7 @@ bool lex(const char *code) {
 }
 
 bool parse_if(int delims_count, int* delims);
+bool parse_while(int delims_count, int* delims);
 
 bool parse__(int delims_count, int *delims, bool in_brackets = false) {
   Token t;
@@ -259,6 +261,11 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
 
         if (t.name == "if") {
           if (!parse_if(delims_count, delims))
+            return false;
+          goto NextToken;
+        }
+        else if (t.name == "while") {
+          if (!parse_while(delims_count, delims))
             return false;
           goto NextToken;
         }
@@ -392,6 +399,34 @@ bool parse_if(int delims_count, int* delims) {
   }
 
   stack.push_back(new If(cond, if_true, if_false));
+  return true;
+}
+
+bool parse_while(int delims_count, int* delims) {
+  Object *cond = nullptr;
+  Object *body = nullptr;
+
+  Token openingBracket;
+  if (!pop_token(openingBracket) || openingBracket.prim != '(')
+    return false;
+
+  // parse the condition
+  int delims2[] = { ')' };
+  if (!parse__(1, delims2, true))
+    return false;
+  cond = stack.back();
+  stack.pop_back();
+
+  Token closing_bracket;
+  pop_token(closing_bracket);
+
+  if (!parse__(delims_count, delims, false))
+    return false;
+
+  body = stack.back();
+  stack.pop_back();
+
+  stack.push_back(new While(cond, body));
   return true;
 }
 

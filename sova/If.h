@@ -13,3 +13,5 @@ public:
   virtual Object* interpret(Context*) override;
   virtual void print(std::ostream& o) override;
 };
+
+bool truthy(Object* o);

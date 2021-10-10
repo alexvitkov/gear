@@ -11,6 +11,7 @@ add_executable(sova
   Context.cpp
   Reference.cpp
   If.cpp
+  While.cpp
   BuiltinFunctions.cpp
   Parser.cpp
   main.cpp
