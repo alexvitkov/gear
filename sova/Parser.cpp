@@ -24,7 +24,7 @@ enum TokenType {
 };
 
 struct Token {
-  TokenType _type;
+  TokenType type;
   std::string name;
   double number;
 
@@ -100,7 +100,7 @@ Call *fix_precedence(Call *call) {
 }
 
 std::ostream &operator<<(std::ostream &o, Token &t) {
-  switch (t._type) {
+  switch (t.type) {
 
     case TOK_ID: {
       o << "Identifier:" << t.name;
@@ -118,8 +118,8 @@ std::ostream &operator<<(std::ostream &o, Token &t) {
     }
 
     default: {
-      if (t._type < 128)
-        o << "TOK:" << (char)t._type;
+      if (t.type < 128)
+        o << "TOK:" << (char)t.type;
       else
         o << "TOK:" << t.name;
       break;
@@ -145,15 +145,15 @@ void emit_id(const char *code, int start, int i) {
   std::string str(code + start, i - start);
 
   if (str == "else")
-    tokens.push_back(Token{._type = TOK_ELSE, .name = str});
+    tokens.push_back(Token{.type = TOK_ELSE, .name = str});
   else if (str == "true")
-    tokens.push_back(Token{._type = TOK_TRUE, .name = str});
+    tokens.push_back(Token{.type = TOK_TRUE, .name = str});
   else if (str == "false")
-    tokens.push_back(Token{._type = TOK_FALSE, .name = str});
+    tokens.push_back(Token{.type = TOK_FALSE, .name = str});
   else if (str == "nil")
-    tokens.push_back(Token{._type = TOK_NIL, .name = str});
+    tokens.push_back(Token{.type = TOK_NIL, .name = str});
   else
-    tokens.push_back(Token{._type = TOK_ID, .name = str});
+    tokens.push_back(Token{.type = TOK_ID, .name = str});
 }
 
 bool lex(const char *code) {
@@ -181,7 +181,7 @@ bool lex(const char *code) {
       }
 
       if (!isspace(ch)) {
-        tokens.push_back(Token{._type = (TokenType)ch});
+        tokens.push_back(Token{.type = (TokenType)ch});
       }
       i++;
       goto Next;
@@ -196,7 +196,7 @@ bool lex(const char *code) {
 
         assert(end > start);
 
-        tokens.push_back(Token{._type = TOK_NUMBER, .number = d});
+        tokens.push_back(Token{.type = TOK_NUMBER, .number = d});
         i += end - start;
         goto Next;
       }
@@ -222,7 +222,7 @@ bool lex(const char *code) {
           }
 
           tokens.push_back(Token{
-              ._type = TOK_INFIX_OP,
+              .type = TOK_INFIX_OP,
               .name = op,
               .infix_data = data,
           });
@@ -244,10 +244,10 @@ bool lex(const char *code) {
   return true;
 }
 
-bool parse_if(int delims_count, int *delims);
-bool parse_while(int delims_count, int *delims);
+bool parse_if(int delims_count, TokenType *delims);
+bool parse_while(int delims_count, TokenType *delims);
 
-bool parse__(int delims_count, int *delims, bool in_brackets = false) {
+bool parse(int delims_count, TokenType *delims, bool in_brackets = false) {
   Token t;
 
   bool last = false;
@@ -258,13 +258,13 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
       assert(!"parse error - out of tokens");
 
     for (int i = 0; i < delims_count; i++) {
-      if (delims[i] == t._type) {
+      if (delims[i] == t.type) {
         rewind_token();
         return parsed_something;
       }
     }
 
-    switch (t._type) {
+    switch (t.type) {
       case TOK_ID: {
 
         if (t.name == "if") {
@@ -319,15 +319,15 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
       }
 
       case (TokenType)'(': {
-        int delims[] = {')'};
-        bool has_args = parse__(1, delims, true);
+        TokenType delims[] = {(TokenType)')'};
+        bool has_args = parse(1, delims, true);
 
         Token closingBracket;
         if (!pop_token(closingBracket))
           assert(!"parse error - out of tokens while looking for "
                   "matching )");
 
-        if (closingBracket._type != ')')
+        if (closingBracket.type != ')')
           assert(!"parse error - unexpectedd token while looking for "
                   "matching )");
 
@@ -355,7 +355,7 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
 
       case TOK_INFIX_OP: {
         // parse the rhs
-        parse__(delims_count, delims, in_brackets);
+        parse(delims_count, delims, in_brackets);
 
         Object *lhs = stack[stack.size() - 2];
         Object *rhs = stack[stack.size() - 1];
@@ -384,18 +384,18 @@ bool parse__(int delims_count, int *delims, bool in_brackets = false) {
   return parsed_something;
 }
 
-bool parse_if(int delims_count, int *delims) {
+bool parse_if(int delims_count, TokenType *delims) {
   Object *cond = nullptr;
   Object *if_true = nullptr;
   Object *if_false = nullptr;
 
   Token openingBracket;
-  if (!pop_token(openingBracket) || openingBracket._type != '(')
+  if (!pop_token(openingBracket) || openingBracket.type != '(')
     return false;
 
   // parse the condition
-  int delims2[] = {')'};
-  if (!parse__(1, delims2, true))
+  TokenType delims2[] = {(TokenType)')'};
+  if (!parse(1, delims2, true))
     return false;
   cond = stack.back();
   stack.pop_back();
@@ -404,23 +404,23 @@ bool parse_if(int delims_count, int *delims) {
   pop_token(closing_bracket);
 
   // parse the if_true
-  int delims3[delims_count + 1];
+  TokenType delims3[delims_count + 1];
   for (int i = 0; i < delims_count; i++)
     delims3[i] = delims[i];
   delims3[delims_count] = TOK_ELSE;
 
-  if (!parse__(delims_count + 1, delims3, false))
+  if (!parse(delims_count + 1, delims3, false))
     return false;
 
   if_true = stack.back();
   stack.pop_back();
 
   Token else_token;
-  if (peek_token(else_token) && else_token._type == TOK_ELSE) {
+  if (peek_token(else_token) && else_token.type == TOK_ELSE) {
     pop_token(else_token);
 
     // parse the if_false
-    if (!parse__(delims_count, delims, false))
+    if (!parse(delims_count, delims, false))
       return false;
     if_false = stack.back();
     stack.pop_back();
@@ -430,17 +430,17 @@ bool parse_if(int delims_count, int *delims) {
   return true;
 }
 
-bool parse_while(int delims_count, int *delims) {
+bool parse_while(int delims_count, TokenType *delims) {
   Object *cond = nullptr;
   Object *body = nullptr;
 
   Token openingBracket;
-  if (!pop_token(openingBracket) || openingBracket._type != '(')
+  if (!pop_token(openingBracket) || openingBracket.type != '(')
     return false;
 
   // parse the condition
-  int delims2[] = {')'};
-  if (!parse__(1, delims2, true))
+  TokenType delims2[] = {(TokenType)')'};
+  if (!parse(1, delims2, true))
     return false;
   cond = stack.back();
   stack.pop_back();
@@ -448,7 +448,7 @@ bool parse_while(int delims_count, int *delims) {
   Token closing_bracket;
   pop_token(closing_bracket);
 
-  if (!parse__(delims_count, delims, false))
+  if (!parse(delims_count, delims, false))
     return false;
 
   body = stack.back();
@@ -469,7 +469,7 @@ bool parse(const char *code, Object **out) {
 
   // for (Token &t : tokens)
   //   std::cout << t << "\n";
-  parse__(0, nullptr, false);
+  parse(0, nullptr, false);
 
   if (stack.empty())
     *out = nullptr;
