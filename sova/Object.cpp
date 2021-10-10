@@ -11,5 +11,6 @@ std::ostream& operator<<(std::ostream& o, Object* obj) {
 Object* eval(Context* ctx, Object* obj) {
   if (!obj)
     return nullptr;
+
   return obj->interpret(ctx);
 }

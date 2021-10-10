@@ -286,7 +286,7 @@ bool parse(char delim1 = 0, char delim2 = 0, bool in_brackets = false) {
                 stack.pop_back();
 
                 Call *args = dynamic_cast<Call *>(in_brackets);
-                if (args)
+                if (args && args->is_comma_list())
                   stack.push_back(new Call(fn, args->args));
                 else
                   stack.push_back(new Call(fn, {in_brackets}));
