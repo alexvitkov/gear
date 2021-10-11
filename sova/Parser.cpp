@@ -242,31 +242,37 @@ bool lex(const char *code) {
   return true;
 }
 
-bool parse_if(int delims_count, int consumed_delims, TokenType *delims, bool fast_break);
-bool parse_while(int delims_count, int consumed_delims, TokenType *delims, bool fast_break);
+struct ParseExitCondition {
+  int delims_count;
+  int consumed_delims;
+  TokenType *delims;
+  bool fast_break;
+};
 
-bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_brackets = false,
-           bool top_level_infix = true, bool fast_break = false) {
+bool parse_if(ParseExitCondition &exit_cond);
+bool parse_while(ParseExitCondition &exit_cond);
+
+bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_level_infix = true) {
   Token t;
 
   bool last = false;
 
   while (true) {
-    if (last && fast_break)
+    if (last && exit_cond.fast_break)
       return true;
 
     if (!pop_token(t)) {
       parse_error(ParseError{
           .type = ParseErrorType::UnexpectedId,
           .unexpected = t,
-          .expected = delims[0],
+          .expected = exit_cond.delims[0],
       });
       return false;
     }
 
-    for (int i = 0; i < delims_count; i++) {
-      if (delims[i] == t.type) {
-        if (i >= consumed_delims)
+    for (int i = 0; i < exit_cond.delims_count; i++) {
+      if (exit_cond.delims[i] == t.type) {
+        if (i >= exit_cond.consumed_delims)
           rewind_token();
         return true;
       }
@@ -278,7 +284,7 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
         parse_error({
             .type = ParseErrorType::UnexpectedId,
             .unexpected = t,
-            .expected = delims[0],
+            .expected = exit_cond.delims[0],
         });
         return false;
       }
@@ -287,9 +293,9 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
     switch (t.type) {
       case TOK_ID: {
         if (t.name == "if") {
-          return parse_if(delims_count, consumed_delims, delims, fast_break);
+          return parse_if(exit_cond);
         } else if (t.name == "while") {
-          return parse_while(delims_count, consumed_delims, delims, fast_break);
+          return parse_while(exit_cond);
         }
 
         last = true;
@@ -334,8 +340,14 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
 
         // if the next token is not ), parse the expression in brackets
         else {
-          TokenType delims[] = {(TokenType)')'};
-          if (!parse(1, 1, delims, true))
+          TokenType close_bracket_delims[] = {(TokenType)')'};
+          ParseExitCondition exit_cond_close_bracket{
+              .delims_count = 1,
+              .consumed_delims = 1,
+              .delims = close_bracket_delims,
+          };
+
+          if (!parse(exit_cond_close_bracket, false))
             return false;
         }
 
@@ -373,7 +385,7 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
           }
 
           // parse the rhs
-          if (!parse(delims_count, consumed_delims, delims, in_brackets, false, false))
+          if (!parse(exit_cond, in_brackets, false))
             return false;
 
           Object *lhs = stack[stack.size() - 2];
@@ -405,7 +417,8 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
             return false;
           }
 
-          if (!parse(0, 0, nullptr, false, false, true))
+          ParseExitCondition fast_break = {.fast_break = true};
+          if (!parse(fast_break, false, false))
             return false;
 
           stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()});
@@ -415,7 +428,6 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
       }
 
       case '{': {
-        TokenType new_delims[] = {(TokenType)';', (TokenType)'}'};
         Block *block = new Block();
 
         while (true) {
@@ -429,7 +441,14 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
             break;
           }
 
-          if (!parse(2, 1, new_delims))
+          TokenType in_block_delimiters[] = {(TokenType)';', (TokenType)'}'};
+          ParseExitCondition in_block_exit_cond = {
+              .delims_count = 2,
+              .consumed_delims = 1,
+              .delims = in_block_delimiters,
+          };
+
+          if (!parse(in_block_exit_cond))
             return false;
 
           block->inside.push_back(stack.back());
@@ -442,7 +461,6 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
       }
 
       default: {
-        
 
         NOT_IMPLEMENTED;
       }
@@ -451,7 +469,7 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
   }
 }
 
-bool parse_if(int delims_count, int consumed_delims, TokenType *delims, bool fast_break) {
+bool parse_if(ParseExitCondition &exit_cond) {
   Object *cond = nullptr;
   Object *if_true = nullptr;
   Object *if_false = nullptr;
@@ -460,20 +478,35 @@ bool parse_if(int delims_count, int consumed_delims, TokenType *delims, bool fas
   if (!pop_token(openingBracket) || openingBracket.type != '(')
     return false;
 
-  // parse the condition
-  TokenType delims2[] = {(TokenType)')'};
-  if (!parse(1, 1, delims2, true))
+  // parse the condition, it's delimited by a closing bracket and consumes it
+  TokenType close_bracket_delim[] = {(TokenType)')'};
+  ParseExitCondition close_bracket_exit_cond = {
+      .delims_count = 1,
+      .consumed_delims = 1,
+      .delims = close_bracket_delim,
+  };
+
+  if (!parse(close_bracket_exit_cond))
     return false;
   cond = stack.back();
   stack.pop_back();
 
-  // parse the if_true
-  TokenType delims3[delims_count + 1];
-  for (int i = 0; i < delims_count; i++)
-    delims3[i] = delims[i];
-  delims3[delims_count] = TOK_ELSE;
+  // parse the if-true statement
+  // delimiters for the if-true statement are the same as our delimiters AND the else keyword
+  // so we have to do a bit of copying
+  TokenType delims_and_else[exit_cond.delims_count + 1];
+  for (int i = 0; i < exit_cond.delims_count; i++)
+    delims_and_else[i] = exit_cond.delims[i];
+  delims_and_else[exit_cond.delims_count] = TOK_ELSE;
 
-  if (!parse(delims_count + 1, consumed_delims, delims3, false, false, fast_break))
+  ParseExitCondition cond3 = {
+      .delims_count = exit_cond.delims_count + 1,
+      .consumed_delims = exit_cond.consumed_delims,
+      .delims = delims_and_else,
+      .fast_break = exit_cond.fast_break,
+  };
+
+  if (!parse(cond3, false, false))
     return false;
 
   if_true = stack.back();
@@ -483,8 +516,9 @@ bool parse_if(int delims_count, int consumed_delims, TokenType *delims, bool fas
   if (peek_token(else_token) && else_token.type == TOK_ELSE) {
     pop_token(else_token);
 
-    // parse the if_false
-    if (!parse(delims_count, consumed_delims, delims, false, fast_break))
+    // parse the if-false statement
+    // this is the last thing we're parsing, so we forward our exit condition
+    if (!parse(exit_cond, false))
       return false;
     if_false = stack.back();
     stack.pop_back();
@@ -494,7 +528,7 @@ bool parse_if(int delims_count, int consumed_delims, TokenType *delims, bool fas
   return true;
 }
 
-bool parse_while(int delims_count, int consumed_delims, TokenType *delims, bool fast_break) {
+bool parse_while(ParseExitCondition &exit_cond) {
   Object *cond = nullptr;
   Object *body = nullptr;
 
@@ -502,14 +536,21 @@ bool parse_while(int delims_count, int consumed_delims, TokenType *delims, bool 
   if (!pop_token(openingBracket) || openingBracket.type != '(')
     return false;
 
-  // parse the condition
-  TokenType delims2[] = {(TokenType)')'};
-  if (!parse(1, 1, delims2, true, false, false))
+  // parse the condition. it's inside brackets, so it's delimited by a closing bracket
+  TokenType close_bracket_delims[] = {(TokenType)')'};
+  ParseExitCondition exit_cond_close_bracket{
+      .delims_count = 1,
+      .consumed_delims = 1,
+      .delims = close_bracket_delims,
+  };
+
+  if (!parse(exit_cond_close_bracket))
     return false;
   cond = stack.back();
   stack.pop_back();
 
-  if (!parse(delims_count, consumed_delims, delims, false, false, fast_break))
+  // the body of the loop is the last thing we parse, so we forward our exit condition
+  if (!parse(exit_cond))
     return false;
 
   body = stack.back();
@@ -552,10 +593,16 @@ bool do_parse(const char *code, std::vector<Object *> &out, bool inject_trailing
   // for (Token &t : tokens)
   //   std::cout << t << "\n";
 
-  TokenType delims[] = {(TokenType)';'};
+  // top-level statements are delimited by semicolons
+  TokenType semicolon_delim[] = {(TokenType)';'};
+  ParseExitCondition exit_cond = {
+    .delims_count = 1,
+    .consumed_delims = 1,
+    .delims = semicolon_delim,
+  };
 
   while (has_tokens_left()) {
-    if (!parse(1, 1, delims, false)) {
+    if (!parse(exit_cond)) {
       for (auto &err : parse_errors)
         print_parse_error(std::cout, err);
 
