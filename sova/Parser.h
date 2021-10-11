@@ -39,6 +39,10 @@ struct Token {
   double number;
 
   OperatorData infix_data;
+
+  inline operator bool() {
+    return type != TOK_EOF;
+  }
 };
 
 void set_infix(std::string op, int precedence, Associativity assoc);

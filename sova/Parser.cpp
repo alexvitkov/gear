@@ -16,30 +16,57 @@ struct CallInfixData {
   bool has_brackets;
 };
 
+struct TokenStream {
+  std::vector<Token> tokens;
+  int current_token = 0;
+
+  Token pop() {
+    if (current_token >= tokens.size()) {
+      // TODO error
+      return {};
+    }
+
+    return tokens[current_token++];
+  }
+
+  Token peek() {
+    if (current_token >= tokens.size()) {
+      // TODO error
+      return {};
+    }
+
+    return tokens[current_token];
+  }
+
+  bool pop_if(TokenType tt) {
+    Token t = peek();
+    if (t.type == tt) {
+      pop();
+      return true;
+    }
+    return false;
+  }
+
+  bool expect(TokenType tt) {
+    Token t = peek();
+    if (t.type == tt) {
+      pop();
+      return true;
+    }
+
+    // TODO error
+    return false;
+  }
+
+  bool has_more() { return current_token < tokens.size(); }
+
+  void rewind() { current_token--; }
+};
+
 std::unordered_map<std::string, OperatorData> infix_precedence;
 std::unordered_map<Call *, CallInfixData> infix_calls;
-std::vector<Token> tokens;
 std::vector<Object *> stack;
 std::vector<ParseError> parse_errors;
-int current_token = 0;
-
-bool pop_token(Token &out) {
-  if (current_token == tokens.size())
-    return false;
-  out = tokens[current_token++];
-  return true;
-}
-
-bool peek_token(Token &out) {
-  if (current_token == tokens.size())
-    return false;
-  out = tokens[current_token];
-  return true;
-}
-
-bool has_tokens_left() { return current_token < tokens.size(); }
-
-void rewind_token() { current_token--; }
 
 void parse_error(ParseError err) { parse_errors.push_back(err); }
 
@@ -128,24 +155,23 @@ void set_infix(std::string op, int precedence, Associativity assoc) {
 
 void set_prefix(std::string op) { infix_precedence[op].is_prefix = true; }
 
-void emit_id(const char *code, int start, int i) {
+void emit_id(TokenStream tokens, const char *code, int start, int i) {
 
   std::string str(code + start, i - start);
 
   if (str == "else")
-    tokens.push_back(Token{.type = TOK_ELSE, .name = str});
+    tokens.tokens.push_back(Token{.type = TOK_ELSE, .name = str});
   else if (str == "true")
-    tokens.push_back(Token{.type = TOK_TRUE, .name = str});
+    tokens.tokens.push_back(Token{.type = TOK_TRUE, .name = str});
   else if (str == "false")
-    tokens.push_back(Token{.type = TOK_FALSE, .name = str});
+    tokens.tokens.push_back(Token{.type = TOK_FALSE, .name = str});
   else if (str == "nil")
-    tokens.push_back(Token{.type = TOK_NIL, .name = str});
+    tokens.tokens.push_back(Token{.type = TOK_NIL, .name = str});
   else
-    tokens.push_back(Token{.type = TOK_ID, .name = str});
+    tokens.tokens.push_back(Token{.type = TOK_ID, .name = str});
 }
 
-bool lex(const char *code) {
-  tokens.clear();
+bool lex(TokenStream &tokens, const char *code) {
 
   int start = -1;
 
@@ -155,7 +181,7 @@ bool lex(const char *code) {
 
     if (ch == '\0') {
       if (start >= 0) {
-        emit_id(code, start, i);
+        emit_id(tokens, code, start, i);
         start = -1;
       }
       break;
@@ -171,12 +197,12 @@ bool lex(const char *code) {
     else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '[' || ch == ']' ||
              isspace(ch)) {
       if (start >= 0) {
-        emit_id(code, start, i);
+        emit_id(tokens, code, start, i);
         start = -1;
       }
 
       if (!isspace(ch)) {
-        tokens.push_back(Token{.type = (TokenType)ch});
+        tokens.tokens.push_back(Token{.type = (TokenType)ch});
       }
       i++;
       goto Next;
@@ -192,7 +218,7 @@ bool lex(const char *code) {
         if (end <= start && ch == '.')
           goto NotANumber;
 
-        tokens.push_back(Token{.type = TOK_NUMBER, .number = d});
+        tokens.tokens.push_back(Token{.type = TOK_NUMBER, .number = d});
         i += end - start;
         goto Next;
       }
@@ -215,11 +241,11 @@ bool lex(const char *code) {
 
         if (is_infix) {
           if (start >= 0) {
-            emit_id(code, start, i);
+            emit_id(tokens, code, start, i);
             start = -1;
           }
 
-          tokens.push_back(Token{
+          tokens.tokens.push_back(Token{
               .type = TOK_INFIX_OP,
               .name = op,
               .infix_data = data,
@@ -249,10 +275,11 @@ struct ParseExitCondition {
   bool fast_break;
 };
 
-bool parse_if(ParseExitCondition &exit_cond);
-bool parse_while(ParseExitCondition &exit_cond);
+bool parse_if(TokenStream &tokens, ParseExitCondition &exit_cond);
+bool parse_while(TokenStream &tokens, ParseExitCondition &exit_cond);
 
-bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_level_infix = true) {
+bool parse(TokenStream &tokens, ParseExitCondition &exit_cond, bool in_brackets = false,
+           bool top_level_infix = true) {
   Token t;
 
   bool last = false;
@@ -261,7 +288,7 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
     if (last && exit_cond.fast_break)
       return true;
 
-    if (!pop_token(t)) {
+    if (!(t = tokens.pop())) {
       parse_error(ParseError{
           .type = ParseErrorType::UnexpectedId,
           .unexpected = t,
@@ -273,7 +300,7 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
     for (int i = 0; i < exit_cond.delims_count; i++) {
       if (exit_cond.delims[i] == t.type) {
         if (i >= exit_cond.consumed_delims)
-          rewind_token();
+          tokens.rewind();
         return true;
       }
     }
@@ -293,9 +320,9 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
     switch (t.type) {
       case TOK_ID: {
         if (t.name == "if") {
-          return parse_if(exit_cond);
+          return parse_if(tokens, exit_cond);
         } else if (t.name == "while") {
-          return parse_while(exit_cond);
+          return parse_while(tokens, exit_cond);
         }
 
         last = true;
@@ -327,16 +354,13 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
         goto NextToken;
       }
 
-      case (TokenType)'(': {
+      case 
+(TokenType)'(': {
 
         // if se see ) followed directly by (, push nil to the stack
-        Token closing_bracket;
-        if (!peek_token(closing_bracket))
-          return false;
-        if (closing_bracket.type == ')') {
-          pop_token(closing_bracket);
+
+        if (tokens.pop_if((TokenType)')'))
           stack.push_back(nullptr);
-        }
 
         // if the next token is not ), parse the expression in brackets
         else {
@@ -347,7 +371,7 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
               .delims = close_bracket_delims,
           };
 
-          if (!parse(exit_cond_close_bracket, false))
+          if (!parse(tokens, exit_cond_close_bracket, false))
             return false;
         }
 
@@ -385,7 +409,7 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
           }
 
           // parse the rhs
-          if (!parse(exit_cond, in_brackets, false))
+          if (!parse(tokens, exit_cond, in_brackets, false))
             return false;
 
           Object *lhs = stack[stack.size() - 2];
@@ -418,7 +442,7 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
           }
 
           ParseExitCondition fast_break = {.fast_break = true};
-          if (!parse(fast_break, false, false))
+          if (!parse(tokens, fast_break, false, false))
             return false;
 
           stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()});
@@ -431,15 +455,8 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
         Block *block = new Block();
 
         while (true) {
-          Token closing_curly;
-
-          if (!peek_token(closing_curly))
-            return false; // TODO
-
-          if (closing_curly.type == '}') {
-            pop_token(closing_curly);
+          if (tokens.pop_if((TokenType)'}'))
             break;
-          }
 
           TokenType in_block_delimiters[] = {(TokenType)';', (TokenType)'}'};
           ParseExitCondition in_block_exit_cond = {
@@ -448,7 +465,7 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
               .delims = in_block_delimiters,
           };
 
-          if (!parse(in_block_exit_cond))
+          if (!parse(tokens, in_block_exit_cond))
             return false;
 
           block->inside.push_back(stack.back());
@@ -469,13 +486,12 @@ bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_lev
   }
 }
 
-bool parse_if(ParseExitCondition &exit_cond) {
+bool parse_if(TokenStream &tokens, ParseExitCondition &exit_cond) {
   Object *cond = nullptr;
   Object *if_true = nullptr;
   Object *if_false = nullptr;
 
-  Token openingBracket;
-  if (!pop_token(openingBracket) || openingBracket.type != '(')
+  if (!tokens.expect((TokenType)'('))
     return false;
 
   // parse the condition, it's delimited by a closing bracket and consumes it
@@ -486,7 +502,7 @@ bool parse_if(ParseExitCondition &exit_cond) {
       .delims = close_bracket_delim,
   };
 
-  if (!parse(close_bracket_exit_cond))
+  if (!parse(tokens, close_bracket_exit_cond))
     return false;
   cond = stack.back();
   stack.pop_back();
@@ -506,19 +522,16 @@ bool parse_if(ParseExitCondition &exit_cond) {
       .fast_break = exit_cond.fast_break,
   };
 
-  if (!parse(cond3, false, false))
+  if (!parse(tokens, cond3, false, false))
     return false;
 
   if_true = stack.back();
   stack.pop_back();
 
-  Token else_token;
-  if (peek_token(else_token) && else_token.type == TOK_ELSE) {
-    pop_token(else_token);
-
+  if (tokens.pop_if(TOK_ELSE)) {
     // parse the if-false statement
     // this is the last thing we're parsing, so we forward our exit condition
-    if (!parse(exit_cond, false))
+    if (!parse(tokens, exit_cond, false))
       return false;
     if_false = stack.back();
     stack.pop_back();
@@ -528,12 +541,11 @@ bool parse_if(ParseExitCondition &exit_cond) {
   return true;
 }
 
-bool parse_while(ParseExitCondition &exit_cond) {
+bool parse_while(TokenStream &tokens, ParseExitCondition &exit_cond) {
   Object *cond = nullptr;
   Object *body = nullptr;
 
-  Token openingBracket;
-  if (!pop_token(openingBracket) || openingBracket.type != '(')
+  if (!tokens.expect((TokenType)'('))
     return false;
 
   // parse the condition. it's inside brackets, so it's delimited by a closing bracket
@@ -544,13 +556,13 @@ bool parse_while(ParseExitCondition &exit_cond) {
       .delims = close_bracket_delims,
   };
 
-  if (!parse(exit_cond_close_bracket))
+  if (!parse(tokens, exit_cond_close_bracket))
     return false;
   cond = stack.back();
   stack.pop_back();
 
   // the body of the loop is the last thing we parse, so we forward our exit condition
-  if (!parse(exit_cond))
+  if (!parse(tokens, exit_cond))
     return false;
 
   body = stack.back();
@@ -578,31 +590,31 @@ void print_parse_error(std::ostream &o, ParseError err) {
 }
 
 bool do_parse(const char *code, std::vector<Object *> &out, bool inject_trailing_semicolon) {
-  tokens.clear();
   stack.clear();
   parse_errors.clear();
-  current_token = 0;
   infix_calls.clear();
 
-  if (!lex(code))
+  TokenStream tokens;
+
+  if (!lex(tokens, code))
     return false;
 
   if (inject_trailing_semicolon)
-    tokens.push_back({.type = (TokenType)';'});
+    tokens.tokens.push_back({.type = (TokenType)';'});
 
-  // for (Token &t : tokens)
+  // for (Token &t : tokens.tokens)
   //   std::cout << t << "\n";
 
   // top-level statements are delimited by semicolons
   TokenType semicolon_delim[] = {(TokenType)';'};
   ParseExitCondition exit_cond = {
-    .delims_count = 1,
-    .consumed_delims = 1,
-    .delims = semicolon_delim,
+      .delims_count = 1,
+      .consumed_delims = 1,
+      .delims = semicolon_delim,
   };
 
-  while (has_tokens_left()) {
-    if (!parse(exit_cond)) {
+  while (tokens.has_more()) {
+    if (!parse(tokens, exit_cond)) {
       for (auto &err : parse_errors)
         print_parse_error(std::cout, err);
 
