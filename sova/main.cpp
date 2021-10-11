@@ -16,18 +16,21 @@ void repl() {
     std::string code;
     std::getline(std::cin, code);
 
-    Object *obj;
-    if (!do_parse(code.c_str(), &obj, true)) {
+    std::vector<Object *> parsed_objects;
+
+    if (!do_parse(code.c_str(), parsed_objects, true)) {
       std::cout << "parse error\n";
       continue;
     }
 
-    std::cout << obj << "\n";
-    std::cout << eval(&global_context, obj) << "\n";
+    for (Object *obj : parsed_objects) {
+      // std::cout << obj << "\n";
+      std::cout << eval(&global_context, obj) << "\n";
+    }
   }
 }
 
-int main(int argc, const char** argv) {
+int main(int argc, const char **argv) {
   setup_global_context(&global_context);
 
   repl();

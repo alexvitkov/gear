@@ -446,7 +446,7 @@ bool parse_while(int delims_count, int consumed_delims, TokenType *delims) {
   return true;
 }
 
-bool do_parse(const char *code, Object **out, bool inject_trailing_semicolon) {
+bool do_parse(const char *code, std::vector<Object*>& out, bool inject_trailing_semicolon) {
   tokens.clear();
   stack.clear();
   current_token = 0;
@@ -466,9 +466,7 @@ bool do_parse(const char *code, Object **out, bool inject_trailing_semicolon) {
   while (has_tokens_left())
     parse(1, 1, delims, false);
 
-  if (stack.empty())
-    *out = nullptr;
-  else
-    *out = stack[0];
+  out = stack;
+
   return true;
 }
