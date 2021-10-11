@@ -31,3 +31,8 @@ bool equals(Object *lhs, Object *rhs) {
 
   return lhs->equals(rhs);
 }
+
+
+Object* Object::dot(Context*, std::string) {
+  return nullptr;
+}

@@ -182,16 +182,19 @@ bool lex(const char *code) {
     if (start < 0) {
       if ((ch >= '0' && ch <= '9') || ch == '.') {
         const char *start = code + i;
-        char *end;
+        char *end = (char*)start;
         double d = strtod(code + i, &end);
 
-        assert(end > start);
+        if (end <= start && ch == '.')
+          goto NotANumber;
 
         tokens.push_back(Token{.type = TOK_NUMBER, .number = d});
         i += end - start;
         goto Next;
       }
     }
+
+  NotANumber:;
 
     {
       // Try to lex an operator

@@ -94,6 +94,21 @@ public:
   }
 };
 
+class DotForm : public Form {
+public:
+  virtual Object *invoke_form(Context *ctx,
+                              std::vector<Object *> &args) override {
+    if (args.size() != 2 || !args[0])
+      return nullptr;
+
+    Reference *rhs = dynamic_cast<Reference *>(args[1]);
+    if (!rhs)
+      return nullptr;
+
+    return args[0]->dot(ctx, rhs->name);
+  }
+};
+
 static double add(double a, double b) { return a + b; }
 static double sub(double a, double b) { return a - b; }
 static double mul(double a, double b) { return a * b; }
@@ -125,6 +140,8 @@ void setup_global_context(Context *ctx) {
   set_infix_precedence("*", 120, Associativity::Left);
   set_infix_precedence("/", 130, Associativity::Left);
 
+  set_infix_precedence(".", 200, Associativity::Left);
+
   ctx->define("+", new ArithmeticFunction<add>());
   ctx->define("-", new ArithmeticFunction<sub>());
   ctx->define("*", new ArithmeticFunction<mul>());
@@ -140,4 +157,5 @@ void setup_global_context(Context *ctx) {
   ctx->define(":=", new AssignForm(true));
   ctx->define("=", new AssignForm(false));
   ctx->define("=>", new ArrowForm());
+  ctx->define(".", new DotForm());
 }
