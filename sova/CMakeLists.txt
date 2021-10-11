@@ -3,6 +3,7 @@ project(sova)
 
 add_executable(sova
   Object.cpp
+  Block.cpp
   Bool.cpp
   Number.cpp
   Call.cpp

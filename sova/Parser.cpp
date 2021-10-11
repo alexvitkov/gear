@@ -1,4 +1,5 @@
 #include "Parser.h"
+#include "Block.h"
 #include "Bool.h"
 #include "Call.h"
 #include "Common.h"
@@ -254,7 +255,7 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
 
     if (last &&
         (t.type == TOK_ID || t.type == TOK_NUMBER || t.type == TOK_TRUE ||
-         t.type == TOK_FALSE || t.type == TOK_NIL)) {
+         t.type == TOK_FALSE || t.type == TOK_NIL || t.type == '{')) {
       if (last) {
         parse_error({
             .type = ParseErrorType::UnexpectedId,
@@ -364,8 +365,35 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
         return true;
       }
 
+      case '{': {
+        TokenType new_delims[] = {(TokenType)';', (TokenType)'}'};
+        Block *block = new Block();
+
+        while (true) {
+          Token closing_curly;
+
+          if (!peek_token(closing_curly))
+            return false; // TODO
+
+          if (closing_curly.type == '}') {
+            pop_token(closing_curly);
+            break;
+          }
+
+          if (!parse(2, 1, new_delims))
+            return false;
+
+          block->inside.push_back(stack.back());
+          stack.pop_back();
+        }
+
+        stack.push_back(block);
+        last = true;
+        goto NextToken;
+      }
+
       default:
-        UNREACHABLE;
+        NOT_IMPLEMENTED;
     }
   NextToken:;
   }
