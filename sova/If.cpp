@@ -26,3 +26,13 @@ void If::print(std::ostream &o) {
   if (if_false)
     o << " else " << if_false;
 }
+
+Object* If::dot(Context*, std::string str) {
+  if (str == "condition")
+    return condition;
+  if (str == "if_true")
+    return if_true;
+  if (str == "if_false")
+    return if_false;
+  return nullptr;
+}
