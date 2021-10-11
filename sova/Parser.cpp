@@ -246,12 +246,15 @@ bool parse_if(int delims_count, int consumed_delims, TokenType *delims);
 bool parse_while(int delims_count, int consumed_delims, TokenType *delims);
 
 bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_brackets = false,
-           bool top_level_infix = true) {
+           bool top_level_infix = true, bool fast_break = false) {
   Token t;
 
   bool last = false;
 
   while (true) {
+    if (last && fast_break)
+      return true;
+
     if (!pop_token(t)) {
       parse_error(ParseError{
           .type = ParseErrorType::UnexpectedId,
@@ -261,11 +264,13 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
       return false;
     }
 
-    for (int i = 0; i < delims_count; i++) {
-      if (delims[i] == t.type) {
-        if (i >= consumed_delims)
-          rewind_token();
-        return true;
+    if (!fast_break) {
+      for (int i = 0; i < delims_count; i++) {
+        if (delims[i] == t.type) {
+          if (i >= consumed_delims)
+            rewind_token();
+          return true;
+        }
       }
     }
 
@@ -359,6 +364,7 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
       case TOK_INFIX_OP: {
         // Infix operator
         if (last) {
+
           if (!t.infix_data.is_infix) {
             parse_error({
                 .type = ParseErrorType::UnexpectedId,
@@ -369,7 +375,7 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
           }
 
           // parse the rhs
-          if (!parse(delims_count, consumed_delims, delims, in_brackets, false))
+          if (!parse(delims_count, consumed_delims, delims, in_brackets, false, false))
             return false;
 
           Object *lhs = stack[stack.size() - 2];
@@ -401,11 +407,12 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
             return false;
           }
 
-          if (!parse(delims_count, consumed_delims, delims, in_brackets, false))
+          if (!parse(0, 0, nullptr, false, false, true))
             return false;
 
-          stack.back() = new Call(new Reference("prefix" + t.name), { stack.back() });
-          return true;
+          stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()});
+          last = true;
+          goto NextToken;
         }
       }
 
