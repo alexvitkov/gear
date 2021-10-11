@@ -59,7 +59,7 @@ class UnaryMinus : public Function {
     if (args.size() != 1)
       return nullptr;
 
-    Number* num = dynamic_cast<Number*>(args[0]);
+    Number *num = dynamic_cast<Number *>(args[0]);
     if (!num)
       return nullptr;
 
@@ -84,8 +84,7 @@ public:
 
   AssignForm(bool isNew) : isNew(isNew){};
 
-  virtual Object *invoke_form(Context *ctx,
-                              std::vector<Object *> &args) override {
+  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -107,18 +106,27 @@ public:
 
 class DotForm : public Form {
 public:
-  virtual Object *invoke_form(Context *ctx,
-                              std::vector<Object *> &args) override {
+  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
-    Object* lhs = eval(ctx, args[0]);
+    Object *lhs = eval(ctx, args[0]);
     Reference *rhs = dynamic_cast<Reference *>(args[1]);
 
     if (!lhs || !rhs)
       return nullptr;
 
     return lhs->dot(ctx, rhs->name);
+  }
+};
+
+class QuoteForm : public Form {
+public:
+  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
+    if (args.size() != 1)
+      return nullptr;
+
+    return args[0];
   }
 };
 
@@ -157,7 +165,7 @@ void setup_global_context(Context *ctx) {
 
   set_prefix("-");
   set_prefix("+");
-
+  set_prefix("'");
 
   ctx->define("+", new ArithmeticFunction<add>());
   ctx->define("-", new ArithmeticFunction<sub>());
@@ -165,6 +173,7 @@ void setup_global_context(Context *ctx) {
   ctx->define("/", new ArithmeticFunction<div>());
 
   ctx->define("prefix-", new UnaryMinus());
+  ctx->define("prefix'", new QuoteForm());
 
   ctx->define(">", new ComparisonFunction<gt>());
   ctx->define("<", new ComparisonFunction<lt>());
