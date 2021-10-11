@@ -57,6 +57,10 @@ bool peek_token(Token &out) {
   return true;
 }
 
+bool has_tokens_left() {
+  return current_token < tokens.size();
+}
+
 void rewind_token() { current_token--; }
 
 Call *fix_precedence(Call *call) {
@@ -172,9 +176,8 @@ bool lex(const char *code) {
       break;
     }
 
-    else if (ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '[' ||
+    else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '[' ||
              ch == ']' || isspace(ch)) {
-
       if (start >= 0) {
         emit_id(code, start, i);
         start = -1;
@@ -244,22 +247,23 @@ bool lex(const char *code) {
   return true;
 }
 
-bool parse_if(int delims_count, TokenType *delims);
-bool parse_while(int delims_count, TokenType *delims);
+bool parse_if(int delims_count, int consumed_delims, TokenType *delims);
+bool parse_while(int delims_count, int consumed_delims, TokenType *delims);
 
-bool parse(int delims_count, TokenType *delims, bool in_brackets = false) {
+bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_brackets = false) {
   Token t;
 
   bool last = false;
   bool parsed_something = false;
 
-  while (current_token < tokens.size()) {
+  while (true) {
     if (!pop_token(t))
       assert(!"parse error - out of tokens");
 
     for (int i = 0; i < delims_count; i++) {
       if (delims[i] == t.type) {
-        rewind_token();
+        if (i >= consumed_delims)
+          rewind_token();
         return parsed_something;
       }
     }
@@ -268,11 +272,11 @@ bool parse(int delims_count, TokenType *delims, bool in_brackets = false) {
       case TOK_ID: {
 
         if (t.name == "if") {
-          if (!parse_if(delims_count, delims))
+          if (!parse_if(delims_count, consumed_delims, delims))
             return false;
           goto NextToken;
         } else if (t.name == "while") {
-          if (!parse_while(delims_count, delims))
+          if (!parse_while(delims_count, consumed_delims, delims))
             return false;
           goto NextToken;
         }
@@ -320,16 +324,7 @@ bool parse(int delims_count, TokenType *delims, bool in_brackets = false) {
 
       case (TokenType)'(': {
         TokenType delims[] = {(TokenType)')'};
-        bool has_args = parse(1, delims, true);
-
-        Token closingBracket;
-        if (!pop_token(closingBracket))
-          assert(!"parse error - out of tokens while looking for "
-                  "matching )");
-
-        if (closingBracket.type != ')')
-          assert(!"parse error - unexpectedd token while looking for "
-                  "matching )");
+        bool has_args = parse(1, 1, delims, true);
 
         if (last) {
           if (has_args) {
@@ -355,7 +350,7 @@ bool parse(int delims_count, TokenType *delims, bool in_brackets = false) {
 
       case TOK_INFIX_OP: {
         // parse the rhs
-        parse(delims_count, delims, in_brackets);
+        parse(delims_count, consumed_delims, delims, in_brackets);
 
         Object *lhs = stack[stack.size() - 2];
         Object *rhs = stack[stack.size() - 1];
@@ -371,7 +366,7 @@ bool parse(int delims_count, TokenType *delims, bool in_brackets = false) {
 
         stack.pop_back();
         stack.back() = call;
-        goto NextToken;
+        return true;
       }
 
       default:
@@ -384,7 +379,7 @@ bool parse(int delims_count, TokenType *delims, bool in_brackets = false) {
   return parsed_something;
 }
 
-bool parse_if(int delims_count, TokenType *delims) {
+bool parse_if(int delims_count, int consumed_delims, TokenType *delims) {
   Object *cond = nullptr;
   Object *if_true = nullptr;
   Object *if_false = nullptr;
@@ -395,13 +390,10 @@ bool parse_if(int delims_count, TokenType *delims) {
 
   // parse the condition
   TokenType delims2[] = {(TokenType)')'};
-  if (!parse(1, delims2, true))
+  if (!parse(1, 1, delims2, true))
     return false;
   cond = stack.back();
   stack.pop_back();
-
-  Token closing_bracket;
-  pop_token(closing_bracket);
 
   // parse the if_true
   TokenType delims3[delims_count + 1];
@@ -409,7 +401,7 @@ bool parse_if(int delims_count, TokenType *delims) {
     delims3[i] = delims[i];
   delims3[delims_count] = TOK_ELSE;
 
-  if (!parse(delims_count + 1, delims3, false))
+  if (!parse(delims_count + 1, consumed_delims, delims3, false))
     return false;
 
   if_true = stack.back();
@@ -420,7 +412,7 @@ bool parse_if(int delims_count, TokenType *delims) {
     pop_token(else_token);
 
     // parse the if_false
-    if (!parse(delims_count, delims, false))
+    if (!parse(delims_count, consumed_delims, delims, false))
       return false;
     if_false = stack.back();
     stack.pop_back();
@@ -430,7 +422,7 @@ bool parse_if(int delims_count, TokenType *delims) {
   return true;
 }
 
-bool parse_while(int delims_count, TokenType *delims) {
+bool parse_while(int delims_count, int consumed_delims, TokenType *delims) {
   Object *cond = nullptr;
   Object *body = nullptr;
 
@@ -440,15 +432,12 @@ bool parse_while(int delims_count, TokenType *delims) {
 
   // parse the condition
   TokenType delims2[] = {(TokenType)')'};
-  if (!parse(1, delims2, true))
+  if (!parse(1, 1, delims2, true))
     return false;
   cond = stack.back();
   stack.pop_back();
 
-  Token closing_bracket;
-  pop_token(closing_bracket);
-
-  if (!parse(delims_count, delims, false))
+  if (!parse(delims_count, consumed_delims, delims, false))
     return false;
 
   body = stack.back();
@@ -458,7 +447,7 @@ bool parse_while(int delims_count, TokenType *delims) {
   return true;
 }
 
-bool parse(const char *code, Object **out) {
+bool do_parse(const char *code, Object **out) {
   tokens.clear();
   stack.clear();
   current_token = 0;
@@ -469,7 +458,11 @@ bool parse(const char *code, Object **out) {
 
   // for (Token &t : tokens)
   //   std::cout << t << "\n";
-  parse(0, nullptr, false);
+  
+  TokenType delims[] = { (TokenType)';' };
+
+  while (has_tokens_left())
+    parse(1, 1, delims, false);
 
   if (stack.empty())
     *out = nullptr;

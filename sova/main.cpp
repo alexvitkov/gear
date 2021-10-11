@@ -6,7 +6,7 @@
 #include "Parser.h"
 #include "Reference.h"
 
-Context *global_context;
+Context global_context(nullptr);
 
 void repl() {
   while (true) {
@@ -16,20 +16,19 @@ void repl() {
     std::getline(std::cin, code);
 
     Object *obj;
-    if (!parse(code.c_str(), &obj)) {
+    if (!do_parse(code.c_str(), &obj)) {
       std::cout << "parse error\n";
       continue;
     }
 
     std::cout << obj << "\n";
-    std::cout << eval(global_context, obj) << "\n";
+    std::cout << eval(&global_context, obj) << "\n";
   }
 }
 
 int main(int argc, const char** argv) {
-  global_context = new Context(nullptr);
+  setup_global_context(&global_context);
 
-  setup_global_context(global_context);
   repl();
 
   return 0;

@@ -12,4 +12,4 @@ enum class Associativity {
 
 void set_infix_precedence(std::string op, int precedence, Associativity assoc);
 
-bool parse(const char *code, Object **out);
+bool do_parse(const char *code, Object **out);
