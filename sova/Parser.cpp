@@ -242,8 +242,8 @@ bool lex(const char *code) {
   return true;
 }
 
-bool parse_if(int delims_count, int consumed_delims, TokenType *delims);
-bool parse_while(int delims_count, int consumed_delims, TokenType *delims);
+bool parse_if(int delims_count, int consumed_delims, TokenType *delims, bool fast_break);
+bool parse_while(int delims_count, int consumed_delims, TokenType *delims, bool fast_break);
 
 bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_brackets = false,
            bool top_level_infix = true, bool fast_break = false) {
@@ -264,13 +264,11 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
       return false;
     }
 
-    if (!fast_break) {
-      for (int i = 0; i < delims_count; i++) {
-        if (delims[i] == t.type) {
-          if (i >= consumed_delims)
-            rewind_token();
-          return true;
-        }
+    for (int i = 0; i < delims_count; i++) {
+      if (delims[i] == t.type) {
+        if (i >= consumed_delims)
+          rewind_token();
+        return true;
       }
     }
 
@@ -289,9 +287,9 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
     switch (t.type) {
       case TOK_ID: {
         if (t.name == "if") {
-          return parse_if(delims_count, consumed_delims, delims);
+          return parse_if(delims_count, consumed_delims, delims, fast_break);
         } else if (t.name == "while") {
-          return parse_while(delims_count, consumed_delims, delims);
+          return parse_while(delims_count, consumed_delims, delims, fast_break);
         }
 
         last = true;
@@ -443,14 +441,17 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
         goto NextToken;
       }
 
-      default:
+      default: {
+        
+
         NOT_IMPLEMENTED;
+      }
     }
   NextToken:;
   }
 }
 
-bool parse_if(int delims_count, int consumed_delims, TokenType *delims) {
+bool parse_if(int delims_count, int consumed_delims, TokenType *delims, bool fast_break) {
   Object *cond = nullptr;
   Object *if_true = nullptr;
   Object *if_false = nullptr;
@@ -472,7 +473,7 @@ bool parse_if(int delims_count, int consumed_delims, TokenType *delims) {
     delims3[i] = delims[i];
   delims3[delims_count] = TOK_ELSE;
 
-  if (!parse(delims_count + 1, consumed_delims, delims3, false))
+  if (!parse(delims_count + 1, consumed_delims, delims3, false, false, fast_break))
     return false;
 
   if_true = stack.back();
@@ -483,7 +484,7 @@ bool parse_if(int delims_count, int consumed_delims, TokenType *delims) {
     pop_token(else_token);
 
     // parse the if_false
-    if (!parse(delims_count, consumed_delims, delims, false))
+    if (!parse(delims_count, consumed_delims, delims, false, fast_break))
       return false;
     if_false = stack.back();
     stack.pop_back();
@@ -493,7 +494,7 @@ bool parse_if(int delims_count, int consumed_delims, TokenType *delims) {
   return true;
 }
 
-bool parse_while(int delims_count, int consumed_delims, TokenType *delims) {
+bool parse_while(int delims_count, int consumed_delims, TokenType *delims, bool fast_break) {
   Object *cond = nullptr;
   Object *body = nullptr;
 
@@ -503,12 +504,12 @@ bool parse_while(int delims_count, int consumed_delims, TokenType *delims) {
 
   // parse the condition
   TokenType delims2[] = {(TokenType)')'};
-  if (!parse(1, 1, delims2, true))
+  if (!parse(1, 1, delims2, true, false, false))
     return false;
   cond = stack.back();
   stack.pop_back();
 
-  if (!parse(delims_count, consumed_delims, delims, false))
+  if (!parse(delims_count, consumed_delims, delims, false, false, fast_break))
     return false;
 
   body = stack.back();

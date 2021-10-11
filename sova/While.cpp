@@ -15,5 +15,5 @@ Object *While::interpret(Context *ctx) {
 }
 
 void While::print(std::ostream &o) {
-  o << "while (" << condition << ")" << body;
+  o << "while (" << condition << ") " << body;
 }
