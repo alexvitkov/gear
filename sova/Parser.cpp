@@ -269,14 +269,9 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
     switch (t.type) {
       case TOK_ID: {
         if (t.name == "if") {
-          if (!parse_if(delims_count, consumed_delims, delims))
-            return false;
-          goto NextToken;
-
+          return parse_if(delims_count, consumed_delims, delims);
         } else if (t.name == "while") {
-          if (!parse_while(delims_count, consumed_delims, delims))
-            return false;
-          goto NextToken;
+          return parse_while(delims_count, consumed_delims, delims);
         }
 
         last = true;

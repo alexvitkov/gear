@@ -12,7 +12,10 @@ Object *eval(Context *ctx, Object *obj) {
   if (!obj)
     return nullptr;
 
-  return obj->interpret(ctx);
+  // std::cout << "begine val " << obj << "\n";
+  auto res = obj->interpret(ctx);
+  // std::cout << obj << " ---> " <<res << "\n";
+  return res;
 }
 
 bool Object::equals(Object *other) { return this == other; }

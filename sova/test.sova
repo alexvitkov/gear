@@ -1,0 +1,14 @@
+
+fact_iter := n => {
+    acc := 1;
+
+    while (n > 1) {
+        acc = acc * n;
+        n = n - 1;
+    };
+
+    acc;
+};
+
+fact_rec := n => if (n == 0) 1
+                 else n * fact_rec(n - 1)
