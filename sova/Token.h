@@ -14,6 +14,8 @@ enum TokenType {
   TOK_STRING,
   TOK_INFIX_OP,
   TOK_NUMBER,
+  TOK_WHILE,
+  TOK_IF,
   TOK_ELSE,
   TOK_TRUE,
   TOK_FALSE,

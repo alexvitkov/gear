@@ -8,7 +8,7 @@
 #include "Reference.h"
 #include <string.h>
 
-Context global_context(nullptr);
+GlobalContext global;
 
 void repl() {
   while (true) {
@@ -19,12 +19,12 @@ void repl() {
 
     std::vector<Object *> parsed_objects;
 
-    if (!do_parse(code.c_str(), parsed_objects, true))
+    if (!do_parse(global, code.c_str(), parsed_objects, true))
       continue;
 
     for (Object *obj : parsed_objects) {
       // std::cout << obj << "\n";
-      std::cout << eval(&global_context, obj) << "\n";
+      std::cout << eval(&global, obj) << "\n";
     }
   }
 }
@@ -68,7 +68,7 @@ RunFileResult read_file(const char *path, char *&out) {
 }
 
 int main(int argc, const char **argv) {
-  setup_global_context(&global_context);
+  setup_global_context(&global);
 
   // if -- has been passed, treat everything after it as filenames
   bool done_parsing_args = false;
@@ -87,11 +87,11 @@ int main(int argc, const char **argv) {
       }
 
       std::vector<Object *> parsed_objects;
-      if (!do_parse(file, parsed_objects, true))
+      if (!do_parse(global, file, parsed_objects, true))
         return 1;
 
       for (Object *obj : parsed_objects)
-        eval(&global_context, obj);
+        eval(&global, obj);
 
       continue;
     }

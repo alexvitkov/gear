@@ -11,7 +11,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-
 std::unordered_map<std::string, OperatorData> infix_precedence;
 
 std::ostream &operator<<(std::ostream &o, Token &t) {
@@ -69,7 +68,11 @@ void TokenStream::emit_id(const char *code, int start, int i) {
 
   std::string str(code + start, i - start);
 
-  if (str == "else")
+  if (str == "if")
+    push(Token{.type = TOK_IF, .name = str});
+  else if (str == "while")
+    push(Token{.type = TOK_WHILE, .name = str});
+  else if (str == "else")
     push(Token{.type = TOK_ELSE, .name = str});
   else if (str == "true")
     push(Token{.type = TOK_TRUE, .name = str});
@@ -80,7 +83,6 @@ void TokenStream::emit_id(const char *code, int start, int i) {
   else
     push(Token{.type = TOK_ID, .name = str});
 }
-
 
 Call *Parser::fix_precedence(Call *call) {
   if (call->args.size() < 2)
@@ -122,7 +124,6 @@ Call *Parser::fix_precedence(Call *call) {
 }
 
 bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_level_infix) {
-  Token t;
 
   bool last = false;
 
@@ -130,7 +131,8 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
     if (last && exit_cond.fast_break)
       return true;
 
-    if (!(t = tokens.pop())) {
+    Token t = tokens.pop();
+    if (!t) {
       parse_error(ParseError{
           .type = ParseErrorType::UnexpectedId,
           .unexpected = t,
@@ -147,8 +149,9 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
       }
     }
 
-    if (last && (t.type == TOK_ID || t.type == TOK_NUMBER || t.type == TOK_STRING || t.type == TOK_TRUE ||
-                 t.type == TOK_FALSE || t.type == TOK_NIL || t.type == '{')) {
+    if (last && (t.type == TOK_ID || t.type == TOK_IF || t.type == TOK_WHILE || t.type == TOK_NUMBER ||
+                 t.type == TOK_STRING || t.type == TOK_TRUE || t.type == TOK_FALSE || t.type == TOK_NIL ||
+                 t.type == '{')) {
       if (last) {
         parse_error({
             .type = ParseErrorType::UnexpectedId,
@@ -161,15 +164,27 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
     switch (t.type) {
       case TOK_ID: {
-        if (t.name == "if") {
-          return parse_if(exit_cond);
-        } else if (t.name == "while") {
-          return parse_while(exit_cond);
+        Block *macro = global.get_macro(t.name);
+
+        if (macro) {
+          last = true;
+          stack.push_back(macro->interpret(&global));
+          goto NextToken;
         }
 
-        last = true;
-        stack.push_back(new Reference(t.name));
-        goto NextToken;
+        else {
+          last = true;
+          stack.push_back(new Reference(t.name));
+          goto NextToken;
+        }
+      }
+
+      case TOK_IF: {
+        return parse_if(exit_cond);
+      }
+
+      case TOK_WHILE: {
+        return parse_while(exit_cond);
       }
 
       case TOK_STRING: {
@@ -218,7 +233,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
               .delims = close_bracket_delims,
           };
 
-          if (!parse( exit_cond_close_bracket, false))
+          if (!parse(exit_cond_close_bracket, false))
             return false;
         }
 
@@ -300,10 +315,12 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
       case '{': {
         Block *block = new Block();
+        blocks.push_back(block);
 
         while (true) {
-          if (tokens.pop_if((TokenType)'}'))
+          if (tokens.pop_if((TokenType)'}')) {
             break;
+          }
 
           TokenType in_block_delimiters[] = {(TokenType)';', (TokenType)'}'};
           ParseExitCondition in_block_exit_cond = {
@@ -312,8 +329,10 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
               .delims = in_block_delimiters,
           };
 
-          if (!parse(in_block_exit_cond))
+          if (!parse(in_block_exit_cond)) {
+            blocks.pop_back();
             return false;
+          }
 
           block->inside.push_back(stack.back());
           stack.pop_back();
@@ -321,6 +340,8 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
         stack.push_back(block);
         last = true;
+
+        blocks.pop_back();
         goto NextToken;
       }
 
@@ -436,16 +457,21 @@ void print_parse_error(std::ostream &o, ParseError err) {
   }
 }
 
-bool do_parse(const char *code, std::vector<Object *> &out, bool inject_trailing_semicolon) {
+bool do_parse(GlobalContext &global, const char *code, std::vector<Object *> &out,
+              bool inject_trailing_semicolon) {
 
   TokenStream tokens;
 
   Parser parser = {
-    .tokens = tokens,
+      .tokens = tokens,
+      .global = global,
   };
+  global.parser = &parser;
 
-  if (!tokens.lex(code))
+  if (!tokens.lex(code)) {
+    global.parser = nullptr;
     return false;
+  }
 
   if (inject_trailing_semicolon)
     tokens.push({.type = (TokenType)';'});
@@ -466,10 +492,12 @@ bool do_parse(const char *code, std::vector<Object *> &out, bool inject_trailing
       for (auto &err : parser.parse_errors)
         print_parse_error(std::cout, err);
 
+      global.parser = nullptr;
       return false;
     }
   }
 
   out = parser.stack;
+  global.parser = nullptr;
   return true;
 }

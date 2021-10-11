@@ -1,4 +1,9 @@
 
+macro(one, {
+    emit(x := 100);
+});
+
+
 // comment
 // commment comment comment
 

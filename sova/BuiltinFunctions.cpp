@@ -1,4 +1,5 @@
 #include "BuiltinFunctions.h"
+#include "Block.h"
 #include "Bool.h"
 #include "Form.h"
 #include "Function.h"
@@ -120,6 +121,35 @@ public:
   }
 };
 
+class MacroForm : public Form {
+  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
+    if (args.size() != 2)
+      return nullptr;
+
+    Reference *lhs = dynamic_cast<Reference *>(args[0]);
+    if (!lhs)
+      return nullptr;
+
+    Block *rhs = dynamic_cast<Block *>(args[1]);
+    if (!rhs)
+      return nullptr;
+
+    ctx->get_global_context()->define_macro(lhs->name, rhs);
+    return nullptr;
+  }
+};
+
+class EmitForm : public Form {
+  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
+    auto parser = ctx->get_global_context()->parser;
+    if (!parser || parser->blocks.size() == 0) // TODO error
+      return nullptr;
+    
+    parser->blocks.back()->inside.push_back(args[0]);
+    return nullptr;
+  }
+};
+
 class QuoteForm : public Form {
 public:
   virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
@@ -171,9 +201,11 @@ void setup_global_context(Context *ctx) {
   ctx->define("-", new ArithmeticFunction<sub>());
   ctx->define("*", new ArithmeticFunction<mul>());
   ctx->define("/", new ArithmeticFunction<div>());
-
   ctx->define("prefix-", new UnaryMinus());
+
   ctx->define("prefix'", new QuoteForm());
+  ctx->define("emit", new EmitForm());
+  ctx->define("macro", new MacroForm());
 
   ctx->define(">", new ComparisonFunction<gt>());
   ctx->define("<", new ComparisonFunction<lt>());

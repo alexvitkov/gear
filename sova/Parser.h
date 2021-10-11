@@ -38,6 +38,9 @@ class Parser {
 
 public:
   TokenStream &tokens;
+  GlobalContext &global;
+
+  std::vector<Block*> blocks;
   std::vector<Object *> stack;
   std::vector<ParseError> parse_errors;
   std::unordered_map<class Call *, CallInfixData> infix_calls;
@@ -49,6 +52,6 @@ public:
 void set_infix(std::string op, int precedence, Associativity assoc);
 void set_prefix(std::string op);
 
-bool do_parse(const char *code, std::vector<Object *> &out, bool inject_trailing_semicolon);
+bool do_parse(GlobalContext& global, const char *code, std::vector<Object *> &out, bool inject_trailing_semicolon);
 
 bool get_infix_precedence(std::string op, OperatorData &out);
