@@ -14,6 +14,7 @@ enum TokenType {
   TOK_EOF = 0,
   
   TOK_ID = 256,
+  TOK_STRING,
   TOK_INFIX_OP,
   TOK_NUMBER,
   TOK_ELSE,

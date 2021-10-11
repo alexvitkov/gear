@@ -6,8 +6,10 @@
 #include "If.h"
 #include "Number.h"
 #include "Reference.h"
+#include "String.h"
 #include "While.h"
 #include <assert.h>
+#include <sstream>
 #include <stdlib.h>
 
 struct CallInfixData {
@@ -117,6 +119,11 @@ std::ostream &operator<<(std::ostream &o, Token &t) {
       break;
     }
 
+    case TOK_STRING: {
+      o << "string(\"" << t.name << "\")";
+      break;
+    }
+
     case TOK_NUMBER: {
       o << t.number;
       break;
@@ -192,6 +199,32 @@ bool lex(TokenStream &tokens, const char *code) {
         i++;
       i++;
       goto Next;
+    }
+
+    else if (code[i] == '"') {
+      i++;
+
+      std::ostringstream out;
+
+      while (true) {
+        switch (code[i]) {
+          // matching quotes, done with string
+          case '"': {
+            tokens.tokens.push_back({
+                .type = TOK_STRING,
+                .name = out.str(),
+            });
+
+            i++;
+            goto Next;
+          }
+
+          default: {
+            out << code[i];
+            i++;
+          }
+        }
+      }
     }
 
     else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '[' || ch == ']' ||
@@ -305,8 +338,8 @@ bool parse(TokenStream &tokens, ParseExitCondition &exit_cond, bool in_brackets 
       }
     }
 
-    if (last && (t.type == TOK_ID || t.type == TOK_NUMBER || t.type == TOK_TRUE || t.type == TOK_FALSE ||
-                 t.type == TOK_NIL || t.type == '{')) {
+    if (last && (t.type == TOK_ID || t.type == TOK_NUMBER || t.type == TOK_STRING || t.type == TOK_TRUE ||
+                 t.type == TOK_FALSE || t.type == TOK_NIL || t.type == '{')) {
       if (last) {
         parse_error({
             .type = ParseErrorType::UnexpectedId,
@@ -327,6 +360,12 @@ bool parse(TokenStream &tokens, ParseExitCondition &exit_cond, bool in_brackets 
 
         last = true;
         stack.push_back(new Reference(t.name));
+        goto NextToken;
+      }
+
+      case TOK_STRING: {
+        last = true;
+        stack.push_back(new String(t.name));
         goto NextToken;
       }
 
@@ -354,8 +393,7 @@ bool parse(TokenStream &tokens, ParseExitCondition &exit_cond, bool in_brackets 
         goto NextToken;
       }
 
-      case 
-(TokenType)'(': {
+      case (TokenType)'(': {
 
         // if se see ) followed directly by (, push nil to the stack
 
