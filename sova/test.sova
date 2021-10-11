@@ -1,4 +1,7 @@
 
+// comment
+// commment comment comment
+
 fact_iter := n => {
     acc := 1;
 

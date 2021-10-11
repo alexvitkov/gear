@@ -145,6 +145,7 @@ bool lex(const char *code) {
   int start = -1;
 
   for (int i = 0;;) {
+
     char ch = code[i];
 
     if (ch == '\0') {
@@ -154,6 +155,14 @@ bool lex(const char *code) {
       }
       break;
     }
+
+    else if (code[i] == '/' && code[i + 1] == '/') {
+      while (code[i] != '\n')
+        i++;
+      i++;
+      goto Next;
+    }
+
 
     else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' ||
              ch == '[' || ch == ']' || isspace(ch)) {
