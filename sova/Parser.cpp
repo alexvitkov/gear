@@ -1,35 +1,13 @@
 #include "Parser.h"
 #include "Bool.h"
 #include "Call.h"
+#include "Common.h"
 #include "If.h"
 #include "Number.h"
 #include "Reference.h"
 #include "While.h"
 #include <assert.h>
 #include <stdlib.h>
-
-struct InfixOperatorData {
-  int precedence;
-  Associativity assoc;
-};
-
-enum TokenType {
-  TOK_ID = 256,
-  TOK_INFIX_OP,
-  TOK_NUMBER,
-  TOK_ELSE,
-  TOK_TRUE,
-  TOK_FALSE,
-  TOK_NIL,
-};
-
-struct Token {
-  TokenType type;
-  std::string name;
-  double number;
-
-  InfixOperatorData infix_data;
-};
 
 struct CallInfixData {
   std::string op;
@@ -41,6 +19,7 @@ std::unordered_map<std::string, InfixOperatorData> infix_precedence;
 std::unordered_map<Call *, CallInfixData> infix_calls;
 std::vector<Token> tokens;
 std::vector<Object *> stack;
+std::vector<ParseError> parse_errors;
 int current_token = 0;
 
 bool pop_token(Token &out) {
@@ -60,6 +39,8 @@ bool peek_token(Token &out) {
 bool has_tokens_left() { return current_token < tokens.size(); }
 
 void rewind_token() { current_token--; }
+
+void parse_error(ParseError err) { parse_errors.push_back(err); }
 
 Call *fix_precedence(Call *call) {
   if (call->args.size() < 2)
@@ -103,27 +84,26 @@ Call *fix_precedence(Call *call) {
 
 std::ostream &operator<<(std::ostream &o, Token &t) {
   switch (t.type) {
-
+    case TOK_INFIX_OP:
     case TOK_ID: {
-      o << "Identifier:" << t.name;
+      o << t.name;
       break;
     }
 
     case TOK_NUMBER: {
-      o << "NUMBER:" << t.number;
-      break;
-    }
-
-    case TOK_INFIX_OP: {
-      o << "INFIX:" << t.name;
+      o << t.number;
       break;
     }
 
     default: {
-      if (t.type < 128)
-        o << "TOK:" << (char)t.type;
+      if (t.type == TOK_EOF)
+        o << "end of file";
+      else if (t.type == TOK_ERR_AN_EXPRESSION)
+        o << "an expression";
+      else if (t.type < 128)
+        o << '"' << (char)t.type << '"';
       else
-        o << "TOK:" << t.name;
+        o << t.name;
       break;
     }
   }
@@ -253,35 +233,50 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
   Token t;
 
   bool last = false;
-  bool parsed_something = false;
 
   while (true) {
-    if (!pop_token(t))
-      assert(!"parse error - out of tokens");
+    if (!pop_token(t)) {
+      parse_error(ParseError{
+          .type = ParseErrorType::UnexpectedId,
+          .unexpected = t,
+          .expected = delims[0],
+      });
+      return false;
+    }
 
     for (int i = 0; i < delims_count; i++) {
       if (delims[i] == t.type) {
         if (i >= consumed_delims)
           rewind_token();
-        return parsed_something;
+        return true;
+      }
+    }
+
+    if (last &&
+        (t.type == TOK_ID || t.type == TOK_NUMBER || t.type == TOK_TRUE ||
+         t.type == TOK_FALSE || t.type == TOK_NIL)) {
+      if (last) {
+        parse_error({
+            .type = ParseErrorType::UnexpectedId,
+            .unexpected = t,
+            .expected = delims[0],
+        });
+        return false;
       }
     }
 
     switch (t.type) {
       case TOK_ID: {
-
         if (t.name == "if") {
           if (!parse_if(delims_count, consumed_delims, delims))
             return false;
           goto NextToken;
+
         } else if (t.name == "while") {
           if (!parse_while(delims_count, consumed_delims, delims))
             return false;
           goto NextToken;
         }
-
-        if (last)
-          assert(!"parse error - identifier after 'last' was set");
 
         last = true;
         stack.push_back(new Reference(t.name));
@@ -289,33 +284,24 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
       }
 
       case TOK_NUMBER: {
-        if (last)
-          assert(!"parse error - number after 'last' was set");
-
         last = true;
         stack.push_back(new Number(t.number));
         goto NextToken;
       }
 
       case TOK_TRUE: {
-        if (last)
-          assert(!"parse error - bool constant after 'last' was set");
         stack.push_back(&True);
         last = true;
         goto NextToken;
       }
 
       case TOK_FALSE: {
-        if (last)
-          assert(!"parse error - bool constant after 'last' was set");
         stack.push_back(&False);
         last = true;
         goto NextToken;
       }
 
       case TOK_NIL: {
-        if (last)
-          assert(!"parse error - nil after 'last' was set");
         stack.push_back(nullptr);
         last = true;
         goto NextToken;
@@ -323,33 +309,43 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
 
       case (TokenType)'(': {
         TokenType delims[] = {(TokenType)')'};
-        bool has_args = parse(1, 1, delims, true);
+        if (!parse(1, 1, delims, true))
+          return false;
 
         if (last) {
-          if (has_args) {
-            auto in_brackets = stack.back();
-            stack.pop_back();
+          auto in_brackets = stack.back();
+          stack.pop_back();
 
-            Object *fn = stack.back();
-            stack.pop_back();
+          Object *fn = stack.back();
+          stack.pop_back();
 
-            Call *args = dynamic_cast<Call *>(in_brackets);
-            if (args && args->is_comma_list())
-              stack.push_back(new Call(fn, args->args));
-            else
-              stack.push_back(new Call(fn, {in_brackets}));
-          } else {
-            Object *fn = stack.back();
-            stack.back() = new Call(fn, {});
-          }
+          Call *args = dynamic_cast<Call *>(in_brackets);
+          if (args && args->is_comma_list())
+            stack.push_back(new Call(fn, args->args));
+          else if (in_brackets)
+            stack.push_back(new Call(fn, {in_brackets}));
+          else
+            stack.push_back(new Call(fn, {}));
+        } else {
+          stack.push_back(nullptr);
         }
 
         goto NextToken;
       }
 
       case TOK_INFIX_OP: {
+        if (!last) {
+          parse_error({
+              .type = ParseErrorType::UnexpectedId,
+              .unexpected = t,
+              .expected = TOK_ERR_AN_EXPRESSION,
+          });
+          return false;
+        }
+
         // parse the rhs
-        parse(delims_count, consumed_delims, delims, in_brackets);
+        if (!parse(delims_count, consumed_delims, delims, in_brackets))
+          return false;
 
         Object *lhs = stack[stack.size() - 2];
         Object *rhs = stack[stack.size() - 1];
@@ -369,13 +365,10 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
       }
 
       default:
-        assert(!"parse error - not implemented");
+        UNREACHABLE;
     }
   NextToken:;
-    parsed_something = true;
   }
-
-  return parsed_something;
 }
 
 bool parse_if(int delims_count, int consumed_delims, TokenType *delims) {
@@ -446,9 +439,29 @@ bool parse_while(int delims_count, int consumed_delims, TokenType *delims) {
   return true;
 }
 
-bool do_parse(const char *code, std::vector<Object*>& out, bool inject_trailing_semicolon) {
+void print_parse_error(std::ostream &o, ParseError err) {
+
+  o << "\u001b[31mparse error\u001b[0m: ";
+
+  switch (err.type) {
+    case ParseErrorType::UnexpectedId: {
+      Token expected{.type = err.expected};
+      o << "unexpected " << err.unexpected << " while looking for " << expected
+        << "\n";
+      return;
+    }
+    default: {
+      o << (int)err.type << "\n";
+      return;
+    }
+  }
+}
+
+bool do_parse(const char *code, std::vector<Object *> &out,
+              bool inject_trailing_semicolon) {
   tokens.clear();
   stack.clear();
+  parse_errors.clear();
   current_token = 0;
   infix_calls.clear();
 
@@ -463,10 +476,15 @@ bool do_parse(const char *code, std::vector<Object*>& out, bool inject_trailing_
 
   TokenType delims[] = {(TokenType)';'};
 
-  while (has_tokens_left())
-    parse(1, 1, delims, false);
+  while (has_tokens_left()) {
+    if (!parse(1, 1, delims, false)) {
+      for (auto &err : parse_errors)
+        print_parse_error(std::cout, err);
+
+      return false;
+    }
+  }
 
   out = stack;
-
   return true;
 }

@@ -19,10 +19,8 @@ void repl() {
 
     std::vector<Object *> parsed_objects;
 
-    if (!do_parse(code.c_str(), parsed_objects, true)) {
-      std::cout << "parse error\n";
+    if (!do_parse(code.c_str(), parsed_objects, true))
       continue;
-    }
 
     for (Object *obj : parsed_objects) {
       // std::cout << obj << "\n";
@@ -89,10 +87,8 @@ int main(int argc, const char **argv) {
       }
 
       std::vector<Object *> parsed_objects;
-      if (!do_parse(file, parsed_objects, true)) {
-        std::cout << "parse error\n";
+      if (!do_parse(file, parsed_objects, true))
         return 1;
-      }
 
       for (Object *obj : parsed_objects)
         eval(&global_context, obj);
