@@ -25,9 +25,12 @@ enum TokenType {
   TOK_ERR_AN_EXPRESSION,
 };
 
-struct InfixOperatorData {
+struct OperatorData {
   int precedence;
   Associativity assoc;
+
+  bool is_infix;
+  bool is_prefix;
 };
 
 struct Token {
@@ -35,10 +38,11 @@ struct Token {
   std::string name;
   double number;
 
-  InfixOperatorData infix_data;
+  OperatorData infix_data;
 };
 
-void set_infix_precedence(std::string op, int precedence, Associativity assoc);
+void set_infix(std::string op, int precedence, Associativity assoc);
+void set_prefix(std::string op);
 
 bool do_parse(const char *code, std::vector<Object*>& out, bool inject_trailing_semicolon);
 

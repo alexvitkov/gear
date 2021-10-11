@@ -13,8 +13,6 @@ using Comparator = bool (*)(double, double);
 
 template <Accumulator Acc> class ArithmeticFunction : public Function {
 public:
-  ArithmeticFunction() {}
-
   virtual Object *call_fn(Context *, std::vector<Object *> &args) override {
     double val;
 
@@ -53,6 +51,19 @@ class EqFunction : public Function {
       return nullptr;
 
     return ::equals(args[0], args[1]) ? &True : &False;
+  }
+};
+
+class UnaryMinus : public Function {
+  virtual Object *call_fn(Context *, std::vector<Object *> &args) override {
+    if (args.size() != 1)
+      return nullptr;
+
+    Number* num = dynamic_cast<Number*>(args[0]);
+    if (!num)
+      return nullptr;
+
+    return new Number(-num->value);
   }
 };
 
@@ -124,30 +135,36 @@ static bool eq(double a, double b) { return a == b; }
 static bool ne(double a, double b) { return a != b; }
 
 void setup_global_context(Context *ctx) {
-  set_infix_precedence(":=", 10, Associativity::Right);
-  set_infix_precedence(",", 20, Associativity::FoldToVector);
-  set_infix_precedence("=>", 30, Associativity::Right);
-  set_infix_precedence("=", 40, Associativity::Right);
+  set_infix(":=", 10, Associativity::Right);
+  set_infix(",", 20, Associativity::FoldToVector);
+  set_infix("=>", 30, Associativity::Right);
+  set_infix("=", 40, Associativity::Right);
 
-  set_infix_precedence("==", 70, Associativity::Left);
-  set_infix_precedence("!=", 70, Associativity::Left);
+  set_infix("==", 70, Associativity::Left);
+  set_infix("!=", 70, Associativity::Left);
 
-  set_infix_precedence("<", 80, Associativity::Left);
-  set_infix_precedence(">", 80, Associativity::Left);
-  set_infix_precedence(">=", 80, Associativity::Left);
-  set_infix_precedence("<=", 80, Associativity::Left);
+  set_infix("<", 80, Associativity::Left);
+  set_infix(">", 80, Associativity::Left);
+  set_infix(">=", 80, Associativity::Left);
+  set_infix("<=", 80, Associativity::Left);
 
-  set_infix_precedence("+", 100, Associativity::Left);
-  set_infix_precedence("-", 110, Associativity::Left);
-  set_infix_precedence("*", 120, Associativity::Left);
-  set_infix_precedence("/", 130, Associativity::Left);
+  set_infix("+", 100, Associativity::Left);
+  set_infix("-", 110, Associativity::Left);
+  set_infix("*", 120, Associativity::Left);
+  set_infix("/", 130, Associativity::Left);
 
-  set_infix_precedence(".", 200, Associativity::Left);
+  set_infix(".", 200, Associativity::Left);
+
+  set_prefix("-");
+  set_prefix("+");
+
 
   ctx->define("+", new ArithmeticFunction<add>());
   ctx->define("-", new ArithmeticFunction<sub>());
   ctx->define("*", new ArithmeticFunction<mul>());
   ctx->define("/", new ArithmeticFunction<div>());
+
+  ctx->define("prefix-", new UnaryMinus());
 
   ctx->define(">", new ComparisonFunction<gt>());
   ctx->define("<", new ComparisonFunction<lt>());

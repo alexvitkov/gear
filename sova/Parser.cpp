@@ -12,11 +12,11 @@
 
 struct CallInfixData {
   std::string op;
-  InfixOperatorData infix;
+  OperatorData infix;
   bool has_brackets;
 };
 
-std::unordered_map<std::string, InfixOperatorData> infix_precedence;
+std::unordered_map<std::string, OperatorData> infix_precedence;
 std::unordered_map<Call *, CallInfixData> infix_calls;
 std::vector<Token> tokens;
 std::vector<Object *> stack;
@@ -110,7 +110,7 @@ std::ostream &operator<<(std::ostream &o, Token &t) {
   return o;
 }
 
-bool get_infix_precedence(std::string op, InfixOperatorData &out) {
+bool get_infix_precedence(std::string op, OperatorData &out) {
   auto it = infix_precedence.find(op);
   if (it == infix_precedence.end())
     return false;
@@ -118,9 +118,15 @@ bool get_infix_precedence(std::string op, InfixOperatorData &out) {
   return true;
 }
 
-void set_infix_precedence(std::string op, int precedence, Associativity assoc) {
-  infix_precedence[op] = {precedence, assoc};
+void set_infix(std::string op, int precedence, Associativity assoc) {
+  infix_precedence[op] = {
+      .precedence = precedence,
+      .assoc = assoc,
+      .is_infix = true,
+  };
 }
+
+void set_prefix(std::string op) { infix_precedence[op].is_prefix = true; }
 
 void emit_id(const char *code, int start, int i) {
 
@@ -204,7 +210,7 @@ bool lex(const char *code) {
 
       for (int j = remaining; j > 0; j--) {
         std::string op(code + i, j);
-        InfixOperatorData data;
+        OperatorData data;
         bool is_infix = get_infix_precedence(op, data);
 
         if (is_infix) {
@@ -351,35 +357,56 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_bra
       }
 
       case TOK_INFIX_OP: {
-        if (!last) {
-          parse_error({
-              .type = ParseErrorType::UnexpectedId,
-              .unexpected = t,
-              .expected = TOK_ERR_AN_EXPRESSION,
-          });
-          return false;
+        // Infix operator
+        if (last) {
+          if (!t.infix_data.is_infix) {
+            parse_error({
+                .type = ParseErrorType::UnexpectedId,
+                .unexpected = t,
+                .expected = TOK_ERR_AN_EXPRESSION,
+            });
+            return false;
+          }
+
+          // parse the rhs
+          if (!parse(delims_count, consumed_delims, delims, in_brackets, false))
+            return false;
+
+          Object *lhs = stack[stack.size() - 2];
+          Object *rhs = stack[stack.size() - 1];
+
+          Call *call = new Call(new Reference(t.name), {lhs, rhs});
+          infix_calls[call] = {
+              .op = t.name,
+              .infix = t.infix_data,
+              .has_brackets = false,
+          };
+
+          if (top_level_infix)
+            call = fix_precedence(call);
+
+          stack.pop_back();
+          stack.back() = call;
+          return true;
         }
 
-        // parse the rhs
-        if (!parse(delims_count, consumed_delims, delims, in_brackets, false))
-          return false;
+        // Prefix operator
+        else {
+          if (!t.infix_data.is_prefix) {
+            parse_error({
+                .type = ParseErrorType::UnexpectedId,
+                .unexpected = t,
+                .expected = TOK_ERR_AN_EXPRESSION,
+            });
+            return false;
+          }
 
-        Object *lhs = stack[stack.size() - 2];
-        Object *rhs = stack[stack.size() - 1];
+          if (!parse(delims_count, consumed_delims, delims, in_brackets, false))
+            return false;
 
-        Call *call = new Call(new Reference(t.name), {lhs, rhs});
-        infix_calls[call] = {
-            .op = t.name,
-            .infix = t.infix_data,
-            .has_brackets = false,
-        };
-
-        if (top_level_infix)
-          call = fix_precedence(call);
-
-        stack.pop_back();
-        stack.back() = call;
-        return true;
+          stack.back() = new Call(new Reference("prefix" + t.name), { stack.back() });
+          return true;
+        }
       }
 
       case '{': {
