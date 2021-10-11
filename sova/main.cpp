@@ -1,6 +1,7 @@
 #include "BuiltinFunctions.h"
 #include "Call.h"
 #include "Context.h"
+#include "If.h"
 #include "Number.h"
 #include "Object.h"
 #include "Parser.h"
@@ -16,7 +17,7 @@ void repl() {
     std::getline(std::cin, code);
 
     Object *obj;
-    if (!do_parse(code.c_str(), &obj)) {
+    if (!do_parse(code.c_str(), &obj, true)) {
       std::cout << "parse error\n";
       continue;
     }

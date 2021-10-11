@@ -57,9 +57,7 @@ bool peek_token(Token &out) {
   return true;
 }
 
-bool has_tokens_left() {
-  return current_token < tokens.size();
-}
+bool has_tokens_left() { return current_token < tokens.size(); }
 
 void rewind_token() { current_token--; }
 
@@ -176,8 +174,8 @@ bool lex(const char *code) {
       break;
     }
 
-    else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '[' ||
-             ch == ']' || isspace(ch)) {
+    else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' ||
+             ch == '[' || ch == ']' || isspace(ch)) {
       if (start >= 0) {
         emit_id(code, start, i);
         start = -1;
@@ -250,7 +248,8 @@ bool lex(const char *code) {
 bool parse_if(int delims_count, int consumed_delims, TokenType *delims);
 bool parse_while(int delims_count, int consumed_delims, TokenType *delims);
 
-bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_brackets = false) {
+bool parse(int delims_count, int consumed_delims, TokenType *delims,
+           bool in_brackets = false) {
   Token t;
 
   bool last = false;
@@ -447,7 +446,7 @@ bool parse_while(int delims_count, int consumed_delims, TokenType *delims) {
   return true;
 }
 
-bool do_parse(const char *code, Object **out) {
+bool do_parse(const char *code, Object **out, bool inject_trailing_semicolon) {
   tokens.clear();
   stack.clear();
   current_token = 0;
@@ -456,10 +455,13 @@ bool do_parse(const char *code, Object **out) {
   if (!lex(code))
     return false;
 
+  if (inject_trailing_semicolon)
+    tokens.push_back({.type = (TokenType)';'});
+
   // for (Token &t : tokens)
   //   std::cout << t << "\n";
-  
-  TokenType delims[] = { (TokenType)';' };
+
+  TokenType delims[] = {(TokenType)';'};
 
   while (has_tokens_left())
     parse(1, 1, delims, false);
