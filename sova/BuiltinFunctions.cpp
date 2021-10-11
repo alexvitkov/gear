@@ -98,14 +98,16 @@ class DotForm : public Form {
 public:
   virtual Object *invoke_form(Context *ctx,
                               std::vector<Object *> &args) override {
-    if (args.size() != 2 || !args[0])
+    if (args.size() != 2)
       return nullptr;
 
+    Object* lhs = eval(ctx, args[0]);
     Reference *rhs = dynamic_cast<Reference *>(args[1]);
-    if (!rhs)
+
+    if (!lhs || !rhs)
       return nullptr;
 
-    return args[0]->dot(ctx, rhs->name);
+    return lhs->dot(ctx, rhs->name);
   }
 };
 

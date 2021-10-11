@@ -23,7 +23,7 @@ void repl() {
       continue;
 
     for (Object *obj : parsed_objects) {
-      // std::cout << obj << "\n";
+      std::cout << obj << "\n";
       std::cout << eval(&global_context, obj) << "\n";
     }
   }

@@ -64,20 +64,19 @@ Call *fix_precedence(Call *call) {
   if (rhs_data.has_brackets)
     return call;
 
-  if (data.infix.assoc == Associativity::FoldToVector &&
-      data.op == rhs_data.op) {
+  if (data.infix.assoc == Associativity::FoldToVector && data.op == rhs_data.op) {
     call->args.pop_back();
 
     for (auto arg : rhs->args)
       call->args.push_back(arg);
-  } else if (rhs_data.infix.precedence <
-             data.infix.precedence +
-                 (data.infix.assoc == Associativity::Left)) {
+  }
+
+  else if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
     auto tmp = rhs->args[0];
     rhs->args[0] = call;
-    call->args.back() = tmp;
+    call->args[1] = tmp;
 
-    return rhs;
+    return fix_precedence(rhs);
   }
 
   return call;
@@ -163,9 +162,8 @@ bool lex(const char *code) {
       goto Next;
     }
 
-
-    else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' ||
-             ch == '[' || ch == ']' || isspace(ch)) {
+    else if (ch == ';' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '[' || ch == ']' ||
+             isspace(ch)) {
       if (start >= 0) {
         emit_id(code, start, i);
         start = -1;
@@ -182,7 +180,7 @@ bool lex(const char *code) {
     if (start < 0) {
       if ((ch >= '0' && ch <= '9') || ch == '.') {
         const char *start = code + i;
-        char *end = (char*)start;
+        char *end = (char *)start;
         double d = strtod(code + i, &end);
 
         if (end <= start && ch == '.')
@@ -241,8 +239,8 @@ bool lex(const char *code) {
 bool parse_if(int delims_count, int consumed_delims, TokenType *delims);
 bool parse_while(int delims_count, int consumed_delims, TokenType *delims);
 
-bool parse(int delims_count, int consumed_delims, TokenType *delims,
-           bool in_brackets = false) {
+bool parse(int delims_count, int consumed_delims, TokenType *delims, bool in_brackets = false,
+           bool top_level_infix = true) {
   Token t;
 
   bool last = false;
@@ -265,9 +263,8 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
       }
     }
 
-    if (last &&
-        (t.type == TOK_ID || t.type == TOK_NUMBER || t.type == TOK_TRUE ||
-         t.type == TOK_FALSE || t.type == TOK_NIL || t.type == '{')) {
+    if (last && (t.type == TOK_ID || t.type == TOK_NUMBER || t.type == TOK_TRUE || t.type == TOK_FALSE ||
+                 t.type == TOK_NIL || t.type == '{')) {
       if (last) {
         parse_error({
             .type = ParseErrorType::UnexpectedId,
@@ -316,9 +313,22 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
       }
 
       case (TokenType)'(': {
-        TokenType delims[] = {(TokenType)')'};
-        if (!parse(1, 1, delims, true))
+
+        // if se see ) followed directly by (, push nil to the stack
+        Token closing_bracket;
+        if (!peek_token(closing_bracket))
           return false;
+        if (closing_bracket.type == ')') {
+          pop_token(closing_bracket);
+          stack.push_back(nullptr);
+        }
+
+        // if the next token is not ), parse the expression in brackets
+        else {
+          TokenType delims[] = {(TokenType)')'};
+          if (!parse(1, 1, delims, true))
+            return false;
+        }
 
         if (last) {
           auto in_brackets = stack.back();
@@ -335,9 +345,8 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
           else
             stack.push_back(new Call(fn, {}));
         } else {
-          stack.push_back(nullptr);
+          last = true;
         }
-
         goto NextToken;
       }
 
@@ -352,7 +361,7 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
         }
 
         // parse the rhs
-        if (!parse(delims_count, consumed_delims, delims, in_brackets))
+        if (!parse(delims_count, consumed_delims, delims, in_brackets, false))
           return false;
 
         Object *lhs = stack[stack.size() - 2];
@@ -365,7 +374,8 @@ bool parse(int delims_count, int consumed_delims, TokenType *delims,
             .has_brackets = false,
         };
 
-        call = fix_precedence(call);
+        if (top_level_infix)
+          call = fix_precedence(call);
 
         stack.pop_back();
         stack.back() = call;
@@ -481,8 +491,7 @@ void print_parse_error(std::ostream &o, ParseError err) {
   switch (err.type) {
     case ParseErrorType::UnexpectedId: {
       Token expected{.type = err.expected};
-      o << "unexpected " << err.unexpected << " while looking for " << expected
-        << "\n";
+      o << "unexpected " << err.unexpected << " while looking for " << expected << "\n";
       return;
     }
     default: {
@@ -492,8 +501,7 @@ void print_parse_error(std::ostream &o, ParseError err) {
   }
 }
 
-bool do_parse(const char *code, std::vector<Object *> &out,
-              bool inject_trailing_semicolon) {
+bool do_parse(const char *code, std::vector<Object *> &out, bool inject_trailing_semicolon) {
   tokens.clear();
   stack.clear();
   parse_errors.clear();
