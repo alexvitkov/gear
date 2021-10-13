@@ -1,14 +1,16 @@
 #include "BuiltinFunctions.h"
 #include "Block.h"
 #include "Bool.h"
+#include "Dict.h"
 #include "Form.h"
 #include "Function.h"
 #include "Lambda.h"
-#include "Dict.h"
 #include "Number.h"
 #include "Parser.h"
 #include "Reference.h"
+#include "String.h"
 #include <assert.h>
+#include <tuple>
 
 using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);
@@ -165,6 +167,25 @@ public:
   virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override { return new Dict(); }
 };
 
+class PrintFunction : public Function {
+public:
+  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+    for (int i = 0; i < args.size(); i++) {
+
+      if (args[i] && args[i]->as_string())
+        std::cout << args[i]->as_string()->str;
+      else
+        std::cout << args[i];
+
+      if (i != args.size() - 1)
+        std::cout << " ";
+      else
+        std::cout << "\n";
+    }
+    return nullptr;
+  }
+};
+
 static double add(double a, double b) { return a + b; }
 static double sub(double a, double b) { return a - b; }
 static double mul(double a, double b) { return a * b; }
@@ -226,4 +247,5 @@ void setup_global_context(Context &ctx) {
   ctx.define(".", new DotForm());
 
   ctx.define("dict", new DictConstructorFunction());
+  ctx.define("print", new PrintFunction());
 }

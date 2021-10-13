@@ -24,7 +24,9 @@ void repl() {
 
     for (Object *obj : parsed_objects) {
       // std::cout << obj << "\n";
-      std::cout << eval(global, obj) << "\n";
+      auto val = eval(global, obj);
+      if (val)
+        std::cout << val << "\n";
     }
   }
 }

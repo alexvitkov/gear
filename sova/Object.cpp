@@ -61,3 +61,6 @@ class LValue *Object::as_lvalue() {
 class Block *Object::as_block() {
   return nullptr;
 }
+class String *Object::as_string() {
+  return nullptr;
+}

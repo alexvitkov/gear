@@ -9,7 +9,7 @@ Object *While::interpret(Context &ctx, bool to_lvalue) {
   Object *evaled_cond;
 
   while (truthy(evaled_cond = eval(ctx, condition, to_lvalue)))
-    value = eval(ctx, body, to_lvalue);
+    value = eval(ctx, body, false);
 
   return value;
 }

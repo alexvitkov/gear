@@ -7,3 +7,7 @@ void String::print(std::ostream &o, int indent) {
 }
 
 Type String::get_type() { return TYPE_STRING; }
+
+class String *String::as_string() {
+  return this;
+}
