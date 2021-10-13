@@ -11,6 +11,7 @@ public:
 
   virtual Object* interpret(Context &, bool) override;
   virtual void print(std::ostream& o, int indent) override;
+  void print(std::ostream &o, bool needs_infix_breackets);
 
   virtual Call* as_call() override;
 
