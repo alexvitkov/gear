@@ -104,6 +104,19 @@ class UnaryMinus : public Function {
   }
 };
 
+class Not : public Function {
+  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+    if (args.size() != 1 || !args[0])
+      return nullptr;
+
+    Bool *b = dynamic_cast<Bool*>(args[0]);
+    if (!b)
+      return nullptr;
+
+    return b->value ? &False : &True;
+  }
+};
+
 class AssignForm : public Form {
 public:
   bool define_new;
@@ -275,12 +288,14 @@ void setup_global_context(Context &ctx) {
   set_prefix("-");
   set_prefix("+");
   set_prefix("'");
+  set_prefix("!");
 
   ctx.define("+", new AddFunction());
   ctx.define("-", new ArithmeticFunction<sub>());
   ctx.define("*", new ArithmeticFunction<mul>());
   ctx.define("/", new ArithmeticFunction<div>());
   ctx.define("prefix-", new UnaryMinus());
+  ctx.define("prefix!", new Not());
 
   ctx.define("prefix'", new QuoteForm());
   ctx.define("eval", new EvalFunction());
