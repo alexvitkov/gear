@@ -2,13 +2,16 @@
 #include "Call.h"
 #include "Context.h"
 #include "If.h"
+#include "GarbageCollector.h"
 #include "Number.h"
 #include "Object.h"
 #include "Parser.h"
 #include "Reference.h"
 #include <string.h>
 
-GlobalContext global;
+
+class GlobalContext global;
+bool run_gc = false;
 
 void repl() {
   while (true) {
@@ -27,6 +30,11 @@ void repl() {
       auto val = eval(global, obj);
       if (val)
         std::cout << val << "\n";
+    }
+
+    if (run_gc) {
+      gc(global);
+      run_gc = false;
     }
   }
 }

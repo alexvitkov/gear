@@ -22,12 +22,13 @@ enum Type {
 };
 
 class Object {
+  bool marked_for_gc;
+  friend void gc(class GlobalContext &);
 public:
   void *operator new(size_t size);
 
   virtual Type get_type() = 0;
   virtual void iterate_references(std::vector<Object *> &out);
-
   virtual Object *interpret(class Context &ctx, bool to_lvalue = false);
   virtual void print(std::ostream &o, int indent = 0);
   virtual bool equals(Object *other);
@@ -40,6 +41,8 @@ public:
   virtual class LValue *as_lvalue();
   virtual class Block *as_block();
   virtual class String *as_string();
+
+  virtual ~Object();
 };
 
 std::ostream &operator<<(std::ostream &o, Object *obj);

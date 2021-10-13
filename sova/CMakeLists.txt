@@ -21,6 +21,7 @@ add_executable(sova
   BuiltinFunctions.cpp
   Token.cpp
   Parser.cpp
+  GarbageCollector.cpp
   main.cpp
 )
 

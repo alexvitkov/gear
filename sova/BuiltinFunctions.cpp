@@ -4,6 +4,7 @@
 #include "Dict.h"
 #include "Form.h"
 #include "Function.h"
+#include "Global.h"
 #include "Lambda.h"
 #include "Number.h"
 #include "Parser.h"
@@ -186,7 +187,18 @@ public:
   }
 };
 
-static double add(double a, double b) { return a + b; }
+class RunGCFunction : public Function {
+public:
+  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+    run_gc = true;
+    return nullptr;
+  }
+};
+
+static double
+add(double a, double b) {
+  return a + b;
+}
 static double sub(double a, double b) { return a - b; }
 static double mul(double a, double b) { return a * b; }
 static double div(double a, double b) { return a / b; }
@@ -248,4 +260,5 @@ void setup_global_context(Context &ctx) {
 
   ctx.define("dict", new DictConstructorFunction());
   ctx.define("print", new PrintFunction());
+  ctx.define("gc", new RunGCFunction());
 }
