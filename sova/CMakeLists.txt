@@ -15,6 +15,7 @@ add_executable(sova
   Context.cpp
   Reference.cpp
   ObjectPtr.cpp
+  Dict.cpp
   If.cpp
   While.cpp
   BuiltinFunctions.cpp

@@ -4,6 +4,7 @@
 #include "Form.h"
 #include "Function.h"
 #include "Lambda.h"
+#include "Dict.h"
 #include "Number.h"
 #include "Parser.h"
 #include "Reference.h"
@@ -21,7 +22,7 @@ public:
       if (!args[i])
         return nullptr;
       Number *num = args[i]->as_number();
-      if (num)
+      if (!num)
         return nullptr;
 
       if (i == 0)
@@ -159,6 +160,11 @@ public:
   }
 };
 
+class DictConstructorFunction : public Function {
+public:
+  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override { return new Dict(); }
+};
+
 static double add(double a, double b) { return a + b; }
 static double sub(double a, double b) { return a - b; }
 static double mul(double a, double b) { return a * b; }
@@ -218,4 +224,6 @@ void setup_global_context(Context &ctx) {
   ctx.define("=", new AssignForm(false));
   ctx.define("=>", new ArrowForm());
   ctx.define(".", new DotForm());
+
+  ctx.define("dict", new DictConstructorFunction());
 }
