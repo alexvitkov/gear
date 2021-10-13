@@ -24,8 +24,11 @@ enum Type {
 class Object {
   bool marked_for_gc;
   friend void gc(class GlobalContext &);
+
 public:
+
   void *operator new(size_t size);
+  void operator delete(void *);
 
   virtual Type get_type() = 0;
   virtual void iterate_references(std::vector<Object *> &out);
@@ -42,7 +45,7 @@ public:
   virtual class Block *as_block();
   virtual class String *as_string();
 
-  virtual ~Object();
+  ~Object();
 };
 
 std::ostream &operator<<(std::ostream &o, Object *obj);

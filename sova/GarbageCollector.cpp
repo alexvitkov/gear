@@ -16,6 +16,10 @@ void *Object::operator new(size_t size) {
   return ptr;
 }
 
+void Object::operator delete(void* p) {
+  free(p);
+}
+
 void gc(GlobalContext &global) {
   int marked_objects = 0;
 

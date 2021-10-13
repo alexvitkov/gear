@@ -25,7 +25,6 @@ add_executable(sova
   main.cpp
 )
 
-target_include_directories(sova PRIVATE /usr/include/readline)
 target_link_libraries(sova readline)
 
 set_property(TARGET sova PROPERTY CXX_STANDARD 20)
