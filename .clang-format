@@ -2,3 +2,4 @@ BasedOnStyle: LLVM
 IndentWidth: 2
 IndentCaseLabels: True
 ColumnLimit: 110
+AllowShortCaseLabelsOnASingleLine: True
