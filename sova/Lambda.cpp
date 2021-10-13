@@ -2,7 +2,7 @@
 #include "Call.h"
 #include "Reference.h"
 
-Object *ArrowForm::invoke_form(Context *ctx, std::vector<Object *> &args) {
+Object *ArrowForm::invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) {
 
   if (args.size() != 2)
     return nullptr;
@@ -30,31 +30,30 @@ Object *ArrowForm::invoke_form(Context *ctx, std::vector<Object *> &args) {
   return new Lambda(param_names, args[1]);
 }
 
-Lambda::Lambda(std::vector<std::string> param_names, Object *body)
-    : param_names(param_names), body(body) {}
+Lambda::Lambda(std::vector<std::string> param_names, Object *body) : param_names(param_names), body(body) {}
 
-void Lambda::print(std::ostream& o) {
+void Lambda::print(std::ostream &o) {
   switch (param_names.size()) {
-  case 0:
-    o << "()";
-    break;
-  case 1:
-    o << param_names[0];
-    break;
-  default:
-    o << "(";
-    for (int i = 0; i < param_names.size(); i++) {
-      o << param_names[i];
-      if (i != param_names.size() - 1)
-        o << ", ";
-    }
-    o << ")";
-    break;
+    case 0:
+      o << "()";
+      break;
+    case 1:
+      o << param_names[0];
+      break;
+    default:
+      o << "(";
+      for (int i = 0; i < param_names.size(); i++) {
+        o << param_names[i];
+        if (i != param_names.size() - 1)
+          o << ", ";
+      }
+      o << ")";
+      break;
   }
   o << " => " << body;
 }
 
-Object* Lambda::call_fn(Context* ctx, std::vector<Object*>& args) {
+Object *Lambda::call_fn(Context &ctx, std::vector<Object *> &args) {
   if (args.size() != param_names.size())
     return nullptr;
 
@@ -63,5 +62,5 @@ Object* Lambda::call_fn(Context* ctx, std::vector<Object*>& args) {
   for (int i = 0; i < args.size(); i++)
     child_ctx.define(param_names[i], args[i]);
 
-  return eval(&child_ctx, body);
+  return eval(child_ctx, body);
 }

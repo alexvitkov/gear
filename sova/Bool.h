@@ -8,7 +8,6 @@ public:
   Bool(bool value);
 
   virtual void print(std::ostream& o) override;
-  virtual Object* dot(Context*, std::string) override;
 };
 
 extern Bool True;

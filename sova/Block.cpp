@@ -1,13 +1,13 @@
 #include "Block.h"
 #include "Context.h"
 
-Object *Block::interpret(Context *ctx) {
+Object *Block::interpret(Context &ctx, bool to_lvalue) {
   Context child_ctx(ctx);
   
   Object *val = nullptr;
 
   for (Object *obj : inside)
-    val = eval(&child_ctx, obj);
+    val = eval(child_ctx, obj, to_lvalue);
 
   return val;
 }

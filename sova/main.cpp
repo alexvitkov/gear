@@ -24,7 +24,7 @@ void repl() {
 
     for (Object *obj : parsed_objects) {
       // std::cout << obj << "\n";
-      std::cout << eval(&global, obj) << "\n";
+      std::cout << eval(global, obj) << "\n";
     }
   }
 }
@@ -68,7 +68,7 @@ RunFileResult read_file(const char *path, char *&out) {
 }
 
 int main(int argc, const char **argv) {
-  setup_global_context(&global);
+  setup_global_context(global);
 
   // if -- has been passed, treat everything after it as filenames
   bool done_parsing_args = false;
@@ -91,7 +91,7 @@ int main(int argc, const char **argv) {
         return 1;
 
       for (Object *obj : parsed_objects)
-        eval(&global, obj);
+        eval(global, obj);
 
       continue;
     }

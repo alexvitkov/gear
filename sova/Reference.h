@@ -1,12 +1,13 @@
 #pragma once
-#include "Object.h"
+#include "LValue.h"
 #include <string>
 
-class Reference : public Object {
+class Reference : public LValue {
 public:
   std::string name;
-  
+
   Reference(std::string name);
-  virtual Object* interpret(Context*) override;
-  virtual void print(std::ostream& o) override;
+  virtual Object *interpret(Context &ctx, bool to_lvalue) override;
+  Object *set(Context &ctx, Object *value, bool define_new) override;
+  virtual void print(std::ostream &o) override;
 };

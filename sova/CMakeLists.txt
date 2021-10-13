@@ -13,6 +13,7 @@ add_executable(sova
   Lambda.cpp
   Context.cpp
   Reference.cpp
+  ObjectPtr.cpp
   If.cpp
   While.cpp
   BuiltinFunctions.cpp

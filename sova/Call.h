@@ -9,7 +9,7 @@ public:
   std::vector<Object*> args;
   Call(Object* fn, std::vector<Object*> args);
 
-  virtual Object* interpret(Context*) override;
+  virtual Object* interpret(Context &, bool) override;
   virtual void print(std::ostream& o) override;
 
   bool is_comma_list();

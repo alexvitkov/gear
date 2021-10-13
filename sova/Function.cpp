@@ -1,6 +1,6 @@
 #include "Function.h"
 
-Object* Function::invoke_form(Context* ctx, std::vector<Object*>& args) {
+Object* Function::invoke_form(Context& ctx, std::vector<Object*>& args, bool) {
   std::vector<Object*> evaled_args;
 
   for (Object* o : args)

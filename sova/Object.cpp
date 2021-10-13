@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "LValue.h"
 
 std::ostream &operator<<(std::ostream &o, Object *obj) {
   if (!obj)
@@ -8,19 +9,19 @@ std::ostream &operator<<(std::ostream &o, Object *obj) {
   return o;
 }
 
-Object *eval(Context *ctx, Object *obj) {
+Object *eval(Context &ctx, Object *obj, bool to_lvalue) {
   if (!obj)
     return nullptr;
 
   // std::cout << "begin eval " << obj << "\n";
-  auto res = obj->interpret(ctx);
+  auto res = obj->interpret(ctx, to_lvalue);
   // std::cout << obj << " ---> " <<res << "\n";
   return res;
 }
 
 bool Object::equals(Object *other) { return this == other; }
 
-Object *Object::interpret(class Context *) { return this; }
+Object *Object::interpret(class Context &, bool) { return this; }
 
 bool equals(Object *lhs, Object *rhs) {
   if (lhs == rhs)
@@ -32,7 +33,6 @@ bool equals(Object *lhs, Object *rhs) {
   return lhs->equals(rhs);
 }
 
+LValue *Object::dot(Context &, std::string) { return nullptr; }
 
-Object* Object::dot(Context*, std::string) {
-  return nullptr;
-}
+void Object::print(std::ostream &o) { o << "<object>"; }

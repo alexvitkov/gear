@@ -14,7 +14,7 @@ using Comparator = bool (*)(double, double);
 
 template <Accumulator Acc> class ArithmeticFunction : public Function {
 public:
-  virtual Object *call_fn(Context *, std::vector<Object *> &args) override {
+  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
     double val;
 
     for (int i = 0; i < args.size(); i++) {
@@ -32,7 +32,7 @@ public:
 };
 
 template <Comparator Compare> class ComparisonFunction : public Function {
-  virtual Object *call_fn(Context *, std::vector<Object *> &args) override {
+  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -47,7 +47,7 @@ template <Comparator Compare> class ComparisonFunction : public Function {
 };
 
 class EqFunction : public Function {
-  virtual Object *call_fn(Context *, std::vector<Object *> &args) override {
+  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -56,7 +56,7 @@ class EqFunction : public Function {
 };
 
 class UnaryMinus : public Function {
-  virtual Object *call_fn(Context *, std::vector<Object *> &args) override {
+  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
     if (args.size() != 1)
       return nullptr;
 
@@ -68,46 +68,28 @@ class UnaryMinus : public Function {
   }
 };
 
-bool set(Context *ctx, std::string name, Object *value) {
-  if (ctx->resolve_map.contains(name)) {
-    ctx->define(name, value);
-    return true;
-  } else if (ctx->parent) {
-    return set(ctx->parent, name, value);
-  }
-
-  return false;
-}
-
 class AssignForm : public Form {
 public:
-  bool isNew;
+  bool define_new;
 
-  AssignForm(bool isNew) : isNew(isNew){};
+  AssignForm(bool define_new) : define_new(define_new){};
 
-  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
+  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2)
       return nullptr;
 
-    Reference *lhs = dynamic_cast<Reference *>(args[0]);
+    LValue *lhs = dynamic_cast<LValue*>(eval(ctx, args[0], true));
     if (!lhs)
       return nullptr;
 
-    Object *evaled_rhs = eval(ctx, args[1]);
-    if (isNew) {
-      ctx->define(lhs->name, evaled_rhs);
-    } else {
-      if (!set(ctx, lhs->name, evaled_rhs))
-        return nullptr;
-    }
-
-    return evaled_rhs;
+    Object *evaled_rhs = eval(ctx, args[1], false);
+    return lhs->set(ctx, evaled_rhs, define_new);
   }
 };
 
 class DotForm : public Form {
 public:
-  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
+  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -117,12 +99,12 @@ public:
     if (!lhs || !rhs)
       return nullptr;
 
-    return lhs->dot(ctx, rhs->name);
+    return eval(ctx, lhs->dot(ctx, rhs->name), to_lvalue);
   }
 };
 
 class MacroForm : public Form {
-  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
+  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -134,17 +116,17 @@ class MacroForm : public Form {
     if (!rhs)
       return nullptr;
 
-    ctx->get_global_context()->define_macro(lhs->name, rhs);
+    ctx.get_global_context()->define_macro(lhs->name, rhs);
     return nullptr;
   }
 };
 
 class EmitForm : public Form {
-  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
-    auto parser = ctx->get_global_context()->parser;
+  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
+    auto parser = ctx.get_global_context()->parser;
     if (!parser || parser->blocks.size() == 0) // TODO error
       return nullptr;
-    
+
     parser->blocks.back()->inside.push_back(args[0]);
     return nullptr;
   }
@@ -152,11 +134,21 @@ class EmitForm : public Form {
 
 class QuoteForm : public Form {
 public:
-  virtual Object *invoke_form(Context *ctx, std::vector<Object *> &args) override {
+  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 1)
       return nullptr;
 
     return args[0];
+  }
+};
+
+class EvalFunction : public Function {
+public:
+  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+    if (args.size() != 1)
+      return nullptr;
+
+    return eval(ctx, args[0]);
   }
 };
 
@@ -172,7 +164,7 @@ static bool le(double a, double b) { return a <= b; }
 static bool eq(double a, double b) { return a == b; }
 static bool ne(double a, double b) { return a != b; }
 
-void setup_global_context(Context *ctx) {
+void setup_global_context(Context &ctx) {
   set_infix(":=", 10, Associativity::Right);
   set_infix(",", 20, Associativity::FoldToVector);
   set_infix("=>", 30, Associativity::Right);
@@ -197,25 +189,26 @@ void setup_global_context(Context *ctx) {
   set_prefix("+");
   set_prefix("'");
 
-  ctx->define("+", new ArithmeticFunction<add>());
-  ctx->define("-", new ArithmeticFunction<sub>());
-  ctx->define("*", new ArithmeticFunction<mul>());
-  ctx->define("/", new ArithmeticFunction<div>());
-  ctx->define("prefix-", new UnaryMinus());
+  ctx.define("+", new ArithmeticFunction<add>());
+  ctx.define("-", new ArithmeticFunction<sub>());
+  ctx.define("*", new ArithmeticFunction<mul>());
+  ctx.define("/", new ArithmeticFunction<div>());
+  ctx.define("prefix-", new UnaryMinus());
 
-  ctx->define("prefix'", new QuoteForm());
-  ctx->define("emit", new EmitForm());
-  ctx->define("macro", new MacroForm());
+  ctx.define("prefix'", new QuoteForm());
+  ctx.define("eval", new EvalFunction());
+  ctx.define("emit", new EmitForm());
+  ctx.define("macro", new MacroForm());
 
-  ctx->define(">", new ComparisonFunction<gt>());
-  ctx->define("<", new ComparisonFunction<lt>());
-  ctx->define(">=", new ComparisonFunction<ge>());
-  ctx->define("<=", new ComparisonFunction<le>());
-  ctx->define("==", new ComparisonFunction<eq>());
-  ctx->define("!=", new ComparisonFunction<ne>());
+  ctx.define(">", new ComparisonFunction<gt>());
+  ctx.define("<", new ComparisonFunction<lt>());
+  ctx.define(">=", new ComparisonFunction<ge>());
+  ctx.define("<=", new ComparisonFunction<le>());
+  ctx.define("==", new ComparisonFunction<eq>());
+  ctx.define("!=", new ComparisonFunction<ne>());
 
-  ctx->define(":=", new AssignForm(true));
-  ctx->define("=", new AssignForm(false));
-  ctx->define("=>", new ArrowForm());
-  ctx->define(".", new DotForm());
+  ctx.define(":=", new AssignForm(true));
+  ctx.define("=", new AssignForm(false));
+  ctx.define("=>", new ArrowForm());
+  ctx.define(".", new DotForm());
 }
