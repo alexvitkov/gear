@@ -87,9 +87,23 @@ bool TokenStream::lex(const char *code) {
             goto Next;
           }
 
+          case '\\': {
+            i++;
+            switch (code[i]) {
+              case 'b': out << '\b'; break;
+              case 'n': out << '\n'; break;
+              case '\\': out << '\\'; break;
+              case '"': out << '"'; break;
+              default: out << code[i]; break;
+            }
+            i++;
+            break;
+          }
+
           default: {
             out << code[i];
             i++;
+            break;
           }
         }
       }
