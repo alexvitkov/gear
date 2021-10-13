@@ -334,7 +334,8 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
             return false;
           }
 
-          block->inside.push_back(stack.back());
+          if (stack.back() != nullptr)
+            block->inside.push_back(stack.back());
           stack.pop_back();
         }
 
