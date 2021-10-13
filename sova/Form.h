@@ -10,4 +10,5 @@ public:
   virtual Object* invoke_form(Context &, std::vector<Object*>& args, bool to_lvalue) = 0;
 
   virtual Form* as_form() override;
+  virtual Type get_type() override;
 };

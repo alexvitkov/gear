@@ -12,3 +12,5 @@ Object* Function::invoke_form(Context& ctx, std::vector<Object*>& args, bool) {
 void Function::print(std::ostream& o, int indent) {
   o << "<function>";
 }
+
+Type Function::get_type() { return TYPE_FUNCTION; }

@@ -89,3 +89,5 @@ bool Call::is_comma_list() {
 }
 
 Call *Call::as_call() { return this; }
+
+Type Call::get_type() { return TYPE_CALL; }

@@ -9,4 +9,6 @@ public:
 
   virtual Object *interpret(Context &, bool to_lvalue) override;
   virtual Object *set(Context &ctx, Object *value, bool define_new) override;
+
+  virtual Type get_type() override;
 };

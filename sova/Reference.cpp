@@ -6,19 +6,13 @@ Reference::Reference(std::string name) : name(name) {}
 
 Object *Reference::interpret(Context &ctx, bool to_lvalue) { return to_lvalue ? this : ctx.resolve(name); }
 
+bool set(Context *ctx, std::string name, Object *value) { return false; }
 
-bool set(Context *ctx, std::string name, Object *value) {
-
-  return false;
-}
-
-
-Object* Reference::set(Context &ctx, Object *value, bool define_new) {
+Object *Reference::set(Context &ctx, Object *value, bool define_new) {
   if (define_new || ctx.resolve_map.contains(name)) {
     ctx.define(name, value);
     return value;
-  }
-  else {
+  } else {
     if (ctx.parent)
       return set(*ctx.parent, value, false);
     else
@@ -28,4 +22,6 @@ Object* Reference::set(Context &ctx, Object *value, bool define_new) {
 
 void Reference::print(std::ostream &o, int indent) { o << name; }
 
-Reference* Reference::as_reference() { return this; }
+Reference *Reference::as_reference() { return this; }
+
+Type Reference::get_type() { return TYPE_REFERENCE; }

@@ -31,3 +31,5 @@ void Block::print(std::ostream &o, int indent) {
 }
 
 Block *Block::as_block() { return this; }
+
+Type Block::get_type() { return TYPE_AST_BLOCK; }

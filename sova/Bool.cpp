@@ -8,3 +8,7 @@ Bool False(false);
 void Bool::print(std::ostream& o, int indent) {
   o << (value ? "true" : "false");
 }
+
+Type Bool::get_type() {
+  return TYPE_BOOL;
+}

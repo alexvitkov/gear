@@ -29,3 +29,6 @@ Object *DictAccessor::set(Context &ctx, Object *value, bool define_new) {
 Object *DictAccessor::interpret(class Context &ctx, bool to_lvalue) {
   return to_lvalue ? this : map->children[name];
 }
+
+Type Dict::get_type() { return TYPE_DICT; }
+Type DictAccessor::get_type() { return TYPE_DICT_ACCESSOR; }

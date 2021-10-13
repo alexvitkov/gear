@@ -37,3 +37,7 @@ LValue *If::dot(Context &, std::string str) {
     return new ObjectPtr(&if_false);
   return nullptr;
 }
+
+Type If::get_type() {
+  return TYPE_AST_IF;
+}

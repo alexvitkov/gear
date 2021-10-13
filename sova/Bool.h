@@ -6,7 +6,7 @@ public:
   bool value;
 
   Bool(bool value);
-
+  virtual Type get_type() override;
   virtual void print(std::ostream& o, int indent) override;
 };
 

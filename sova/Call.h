@@ -11,10 +11,11 @@ public:
 
   virtual Object* interpret(Context &, bool) override;
   virtual void print(std::ostream& o, int indent) override;
+  virtual Type get_type() override;
+
   void print(std::ostream &o, bool needs_infix_breackets);
 
   virtual Call* as_call() override;
 
   bool is_comma_list();
-
 };

@@ -11,4 +11,5 @@ public:
   // TODO virtual bool equals(Object* other) override;
 
   virtual Block* as_block() override;
+  virtual Type get_type() override;
 };

@@ -9,4 +9,5 @@ public:
   virtual void print(std::ostream& o, int indent) override;
   virtual bool equals(Object* other) override;
   virtual Number* as_number() override;
+  virtual Type get_type() override;
 };
