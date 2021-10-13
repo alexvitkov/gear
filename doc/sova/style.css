@@ -1,0 +1,52 @@
+body {
+    background: #dedede;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+
+    font-family: 'PT Sans', sans-serif;
+    display: flex;
+    justify-content: center;
+}
+
+.content {
+    flex: 100ch 0 1;
+}
+
+h1 {
+    text-align: center;
+}
+
+h2 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+section {
+    margin: 0;
+    margin-bottom: 0.3em;
+    background: white;
+    padding: 0.5em;
+    border-radius: 0.3em;
+    border: 1px solid #ccc;
+}
+
+
+pre {
+    white-space: pre-line;
+    padding: 0.3em;
+    
+}
+
+pre, code {
+    background: #c8d0de;
+    border-radius: 0.3em;
+}
+
+code {
+    padding: 0em 0.3em;
+}
+
+p {
+    margin: 0;
+    margin-bottom: 0.2em;
+}

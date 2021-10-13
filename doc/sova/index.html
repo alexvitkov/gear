@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>sova documentation</title>
+    <script src="elements.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"> 
+  </head>
+
+  <body>
+    <div class="content">
+
+      <h1>sova 'documentation'</h1>
+
+      <section>
+        <h2>Variables</h2>
+        <p>
+          Initial declaration is done with <code>:=</code>, reassignment with <code>=</code>
+        </p>
+
+        <p>
+          <code>:=</code> will declare the variable in the current scope, shadowing variables with the same name in parent scopes.
+        </p>
+        
+        <p>
+          <code>=</code> will not declare a new variable - if the variable doesn't exist
+          in the current scope it will recursively look for it in parent scopes.
+        </p>
+        <pre>
+          &gt foo := 100 + 50
+          
+          &gt foo
+          150
+          
+          &gt foo = foo + 30
+          150
+        </pre>
+      </section>
+
+      <section>
+        <h2>Booleans</h2>
+        The boolean constants are called <code>true</code> and <code>false</code>.
+      </section>
+
+      <section>
+        <h2>Numbers</h2>
+        The only numeric type (right now) is 64 bit float. <code>+</code>,<code>-</code>,<code>*</code>,<code>/</code> <code>&gt</code>, <code>&lt</code>, <code>&gt=</code>, <code>&lt=</code> work as you would expect. 
+      </section>
+
+      <section>
+        <h2>Dictionaries</h2>
+        <pre>
+          &gt user := dict();
+          &gt user.first_name = "John";
+          &gt user.last_name = "Doe";
+
+          &gt user
+          dict {
+          &nbsp;&nbsp;&nbsp;&nbsp;first_name: "John",
+          &nbsp;&nbsp;&nbsp;&nbsp;last_name: "Doe",
+          }
+
+          &gt; user.first_name + " " + user.last_name
+          John Doe
+        </pre>
+      </section>
+
+      <section>
+        <h2>Quote/Eval</h2>
+        You can surpress evaluation of an expression with a single quote.
+        The AST object will be returned so you can hack on it and evaluate it later.
+      </section>
+
+    </div>
+  </body>
+</html>
