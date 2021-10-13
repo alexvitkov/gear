@@ -93,7 +93,10 @@ Call *Parser::fix_precedence(Call *call) {
     return call;
   CallInfixData data = it->second;
 
-  Call *rhs = dynamic_cast<Call *>(call->args.back());
+  if (!call->args[1])
+    return call;
+
+  Call *rhs = call->args[1]->as_call();
   if (!rhs)
     return call;
 
@@ -244,8 +247,9 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           Object *fn = stack.back();
           stack.pop_back();
 
-          Call *args = dynamic_cast<Call *>(in_brackets);
-          if (args && args->is_comma_list())
+
+          Call *args;
+          if (in_brackets && (args = in_brackets->as_call()) && args->is_comma_list())
             stack.push_back(new Call(fn, args->args));
           else if (in_brackets)
             stack.push_back(new Call(fn, {in_brackets}));

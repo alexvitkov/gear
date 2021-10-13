@@ -6,8 +6,10 @@ Call::Call(Object *fn, std::vector<Object *> args) : fn(fn), args(args) {}
 
 Object *Call::interpret(Context &ctx, bool to_lvalue) {
   Object *interpreted = fn->interpret(ctx);
+  if (!interpreted)
+    return nullptr;
 
-  Form *casted_fn = dynamic_cast<Form *>(interpreted);
+  Form *casted_fn = interpreted->as_form();
   if (!casted_fn)
     return nullptr;
 
@@ -27,9 +29,13 @@ void Call::print(std::ostream &o) {
 }
 
 bool Call::is_comma_list() {
-  Reference *r = dynamic_cast<Reference *>(fn);
+  Reference *r = fn->as_reference();
   if (!r)
     return false;
 
   return r->name == ",";
+}
+
+Call* Call::as_call() {
+  return this;
 }

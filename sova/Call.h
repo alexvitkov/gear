@@ -12,5 +12,8 @@ public:
   virtual Object* interpret(Context &, bool) override;
   virtual void print(std::ostream& o) override;
 
+  virtual Call* as_call();
+
   bool is_comma_list();
+
 };

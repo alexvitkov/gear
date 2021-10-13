@@ -4,23 +4,25 @@
 
 Object *ArrowForm::invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) {
 
-  if (args.size() != 2)
+  if (args.size() != 2 || !args[0])
     return nullptr;
 
   std::vector<std::string> param_names;
 
   // a => .....
-  Reference *param = dynamic_cast<Reference *>(args[0]);
+  Reference *param = args[0]->as_reference();
   if (param) {
     param_names.push_back(param->name);
   } else {
     // (a,b,c) => ....
-    Call *params = dynamic_cast<Call *>(args[0]);
+    Call *params = args[0]->as_call();
     if (!params || !params->is_comma_list())
       return nullptr;
 
     for (Object *param : params->args) {
-      Reference *r = dynamic_cast<Reference *>(param);
+      if (!param)
+        return nullptr;
+      Reference *r = param->as_reference();
       if (!r)
         return nullptr;
       param_names.push_back(r->name);

@@ -20,3 +20,7 @@ void Block::print(std::ostream &o) {
 
   o << "}";
 }
+
+Block* Block::as_block() {
+  return this;
+}

@@ -18,13 +18,16 @@ public:
     double val;
 
     for (int i = 0; i < args.size(); i++) {
-      Number *arg_as_number = dynamic_cast<Number *>(args[i]);
-      assert(arg_as_number);
+      if (!args[i])
+        return nullptr;
+      Number *num = args[i]->as_number();
+      if (num)
+        return nullptr;
 
       if (i == 0)
-        val = arg_as_number->value;
+        val = num->value;
       else
-        val = Acc(val, arg_as_number->value);
+        val = Acc(val, num->value);
     }
 
     return new Number(val);
@@ -33,11 +36,11 @@ public:
 
 template <Comparator Compare> class ComparisonFunction : public Function {
   virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
-    if (args.size() != 2)
+    if (args.size() != 2 || !args[0] || !args[1])
       return nullptr;
 
-    Number *lhs = dynamic_cast<Number *>(args[0]);
-    Number *rhs = dynamic_cast<Number *>(args[1]);
+    Number *lhs = args[0]->as_number();
+    Number *rhs = args[1]->as_number();
 
     if (!lhs || !rhs)
       return nullptr;
@@ -57,10 +60,10 @@ class EqFunction : public Function {
 
 class UnaryMinus : public Function {
   virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
-    if (args.size() != 1)
+    if (args.size() != 1 || !args[0])
       return nullptr;
 
-    Number *num = dynamic_cast<Number *>(args[0]);
+    Number *num = args[0]->as_number();
     if (!num)
       return nullptr;
 
@@ -78,7 +81,11 @@ public:
     if (args.size() != 2)
       return nullptr;
 
-    LValue *lhs = dynamic_cast<LValue*>(eval(ctx, args[0], true));
+    auto evaled_lhs = eval(ctx, args[0], true);
+    if (!evaled_lhs)
+      return nullptr;
+
+    LValue *lhs = evaled_lhs->as_lvalue();
     if (!lhs)
       return nullptr;
 
@@ -90,11 +97,11 @@ public:
 class DotForm : public Form {
 public:
   virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
-    if (args.size() != 2)
+    if (args.size() != 2 || !args[1])
       return nullptr;
 
     Object *lhs = eval(ctx, args[0]);
-    Reference *rhs = dynamic_cast<Reference *>(args[1]);
+    Reference *rhs = args[1]->as_reference();
 
     if (!lhs || !rhs)
       return nullptr;
@@ -105,18 +112,18 @@ public:
 
 class MacroForm : public Form {
   virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
-    if (args.size() != 2)
+    if (args.size() != 2 || !args[0] || args[1])
       return nullptr;
 
-    Reference *lhs = dynamic_cast<Reference *>(args[0]);
-    if (!lhs)
+    Reference *name = args[0]->as_reference();
+    if (!name)
       return nullptr;
 
-    Block *rhs = dynamic_cast<Block *>(args[1]);
-    if (!rhs)
+    Block *value = args[1]->as_block();
+    if (!value)
       return nullptr;
 
-    ctx.get_global_context()->define_macro(lhs->name, rhs);
+    ctx.get_global_context()->define_macro(name->name, value);
     return nullptr;
   }
 };

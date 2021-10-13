@@ -36,3 +36,10 @@ bool equals(Object *lhs, Object *rhs) {
 LValue *Object::dot(Context &, std::string) { return nullptr; }
 
 void Object::print(std::ostream &o) { o << "<object>"; }
+
+class Form* Object::as_form() { return nullptr; }
+class Reference* Object::as_reference() { return nullptr; }
+class Number* Object::as_number() { return nullptr; }
+class Call* Object::as_call() { return nullptr; }
+class LValue* Object::as_lvalue() { return nullptr; }
+class Block* Object::as_block() { return nullptr; }

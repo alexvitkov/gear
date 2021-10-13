@@ -10,7 +10,7 @@ bool truthy(Object *o) {
   if (!o || o == &False)
     return false;
 
-  Number *num = dynamic_cast<Number *>(o);
+  Number *num = num->as_number();
   if (num && num->value == 0.0)
     return false;
 
