@@ -12,6 +12,7 @@
 #include "String.h"
 #include <assert.h>
 #include <tuple>
+#include <stdlib.h>
 
 using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);
@@ -187,6 +188,21 @@ public:
   }
 };
 
+class SystemFunction : public Function {
+public:
+  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+    if (args.size() == 0 || !args[0])
+      return nullptr;
+
+    String* str = args[0]->as_string();
+    if (!str)
+      return nullptr;
+
+    system(str->str.c_str());
+    return nullptr;
+  }
+};
+
 class RunGCFunction : public Function {
 public:
   virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
@@ -261,4 +277,5 @@ void setup_global_context(Context &ctx) {
   ctx.define("dict", new DictConstructorFunction());
   ctx.define("print", new PrintFunction());
   ctx.define("gc", new RunGCFunction());
+  ctx.define("system", new SystemFunction());
 }
