@@ -9,6 +9,12 @@ std::ostream &operator<<(std::ostream &o, Object *obj) {
   return o;
 }
 
+void print_obvject_newline(std::ostream &o, int indent) {
+  o << "\n";
+  for (int i = 0; i < indent; i++)
+    o << "    ";
+}
+
 Object *eval(Context &ctx, Object *obj, bool to_lvalue) {
   if (!obj)
     return nullptr;
@@ -35,11 +41,23 @@ bool equals(Object *lhs, Object *rhs) {
 
 LValue *Object::dot(Context &, std::string) { return nullptr; }
 
-void Object::print(std::ostream &o) { o << "<object>"; }
+void Object::print(std::ostream &o, int indent) { o << "<object>"; }
 
-class Form* Object::as_form() { return nullptr; }
-class Reference* Object::as_reference() { return nullptr; }
-class Number* Object::as_number() { return nullptr; }
-class Call* Object::as_call() { return nullptr; }
-class LValue* Object::as_lvalue() { return nullptr; }
-class Block* Object::as_block() { return nullptr; }
+class Form *Object::as_form() {
+  return nullptr;
+}
+class Reference *Object::as_reference() {
+  return nullptr;
+}
+class Number *Object::as_number() {
+  return nullptr;
+}
+class Call *Object::as_call() {
+  return nullptr;
+}
+class LValue *Object::as_lvalue() {
+  return nullptr;
+}
+class Block *Object::as_block() {
+  return nullptr;
+}

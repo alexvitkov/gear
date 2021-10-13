@@ -11,7 +11,7 @@ public:
   If(Object *condition, Object *if_true, Object *if_false);
 
   virtual Object *interpret(Context &, bool) override;
-  virtual void print(std::ostream &o) override;
+  virtual void print(std::ostream &o, int indent) override;
   virtual LValue *dot(Context &, std::string) override;
 };
 

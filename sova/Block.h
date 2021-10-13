@@ -7,7 +7,7 @@ public:
   std::vector<Object *> inside;
 
   virtual Object *interpret(class Context &, bool to_lvalue) override;
-  virtual void print(std::ostream &o) override;
+  virtual void print(std::ostream &o, int indent) override;
   // TODO virtual bool equals(Object* other) override;
 
   virtual Block* as_block() override;

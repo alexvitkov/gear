@@ -9,7 +9,7 @@ class Dict : public Object {
   std::unordered_map<std::string, Object*> children;
   friend class DictAccessor;
 public:
-  virtual void print(std::ostream& o) override;
+  virtual void print(std::ostream& o, int indent) override;
   virtual class LValue *dot(Context &, std::string) override;
 };
 

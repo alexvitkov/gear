@@ -26,6 +26,6 @@ Object* Reference::set(Context &ctx, Object *value, bool define_new) {
   }
 }
 
-void Reference::print(std::ostream &o) { o << name; }
+void Reference::print(std::ostream &o, int indent) { o << name; }
 
 Reference* Reference::as_reference() { return this; }

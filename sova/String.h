@@ -7,5 +7,5 @@ public:
   std::string str;
 
   String(std::string str);
-  virtual void print(std::ostream &o) override;
+  virtual void print(std::ostream &o, int indent) override;
 };

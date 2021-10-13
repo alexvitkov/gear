@@ -1,6 +1,6 @@
 #include "Dict.h"
 
-void Dict::print(std::ostream &o) {
+void Dict::print(std::ostream &o, int indent) {
 
   o << "dict {\n";
 

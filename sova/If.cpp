@@ -22,7 +22,7 @@ Object *If::interpret(Context &ctx, bool to_lvalue) {
   return eval(ctx, truthy(evaled_cond) ? if_true : if_false, to_lvalue);
 }
 
-void If::print(std::ostream &o) {
+void If::print(std::ostream &o, int indent) {
   o << "if (" << condition << ") " << if_true;
   if (if_false)
     o << " else " << if_false;

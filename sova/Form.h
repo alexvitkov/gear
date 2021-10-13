@@ -5,7 +5,7 @@
 
 class Form : public Object {
 public:
-  virtual void print(std::ostream& o) override;
+  virtual void print(std::ostream& o, int indent) override;
 
   virtual Object* invoke_form(Context &, std::vector<Object*>& args, bool to_lvalue) = 0;
 

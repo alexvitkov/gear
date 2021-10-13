@@ -1,9 +1,10 @@
 #include "Block.h"
 #include "Context.h"
+#include "Object.h"
 
 Object *Block::interpret(Context &ctx, bool to_lvalue) {
   Context child_ctx(ctx);
-  
+
   Object *val = nullptr;
 
   for (Object *obj : inside)
@@ -12,15 +13,21 @@ Object *Block::interpret(Context &ctx, bool to_lvalue) {
   return val;
 }
 
-void Block::print(std::ostream &o) {
+void Block::print(std::ostream &o, int indent) {
   o << "{ ";
 
-  for (Object *obj : inside)
-    o << obj << "; ";
+  indent++;
+  for (Object *obj : inside) {
+    if (obj) {
+      print_obvject_newline(o, indent);
+      obj->print(o, indent);
+      o << ";";
+    }
+  }
+  indent--;
+  print_obvject_newline(o, indent);
 
   o << "}";
 }
 
-Block* Block::as_block() {
-  return this;
-}
+Block *Block::as_block() { return this; }

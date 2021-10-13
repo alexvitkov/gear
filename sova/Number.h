@@ -6,7 +6,7 @@ public:
   double value;
   
   Number(double value);
-  virtual void print(std::ostream& o) override;
+  virtual void print(std::ostream& o, int indent) override;
   virtual bool equals(Object* other) override;
   virtual Number* as_number() override;
 };

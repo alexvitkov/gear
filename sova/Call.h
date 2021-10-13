@@ -10,9 +10,9 @@ public:
   Call(Object* fn, std::vector<Object*> args);
 
   virtual Object* interpret(Context &, bool) override;
-  virtual void print(std::ostream& o) override;
+  virtual void print(std::ostream& o, int indent) override;
 
-  virtual Call* as_call();
+  virtual Call* as_call() override;
 
   bool is_comma_list();
 

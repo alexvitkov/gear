@@ -7,7 +7,7 @@ public:
 
   Bool(bool value);
 
-  virtual void print(std::ostream& o) override;
+  virtual void print(std::ostream& o, int indent) override;
 };
 
 extern Bool True;

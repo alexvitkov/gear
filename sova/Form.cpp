@@ -1,6 +1,6 @@
 #include "Form.h"
 
-void Form::print(std::ostream& o) {
+void Form::print(std::ostream& o, int indent) {
   o << "<form>";
 }
 

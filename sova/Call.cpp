@@ -16,7 +16,7 @@ Object *Call::interpret(Context &ctx, bool to_lvalue) {
   return casted_fn->invoke_form(ctx, args, to_lvalue);
 }
 
-void Call::print(std::ostream &o) {
+void Call::print(std::ostream &o, int indent) {
   o << "(" << fn << " ";
 
   for (int i = 0; i < args.size(); i++) {

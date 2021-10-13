@@ -14,6 +14,6 @@ Object *While::interpret(Context &ctx, bool to_lvalue) {
   return value;
 }
 
-void While::print(std::ostream &o) {
+void While::print(std::ostream &o, int indent) {
   o << "while (" << condition << ") " << body;
 }

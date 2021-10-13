@@ -34,7 +34,7 @@ Object *ArrowForm::invoke_form(Context &ctx, std::vector<Object *> &args, bool t
 
 Lambda::Lambda(std::vector<std::string> param_names, Object *body) : param_names(param_names), body(body) {}
 
-void Lambda::print(std::ostream &o) {
+void Lambda::print(std::ostream &o, int indent) {
   switch (param_names.size()) {
     case 0:
       o << "()";
