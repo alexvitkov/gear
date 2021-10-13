@@ -21,3 +21,8 @@ void While::print(std::ostream &o, int indent) {
 Type While::get_type() {
   return TYPE_AST_WHILE;
 }
+
+void While::iterate_references(std::vector<Object *> &out) {
+  out.push_back(condition);
+  out.push_back(body);
+}

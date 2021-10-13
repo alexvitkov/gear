@@ -33,3 +33,8 @@ void Block::print(std::ostream &o, int indent) {
 Block *Block::as_block() { return this; }
 
 Type Block::get_type() { return TYPE_AST_BLOCK; }
+
+void Block::iterate_references(std::vector<Object *> &out) {
+  for (auto o : inside)
+    out.push_back(o);
+}

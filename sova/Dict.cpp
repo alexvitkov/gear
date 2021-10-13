@@ -35,3 +35,12 @@ Object *DictAccessor::interpret(class Context &ctx, bool to_lvalue) {
 
 Type Dict::get_type() { return TYPE_DICT; }
 Type DictAccessor::get_type() { return TYPE_DICT_ACCESSOR; }
+
+void Dict::iterate_references(std::vector<Object *> & out) {
+  for (auto kvp : children)
+    out.push_back(kvp.second);
+}
+
+void DictAccessor::iterate_references(std::vector<Object *> & out) {
+    out.push_back(map);
+}

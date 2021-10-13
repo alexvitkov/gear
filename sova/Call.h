@@ -12,6 +12,7 @@ public:
   virtual Object* interpret(Context &, bool) override;
   virtual void print(std::ostream& o, int indent) override;
   virtual Type get_type() override;
+  virtual void iterate_references(std::vector<Object *> &) override;
 
   void print(std::ostream &o, bool needs_infix_breackets);
 

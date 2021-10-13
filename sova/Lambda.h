@@ -17,4 +17,5 @@ public:
 
   virtual Object *call_fn(Context &, std::vector<Object *> &args) override;
   virtual void print(std::ostream &o, int indent) override;
+  virtual void iterate_references(std::vector<Object *> &out) override;
 };

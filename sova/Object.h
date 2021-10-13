@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 
 enum Type {
   TYPE_BOOL,
@@ -22,20 +23,23 @@ enum Type {
 
 class Object {
 public:
+  void *operator new(size_t size);
+
   virtual Type get_type() = 0;
+  virtual void iterate_references(std::vector<Object *> &out);
 
   virtual Object *interpret(class Context &ctx, bool to_lvalue = false);
   virtual void print(std::ostream &o, int indent = 0);
   virtual bool equals(Object *other);
   virtual class LValue *dot(Context &, std::string);
 
-  virtual class Form* as_form();
-  virtual class Reference* as_reference();
-  virtual class Number* as_number();
-  virtual class Call* as_call();
-  virtual class LValue* as_lvalue();
-  virtual class Block* as_block();
-  virtual class String* as_string();
+  virtual class Form *as_form();
+  virtual class Reference *as_reference();
+  virtual class Number *as_number();
+  virtual class Call *as_call();
+  virtual class LValue *as_lvalue();
+  virtual class Block *as_block();
+  virtual class String *as_string();
 };
 
 std::ostream &operator<<(std::ostream &o, Object *obj);
@@ -43,5 +47,4 @@ Object *eval(Context &ctx, Object *obj, bool to_lvalue = false);
 
 bool equals(Object *, Object *);
 
-
-void print_obvject_newline(std::ostream&, int indent);
+void print_obvject_newline(std::ostream &, int indent);

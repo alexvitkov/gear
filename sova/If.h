@@ -13,7 +13,7 @@ public:
   virtual Object *interpret(Context &, bool) override;
   virtual void print(std::ostream &o, int indent) override;
   virtual LValue *dot(Context &, std::string) override;
-
+  virtual void iterate_references(std::vector<Object *> &out) override;
   virtual Type get_type() override;
 };
 

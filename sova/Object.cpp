@@ -64,3 +64,14 @@ class Block *Object::as_block() {
 class String *Object::as_string() {
   return nullptr;
 }
+
+int total_alloced = 0;
+
+void* Object::operator new(size_t size) {
+  void* ptr = malloc(size);
+  total_alloced += size;
+  // std::cout << "alloc " << size << ". total: " << total_alloced << "\n";
+  return ptr;
+}
+
+void Object::iterate_references(std::vector<Object *> &) {}

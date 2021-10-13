@@ -66,3 +66,7 @@ Object *Lambda::call_fn(Context &ctx, std::vector<Object *> &args) {
 
   return eval(child_ctx, body);
 }
+
+void Lambda::iterate_references(std::vector<Object *> &out) {
+  out.push_back(body);
+}

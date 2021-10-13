@@ -30,14 +30,18 @@ void If::print(std::ostream &o, int indent) {
 
 LValue *If::dot(Context &, std::string str) {
   if (str == "condition")
-    return new ObjectPtr(&condition);
+    return new ObjectPtr(this, &condition);
   if (str == "if_true")
-    return new ObjectPtr(&if_true);
+    return new ObjectPtr(this, &if_true);
   if (str == "if_false")
-    return new ObjectPtr(&if_false);
+    return new ObjectPtr(this, &if_false);
   return nullptr;
 }
 
-Type If::get_type() {
-  return TYPE_AST_IF;
+Type If::get_type() { return TYPE_AST_IF; }
+
+void If::iterate_references(std::vector<Object *> &out) {
+  out.push_back(condition);
+  out.push_back(if_true);
+  out.push_back(if_false);
 }
