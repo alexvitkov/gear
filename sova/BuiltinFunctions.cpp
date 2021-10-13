@@ -11,11 +11,39 @@
 #include "Reference.h"
 #include "String.h"
 #include <assert.h>
-#include <tuple>
+#include <sstream>
 #include <stdlib.h>
 
 using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);
+
+class AddFunction : public Function {
+  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+    if (args.size() != 2 || !args[0] || !args[1])
+      return nullptr;
+
+    Number *num1 = args[0]->as_number();
+    Number *num2 = args[1]->as_number();
+
+    if (num1 && num2)
+      return new Number(num1->value + num2->value);
+    else {
+      std::ostringstream out;
+
+      if (args[0]->as_string())
+        out << args[0]->as_string()->str;
+      else
+        out << args[0];
+
+      if (args[1]->as_string())
+        out << args[1]->as_string()->str;
+      else
+        out << args[1];
+
+      return new String(out.str());
+    }
+  }
+};
 
 template <Accumulator Acc> class ArithmeticFunction : public Function {
 public:
@@ -194,7 +222,7 @@ public:
     if (args.size() == 0 || !args[0])
       return nullptr;
 
-    String* str = args[0]->as_string();
+    String *str = args[0]->as_string();
     if (!str)
       return nullptr;
 
@@ -211,10 +239,7 @@ public:
   }
 };
 
-static double
-add(double a, double b) {
-  return a + b;
-}
+static double add(double a, double b) { return a + b; }
 static double sub(double a, double b) { return a - b; }
 static double mul(double a, double b) { return a * b; }
 static double div(double a, double b) { return a / b; }
@@ -251,7 +276,7 @@ void setup_global_context(Context &ctx) {
   set_prefix("+");
   set_prefix("'");
 
-  ctx.define("+", new ArithmeticFunction<add>());
+  ctx.define("+", new AddFunction());
   ctx.define("-", new ArithmeticFunction<sub>());
   ctx.define("*", new ArithmeticFunction<mul>());
   ctx.define("/", new ArithmeticFunction<div>());
