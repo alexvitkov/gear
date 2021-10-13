@@ -8,6 +8,8 @@
 #include "Parser.h"
 #include "Reference.h"
 #include <string.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 
 class GlobalContext global;
@@ -15,14 +17,15 @@ bool run_gc = false;
 
 void repl() {
   while (true) {
-    std::cout << "> ";
+    const char* code = readline("sova> ");
+    if (!code)
+      break;
 
-    std::string code;
-    std::getline(std::cin, code);
+    add_history(code);
 
     std::vector<Object *> parsed_objects;
 
-    if (!do_parse(global, code.c_str(), parsed_objects, true))
+    if (!do_parse(global, code, parsed_objects, true))
       continue;
 
     for (Object *obj : parsed_objects) {
