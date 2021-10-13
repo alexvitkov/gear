@@ -1,23 +1,22 @@
 #include "BuiltinFunctions.h"
 #include "Call.h"
 #include "Context.h"
-#include "If.h"
 #include "GarbageCollector.h"
+#include "If.h"
 #include "Number.h"
 #include "Object.h"
 #include "Parser.h"
 #include "Reference.h"
-#include <string.h>
-#include <readline/readline.h>
 #include <readline/history.h>
-
+#include <readline/readline.h>
+#include <string.h>
 
 class GlobalContext global;
 bool run_gc = false;
 
 void repl() {
   while (true) {
-    const char* code = readline("sova> ");
+    const char *code = readline("sova> ");
     if (!code)
       break;
 
@@ -31,8 +30,7 @@ void repl() {
     for (Object *obj : parsed_objects) {
       // std::cout << obj << "\n";
       auto val = eval(global, obj);
-      if (val)
-        std::cout << val << "\n";
+      std::cout << val << "\n";
     }
 
     if (run_gc) {
@@ -86,12 +84,17 @@ int main(int argc, const char **argv) {
   // if -- has been passed, treat everything after it as filenames
   bool done_parsing_args = false;
 
+  bool repl_flag = false;
+  bool has_files = false;
+
   for (int i = 1; i < argc; i++) {
     const char *arg = argv[i];
     if (strlen(arg) == 0)
       continue;
 
     if (done_parsing_args || arg[0] != '-') {
+      has_files = true;
+
       char *file;
       auto res = read_file(arg, file);
       if (res != RunFileResult::OK) {
@@ -109,12 +112,23 @@ int main(int argc, const char **argv) {
       continue;
     }
 
-    if (strcmp("--", arg) == 0) {
-      done_parsing_args = true;
-      continue;
+    else if (arg[0] == '-') {
+      switch (arg[1]) {
+        case '-': {
+          done_parsing_args = true;
+          break;
+        }
+
+        case 'r': {
+          repl_flag = true;
+          break;
+        }
+      }
     }
+
   }
 
-  repl();
+  if (repl_flag || !has_files)
+    repl();
   return 0;
 }
