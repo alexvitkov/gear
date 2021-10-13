@@ -1,13 +1,16 @@
 #include "Dict.h"
 
 void Dict::print(std::ostream &o, int indent) {
-
-  o << "dict {\n";
+  o << "dict {";
+  indent++;
 
   for (auto obj : children) {
-    o << obj.first << ": " << obj.second << ",\n";
+    print_obvject_newline(o, indent);
+    o << obj.first << ": " << obj.second << ",";
   }
 
+  indent--;
+  print_obvject_newline(o, indent);
   o << "}";
 }
 
