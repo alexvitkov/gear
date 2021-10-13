@@ -4,6 +4,8 @@
 #include "Reference.h"
 #include "Token.h"
 
+const bool ALWAYS_BRACKETS = false;
+
 Call::Call(Object *fn, std::vector<Object *> args) : fn(fn), args(args) {}
 
 Object *Call::interpret(Context &ctx, bool to_lvalue) {
@@ -39,12 +41,12 @@ void Call::print(std::ostream &o, bool needs_infix_breackets) {
   OperatorData data;
   if (call_operator_data(this, data)) {
 
-    // prefix operator - TODO TODO
+    // prefix operator - TODO remove "prefix" string
     if (args.size() == 1) {
       o << fn << args[0];
     }
     else {
-      if (needs_infix_breackets)
+      if (needs_infix_breackets || ALWAYS_BRACKETS)
         o << '(';
 
       OperatorData data2;
@@ -60,9 +62,10 @@ void Call::print(std::ostream &o, bool needs_infix_breackets) {
         o << args[0];
       }
 
+      // TODO remove spaces for dot
       o << ' ' << fn << ' ' << args[1];
 
-      if (needs_infix_breackets)
+      if (needs_infix_breackets || ALWAYS_BRACKETS)
         o << ')';
     }
 

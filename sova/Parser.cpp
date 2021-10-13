@@ -85,7 +85,7 @@ void TokenStream::emit_id(const char *code, int start, int i) {
 }
 
 Call *Parser::fix_precedence(Call *call) {
-  if (call->args.size() < 2)
+  if (call->args.size() != 2)
     return call;
 
   auto it = infix_calls.find(call);
@@ -113,6 +113,8 @@ Call *Parser::fix_precedence(Call *call) {
 
     for (auto arg : rhs->args)
       call->args.push_back(arg);
+
+    return call;
   }
 
   else if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
@@ -122,8 +124,10 @@ Call *Parser::fix_precedence(Call *call) {
 
     return fix_precedence(rhs);
   }
-
-  return call;
+  else {
+    call->args[1] = fix_precedence(rhs);
+    return call;
+  }
 }
 
 bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_level_infix) {
