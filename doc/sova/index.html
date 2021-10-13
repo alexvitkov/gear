@@ -22,27 +22,30 @@
         </p>
 
         <p>
-          <code>:=</code> will declare the variable in the current scope, shadowing variables with the same name in parent scopes.
+          <code>:=</code> will declare the variable in the current context, shadowing variables with the same name in parent context.
         </p>
         
         <p>
           <code>=</code> will not declare a new variable - if the variable doesn't exist
-          in the current scope it will recursively look for it in parent scopes.
+          in the current context it will recursively look for it in parent context.
         </p>
         <pre>
-          &gt foo := 100 + 50
-          
-          &gt foo
-          150
-          
-          &gt foo = foo + 30
-          150
-        </pre>
+&gt foo := 100 + 50
+
+&gt foo
+150
+
+&gt foo = foo + 30
+150</pre>
       </section>
 
       <section>
         <h2>Booleans</h2>
         The boolean constants are called <code>true</code> and <code>false</code>.
+
+        <pre>
+&gt; !true
+false</pre>
       </section>
 
       <section>
@@ -51,27 +54,97 @@
       </section>
 
       <section>
-        <h2>Dictionaries</h2>
+        <h2>Strings</h2>
         <pre>
-          &gt user := dict();
-          &gt user.first_name = "John";
-          &gt user.last_name = "Doe";
+&gt; "Foo" + "Bar"
+"FooBar"</pre>
+      </section>
 
-          &gt user
-          dict {
-          &nbsp;&nbsp;&nbsp;&nbsp;first_name: "John",
-          &nbsp;&nbsp;&nbsp;&nbsp;last_name: "Doe",
-          }
+      <section>
+        <h2>Dictionaries</h2>
+        Syntax for this WILL change.
+        <pre>
+&gt user := dict();
+&gt user.first_name = "John";
+&gt user.last_name = "Doe";
 
-          &gt; user.first_name + " " + user.last_name
-          John Doe
-        </pre>
+&gt user
+dict {
+&nbsp;&nbsp;&nbsp;&nbsp;first_name: "John",
+&nbsp;&nbsp;&nbsp;&nbsp;last_name: "Doe",
+}
+
+&gt; user.first_name + " " + user.last_name
+John Doe</pre>
+      </section>
+
+      <section>
+        <h2>If expressions</h2>
+        Syntax: <code>if (<b>condition</b>) <b>if_true</b> else <b>if_false</b></code>, where <b>condition, if_true and if_else</b> are expressions. <b>if_else</b> is optional.
+        
+      </section>
+
+      <section>
+        <h2>Blocks</h2>
+        A block is a container for expressions. When evaluated it creates a context, linearly evaluates all its expressions and returns the value of the last one.
+
+        <pre>
+&gt; foo := { a := 100; b := 200; a + b; }
+&gt; foo
+300
+
+&gt; a
+nil
+&gt; b
+nil </pre>
+
+        <p>
+          In this example <code>a</code> and <code>b</code> are local variables
+          in the block's context and are not accessible from the parent scope.
+          </p>
+      </section>
+
+
+      <section>
+        <h2>Functions</h2>
+        You create lambdas with the arrow operator <code>=></code>.
+        <pre>
+&gt; increment := x => x+1
+&gt; increment(100)
+101
+
+&gt; add_squares := (x,y) => x*x + y*y 
+&gt; add_squares(3,4)
+25
+
+// recursive factorial
+&gt; fact := n => if (n == 0) 1
+               else        fact_rec(n-1)
+
+// iterative factorial
+&gt; fact_iter := n => {
+    acc := 1;
+
+    while (n > 1) {
+        acc = acc * n;
+        n = n - 1;
+    };
+
+    acc;
+};</pre>
       </section>
 
       <section>
         <h2>Quote/Eval</h2>
         You can surpress evaluation of an expression with a single quote.
         The AST object will be returned so you can hack on it and evaluate it later.
+
+        <pre>
+&gt; add_a_and_b := '(a + b)
+&gt; a := 100
+&gt; b := 200
+&gt; eval(add_a_and_b)
+300</pre>
       </section>
 
     </div>
