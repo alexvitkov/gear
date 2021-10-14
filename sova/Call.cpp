@@ -8,7 +8,7 @@ const bool ALWAYS_BRACKETS = false;
 
 Call::Call(Object *fn, std::vector<Object *> args) : fn(fn), args(args) {}
 
-Object *Call::interpret(Context &ctx, bool to_lvalue) {
+Object *Call::interpret(Context &ctx, EvalFlags_t flags) {
   Object *interpreted = fn->interpret(ctx);
   if (!interpreted)
     return nullptr;
@@ -17,7 +17,7 @@ Object *Call::interpret(Context &ctx, bool to_lvalue) {
   if (!casted_fn)
     return nullptr;
 
-  return casted_fn->invoke_form(ctx, args, to_lvalue);
+  return casted_fn->invoke_form(ctx, args, flags);
 }
 
 static bool call_operator_data(Object *_call, OperatorData &data) {

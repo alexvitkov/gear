@@ -4,11 +4,11 @@
 While::While(Object *condition, Object *body)
     : condition(condition), body(body) {}
 
-Object *While::interpret(Context &ctx, bool to_lvalue) {
+Object *While::interpret(Context &ctx, EvalFlags_t flags) {
   Object *value = nullptr;
   Object *evaled_cond;
 
-  while (truthy(evaled_cond = eval(ctx, condition, to_lvalue)))
+  while (truthy(evaled_cond = eval(ctx, condition, flags)))
     value = eval(ctx, body, false);
 
   return value;

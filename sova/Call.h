@@ -9,7 +9,7 @@ public:
   std::vector<Object*> args;
   Call(Object* fn, std::vector<Object*> args);
 
-  virtual Object* interpret(Context &, bool) override;
+  virtual Object* interpret(Context &, EvalFlags_t) override;
   virtual void print(std::ostream& o, int indent) override;
   virtual type_t get_type() override;
   virtual void iterate_references(std::vector<Object *> &) override;

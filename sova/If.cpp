@@ -17,9 +17,9 @@ bool truthy(Object *o) {
   return true;
 }
 
-Object *If::interpret(Context &ctx, bool to_lvalue) {
-  Object *evaled_cond = eval(ctx, condition, to_lvalue);
-  return eval(ctx, truthy(evaled_cond) ? if_true : if_false, to_lvalue);
+Object *If::interpret(Context &ctx, EvalFlags_t flags) {
+  Object *evaled_cond = eval(ctx, condition, 0);
+  return eval(ctx, truthy(evaled_cond) ? if_true : if_false, flags);
 }
 
 void If::print(std::ostream &o, int indent) {

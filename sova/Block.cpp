@@ -2,13 +2,13 @@
 #include "Context.h"
 #include "Object.h"
 
-Object *Block::interpret(Context &ctx, bool to_lvalue) {
+Object *Block::interpret(Context &ctx, EvalFlags_t flags) {
   Context child_ctx(&ctx);
 
   Object *val = nullptr;
 
   for (Object *obj : inside)
-    val = eval(child_ctx, obj, to_lvalue);
+    val = eval(child_ctx, obj, flags);
 
   return val;
 }

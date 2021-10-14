@@ -4,7 +4,7 @@
 
 Reference::Reference(std::string name) : name(name) {}
 
-Object *Reference::interpret(Context &ctx, bool to_lvalue) { return to_lvalue ? this : ctx.resolve(name); }
+Object *Reference::interpret(Context &ctx, EvalFlags_t flags) { return (flags & EVAL_TO_LVALUE) ? this : ctx.resolve(name); }
 
 bool set(Context *ctx, std::string name, Object *value) { return false; }
 

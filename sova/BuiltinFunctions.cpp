@@ -132,7 +132,7 @@ public:
     if (args.size() != 2)
       return nullptr;
 
-    auto evaled_lhs = eval(ctx, args[0], true);
+    auto evaled_lhs = eval(ctx, args[0], EVAL_TO_LVALUE);
     if (!evaled_lhs)
       return nullptr;
 
@@ -140,7 +140,7 @@ public:
     if (!lhs)
       return nullptr;
 
-    Object *evaled_rhs = eval(ctx, args[1], false);
+    Object *evaled_rhs = eval(ctx, args[1]);
     return lhs->set(ctx, evaled_rhs, define_new);
   }
 };
@@ -157,7 +157,7 @@ public:
     if (!lhs || !rhs)
       return nullptr;
 
-    return eval(ctx, lhs->dot(ctx, rhs->name), to_lvalue);
+    return eval(ctx, lhs->dot(ctx, rhs->name), to_lvalue ? EVAL_TO_LVALUE : 0);
   }
 };
 

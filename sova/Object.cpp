@@ -15,19 +15,19 @@ void print_obvject_newline(std::ostream &o, int indent) {
     o << "    ";
 }
 
-Object *eval(Context &ctx, Object *obj, bool to_lvalue) {
+Object *eval(Context &ctx, Object *obj, EvalFlags_t flags) {
   if (!obj)
     return nullptr;
 
   // std::cout << "begin eval " << obj << "\n";
-  auto res = obj->interpret(ctx, to_lvalue);
+  auto res = obj->interpret(ctx, flags);
   // std::cout << obj << " ---> " <<res << "\n";
   return res;
 }
 
 bool Object::equals(Object *other) { return this == other; }
 
-Object *Object::interpret(class Context &, bool) { return this; }
+Object *Object::interpret(class Context &, EvalFlags_t) { return this; }
 
 bool equals(Object *lhs, Object *rhs) {
   if (lhs == rhs)
