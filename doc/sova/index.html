@@ -2,7 +2,7 @@
 <html>
 
   <head>
-    <title>sova documentation</title>
+    <title>sova crash course</title>
     <script src="elements.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
   <body>
     <div class="content">
 
-      <h1>sova 'documentation'</h1>
+      <h1>sova crash course</h1>
 
       <section>
         <h2>Variables</h2>
@@ -60,33 +60,10 @@ false</pre>
 "FooBar"</pre>
       </section>
 
-      <section>
-        <h2>Context Objects</h2>
-        Syntax for this WILL change.
-        <pre>
-&gt user := context();
-&gt user.first_name = "John";
-&gt user.last_name = "Doe";
-
-&gt user
-context {
-&nbsp;&nbsp;&nbsp;&nbsp;first_name := "John";
-&nbsp;&nbsp;&nbsp;&nbsp;last_name := "Doe";
-}
-
-&gt; user.first_name + " " + user.last_name
-John Doe</pre>
-      </section>
-
-      <section>
-        <h2>If expressions</h2>
-        Syntax: <code>if (<b>condition</b>) <b>if_true</b> else <b>if_false</b></code>, where <b>condition, if_true and if_else</b> are expressions. <b>if_else</b> is optional.
-        
-      </section>
 
       <section>
         <h2>Blocks</h2>
-        A block is a container for expressions. When evaluated it creates a context, linearly evaluates all its expressions and returns the value of the last one.
+        A block is a container for expressions. When evaluated it creates a context, evaluates all its expressions from top to bottom, and returns the value of the last expression.
 
         <pre>
 &gt; foo := { a := 100; b := 200; a + b; }
@@ -100,9 +77,41 @@ nil </pre>
 
         <p>
           In this example <code>a</code> and <code>b</code> are local variables
-          in the block's context and are not accessible from the parent scope.
+          in the block's context and are not accessible from the parent context.
           </p>
       </section>
+
+      <section>
+        <h2>Contexts</h2>
+
+        <p>
+          A Context is a collection of named values. When you declare a variable with <code>:=</code>
+          in the top level of a script, you're declaring it to the global context. Function calls
+          create temporary contexts in which they store local variables.
+        </p>
+
+        
+        <p>
+          Contexts can also be used as aggregate objects. The <code>context</code> form takes in a block,
+          and evaluates it like a function without arguments, but instead of its last expression,
+          it returns the Block's context.
+        </p>
+        <pre>
+&gt user := context({
+    first_name := "John";
+    last_name := "Doe";
+});
+
+&gt; user.first_name + " " + user.last_name
+John Doe</pre>
+      </section>
+
+      <section>
+        <h2>If expressions</h2>
+        Syntax: <code>if (<b>condition</b>) <b>if_true</b> else <b>if_false</b></code>, where <b>condition, if_true and if_else</b> are expressions. <b>if_else</b> is optional.
+        
+      </section>
+
 
 
       <section>
