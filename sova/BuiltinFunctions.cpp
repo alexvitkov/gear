@@ -5,6 +5,7 @@
 #include "Function.h"
 #include "Global.h"
 #include "Lambda.h"
+#include "LambdaForm.h"
 #include "Number.h"
 #include "Parser.h"
 #include "Reference.h"
@@ -336,6 +337,7 @@ void setup_global_context(Context &ctx) {
   ctx.define(":=", new AssignForm(true));
   ctx.define("=", new AssignForm(false));
   ctx.define("=>", new ArrowForm());
+  ctx.define("form", new FormForm());
   ctx.define(".", new DotForm());
 
   ctx.define("context", new ContextForm());
