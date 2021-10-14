@@ -1,7 +1,6 @@
 #include "BuiltinFunctions.h"
 #include "Block.h"
 #include "Bool.h"
-#include "Dict.h"
 #include "Form.h"
 #include "Function.h"
 #include "Global.h"
@@ -211,9 +210,9 @@ public:
   }
 };
 
-class DictConstructorFunction : public Function {
+class ContextConstructorFunction : public Function {
 public:
-  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override { return new Dict(); }
+  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override { return new Context(nullptr); }
 };
 
 class PrintFunction : public Function {
@@ -331,7 +330,7 @@ void setup_global_context(Context &ctx) {
   ctx.define("=>", new ArrowForm());
   ctx.define(".", new DotForm());
 
-  ctx.define("dict", new DictConstructorFunction());
+  ctx.define("context", new ContextConstructorFunction());
   ctx.define("print", new PrintFunction());
   ctx.define("gc", new RunGCFunction());
   ctx.define("system", new SystemFunction());

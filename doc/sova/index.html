@@ -61,17 +61,17 @@ false</pre>
       </section>
 
       <section>
-        <h2>Dictionaries</h2>
+        <h2>Context Objects</h2>
         Syntax for this WILL change.
         <pre>
-&gt user := dict();
+&gt user := context();
 &gt user.first_name = "John";
 &gt user.last_name = "Doe";
 
 &gt user
-dict {
-&nbsp;&nbsp;&nbsp;&nbsp;first_name: "John",
-&nbsp;&nbsp;&nbsp;&nbsp;last_name: "Doe",
+context {
+&nbsp;&nbsp;&nbsp;&nbsp;first_name := "John";
+&nbsp;&nbsp;&nbsp;&nbsp;last_name := "Doe";
 }
 
 &gt; user.first_name + " " + user.last_name

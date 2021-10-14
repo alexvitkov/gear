@@ -22,7 +22,7 @@ void register_builtin_types(GlobalContext &global) {
   register_builtin_type(global, TYPE_BOOL, "Bool");
   register_builtin_type(global, TYPE_NUMBER, "Number");
   register_builtin_type(global, TYPE_STRING, "String");
-  register_builtin_type(global, TYPE_DICT, "Dict");
+  register_builtin_type(global, TYPE_CONTEXT, "Context");
   register_builtin_type(global, TYPE_TYPE, "Type");
 
   register_builtin_type(global, TYPE_CALL, "Call");
@@ -33,7 +33,7 @@ void register_builtin_types(GlobalContext &global) {
   register_builtin_type(global, TYPE_AST_BLOCK, "Block");
   register_builtin_type(global, TYPE_REFERENCE, "Reference");
   register_builtin_type(global, TYPE_OBJECT_PTR, "ObjectPTr");
-  register_builtin_type(global, TYPE_DICT_ACCESSOR, "DictAccessor");
+  register_builtin_type(global, TYPE_CONTEXT_FIELD_ACCESSOR, "ContextFieldAccessor");
 }
 
 void Type::print(std::ostream &o, int indent) { o << name; }

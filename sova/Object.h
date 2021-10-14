@@ -10,7 +10,7 @@ enum TypeId : uint32_t {
   TYPE_BOOL,
   TYPE_NUMBER,
   TYPE_STRING,
-  TYPE_DICT,
+  TYPE_CONTEXT,
   TYPE_TYPE,
 
   TYPE_CALL,
@@ -23,7 +23,7 @@ enum TypeId : uint32_t {
 
   TYPE_REFERENCE,
   TYPE_OBJECT_PTR,
-  TYPE_DICT_ACCESSOR,
+  TYPE_CONTEXT_FIELD_ACCESSOR,
 
   TYPE_MAX_ENUM_SIZE, // used to track the number of elements in the enum
 };

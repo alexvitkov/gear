@@ -1,5 +1,4 @@
 #include "Context.h"
-#include "Object.h"
 
 Context::Context(Context *parent) : parent(parent) {}
 
@@ -33,4 +32,49 @@ Block *GlobalContext::get_macro(const std::string &name) {
     return nullptr;
   else
     return it->second;
+}
+
+void Context::print(std::ostream &o, int indent) {
+  o << "context {";
+  indent++;
+
+  for (auto obj : resolve_map) {
+    print_obvject_newline(o, indent);
+    o << obj.first << " := " << obj.second << ";";
+  }
+
+  indent--;
+  print_obvject_newline(o, indent);
+  o << "}";
+}
+
+class LValue *Context::dot(Context &, std::string name) {
+  return new ContextFieldAccessor(this, name);
+}
+
+ContextFieldAccessor::ContextFieldAccessor(Context *map, std::string name) : map(map), name(name) {}
+
+Object *ContextFieldAccessor::set(Context &ctx, Object *value, bool define_new) {
+  if (value) {
+    map->resolve_map[name] = value;
+  } else {
+    map->resolve_map.erase(name);
+  }
+  return value;
+}
+
+Object *ContextFieldAccessor::interpret(class Context &ctx, bool to_lvalue) {
+  return to_lvalue ? this : map->resolve_map[name];
+}
+
+type_t Context::get_type() { return TYPE_CONTEXT; }
+type_t ContextFieldAccessor::get_type() { return TYPE_CONTEXT_FIELD_ACCESSOR; }
+
+void Context::iterate_references(std::vector<Object *> & out) {
+  for (auto kvp : resolve_map)
+    out.push_back(kvp.second);
+}
+
+void ContextFieldAccessor::iterate_references(std::vector<Object *> & out) {
+    out.push_back(map);
 }
