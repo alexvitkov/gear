@@ -18,6 +18,7 @@ public:
 class GlobalContext : public Context {
   std::unordered_map<std::string, class Block *> macros_map;
 public:
+  std::vector<class Type *> types;
   GlobalContext();
   class Parser* parser;
 

@@ -2,11 +2,16 @@
 #include <iostream>
 #include <vector>
 
-enum Type {
+// VOLATILE - if you define new entries here, you must also add them in the
+// register_builtin_types function in Type.cpp
+enum TypeId : uint32_t {
+  TYPE_NIL,
+
   TYPE_BOOL,
   TYPE_NUMBER,
   TYPE_STRING,
   TYPE_DICT,
+  TYPE_TYPE,
 
   TYPE_CALL,
   TYPE_FUNCTION,
@@ -19,6 +24,8 @@ enum Type {
   TYPE_REFERENCE,
   TYPE_OBJECT_PTR,
   TYPE_DICT_ACCESSOR,
+
+  TYPE_MAX_ENUM_SIZE, // used to track the number of elements in the enum
 };
 
 typedef uint32_t type_t;

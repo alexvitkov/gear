@@ -10,6 +10,7 @@
 #include "Parser.h"
 #include "Reference.h"
 #include "String.h"
+#include "Type.h"
 #include <assert.h>
 #include <sstream>
 #include <stdlib.h>
@@ -109,7 +110,7 @@ class Not : public Function {
     if (args.size() != 1 || !args[0])
       return nullptr;
 
-    Bool *b = dynamic_cast<Bool*>(args[0]);
+    Bool *b = dynamic_cast<Bool *>(args[0]);
     if (!b)
       return nullptr;
 
@@ -252,6 +253,16 @@ public:
   }
 };
 
+class GetTypeFunction : public Function {
+public:
+  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+    if (args.size() != 1)
+      return nullptr;
+
+    return ::get_type(*ctx.get_global_context(), args[0]);
+  }
+};
+
 static double add(double a, double b) { return a + b; }
 static double sub(double a, double b) { return a - b; }
 static double mul(double a, double b) { return a * b; }
@@ -318,4 +329,5 @@ void setup_global_context(Context &ctx) {
   ctx.define("print", new PrintFunction());
   ctx.define("gc", new RunGCFunction());
   ctx.define("system", new SystemFunction());
+  ctx.define("dynamic_type", new GetTypeFunction());
 }

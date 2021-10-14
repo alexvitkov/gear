@@ -7,6 +7,7 @@
 #include "Object.h"
 #include "Parser.h"
 #include "Reference.h"
+#include "Type.h"
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <string.h>
@@ -80,6 +81,7 @@ RunFileResult read_file(const char *path, char *&out) {
 
 int main(int argc, const char **argv) {
   setup_global_context(global);
+  register_builtin_types(global);
 
   // if -- has been passed, treat everything after it as filenames
   bool done_parsing_args = false;
@@ -125,7 +127,6 @@ int main(int argc, const char **argv) {
         }
       }
     }
-
   }
 
   if (repl_flag || !has_files)
