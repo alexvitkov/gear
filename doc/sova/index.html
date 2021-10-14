@@ -144,6 +144,87 @@ John Doe</pre>
       </section>
 
       <section>
+        <h2>Forms</h2>
+        <p>
+          Function arguments are evaluated before the function is called.
+          For example if you call <code>foo(3 + 2)</code>, the number <code>5</code> will
+          be passed to the function, and not the AST expression <code>3+2</code>.
+        </p>
+
+        <p>
+          Forms are funciton-like objects that don't evaluate their arguments before
+          the form is called. In fact functions are a subset of forms - functions are forms that first call <code>eval()</code>
+          on their arguments.
+        </p>
+
+
+        <h3>Some examples of built-in forms:</h3>
+        <ul>
+          <li><code>context()</code> is a form that takes in a Block. If <code>context()</code> was a function,
+            the block would be evaluated and <code>context()</code> would just see its return value and
+            wouldn't be able to extract the block's context.
+            
+          <li><code>:=</code> is a built-in infix form. When you call <code>foo := 100</code>,
+            the first argument (the left-hand side) is not evaluated with the normal evaluation rules,
+            because that would just return the old value of the variable, and <code>:=</code> wouldn't know
+            what to assign the right-hand side to.
+        </ul>
+        <p>
+        </p>
+
+        <h3>Creating custom forms</h3>
+        <p>
+          Use the <code>form</code> form to create a form!
+          The first argument of <code>form</code> is a comma-separated list of arguments,
+          the second argument is the form body.
+        </p>
+
+        <p>
+          The following example creates a C-like for loop,
+          that's internally backed by a while loop:
+        </p>
+
+        <pre>
+> for := form((declaration, condition, increment, body), {
+    // the for form returns the following block:
+    // {
+    //     declaration;
+    //     while (condition) {
+    //         body;
+    //         increment;
+    //     }
+    // }
+
+    block := '{};
+
+    loop := '(while (0) 0);
+    loop.condition = condition;
+
+    loop.body = '{};
+    loop.body.push(body);
+    loop.body.push(incrememt);
+   
+    block.push(declaration);
+    block.push(loop);
+
+    block;
+});
+
+> for(x := 0, x < 5, x += 1, {
+    print("x is", x);
+});
+
+x is 0
+x is 1
+x is 2
+x is 3
+x is 4</pre>
+
+
+        
+      </section>
+
+      <section>
         <h2>Quote/Eval</h2>
         You can surpress evaluation of an expression with a single quote.
         The AST object will be returned so you can hack on it and evaluate it later.
@@ -155,6 +236,7 @@ John Doe</pre>
 &gt; eval(add_a_and_b)
 300</pre>
       </section>
+
 
     </div>
   </body>
