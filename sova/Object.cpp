@@ -39,7 +39,7 @@ bool equals(Object *lhs, Object *rhs) {
   return lhs->equals(rhs);
 }
 
-LValue *Object::dot(Context &, std::string) { return nullptr; }
+Object *Object::dot(Context &, std::string) { return nullptr; }
 
 void Object::print(std::ostream &o, int indent) { o << "<object>"; }
 

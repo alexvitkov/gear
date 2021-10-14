@@ -35,7 +35,7 @@ public:
   virtual Object *interpret(class Context &ctx, bool to_lvalue = false);
   virtual void print(std::ostream &o, int indent = 0);
   virtual bool equals(Object *other);
-  virtual class LValue *dot(Context &, std::string);
+  virtual Object *dot(Context &, std::string);
 
   virtual class Form *as_form();
   virtual class Reference *as_reference();

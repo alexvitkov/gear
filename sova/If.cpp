@@ -28,7 +28,7 @@ void If::print(std::ostream &o, int indent) {
     o << " else " << if_false;
 }
 
-LValue *If::dot(Context &, std::string str) {
+Object *If::dot(Context &, std::string str) {
   if (str == "condition")
     return new ObjectPtr(this, &condition);
   if (str == "if_true")
