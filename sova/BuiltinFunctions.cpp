@@ -334,5 +334,5 @@ void setup_global_context(Context &ctx) {
   ctx.define("print", new PrintFunction());
   ctx.define("gc", new RunGCFunction());
   ctx.define("system", new SystemFunction());
-  ctx.define("dynamic_type", new GetTypeFunction());
+  ctx.define("type", new GetTypeFunction());
 }

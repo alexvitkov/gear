@@ -8,33 +8,35 @@ Type::Type(type_t id, std::string name) : id(id), name(name) {}
 
 type_t Type::get_type() { return TYPE_TYPE; }
 
+void register_builtin_type(GlobalContext &global, type_t id, std::string name) {
+  Type *t = new Type(id, name);
+  global.types[id] = t;
+  global.define(name, t);
+}
+
 void register_builtin_types(GlobalContext &global) {
   global.types.resize(TYPE_MAX_ENUM_SIZE);
 
-  global.types[TYPE_NIL] = new Type(TYPE_NIL, "Nil");
-  global.types[TYPE_TYPE] = new Type(TYPE_NIL, "Type");
+  register_builtin_type(global, TYPE_NIL, "Nil");
+  register_builtin_type(global, TYPE_NIL, "Type");
 
-  global.types[TYPE_BOOL] = new Type(TYPE_BOOL, "Bool");
-  global.types[TYPE_NUMBER] = new Type(TYPE_NUMBER, "Number");
-  global.types[TYPE_STRING] = new Type(TYPE_STRING, "String");
-  global.types[TYPE_DICT] = new Type(TYPE_DICT, "Dict");
-  global.types[TYPE_TYPE] = new Type(TYPE_TYPE, "Type");
+  register_builtin_type(global, TYPE_BOOL, "Bool");
+  register_builtin_type(global, TYPE_NUMBER, "Number");
+  register_builtin_type(global, TYPE_STRING, "String");
+  register_builtin_type(global, TYPE_DICT, "Dict");
+  register_builtin_type(global, TYPE_TYPE, "Type");
 
-  global.types[TYPE_CALL] = new Type(TYPE_CALL, "Call");
-  global.types[TYPE_FUNCTION] = new Type(TYPE_FUNCTION, "Function");
-  global.types[TYPE_FORM] = new Type(TYPE_FORM, "Form");
-
-  global.types[TYPE_AST_IF] = new Type(TYPE_AST_IF, "If");
-  global.types[TYPE_AST_WHILE] = new Type(TYPE_AST_WHILE, "While");
-  global.types[TYPE_AST_BLOCK] = new Type(TYPE_AST_BLOCK, "Block");
-
-  global.types[TYPE_REFERENCE] = new Type(TYPE_REFERENCE, "Reference");
-  global.types[TYPE_OBJECT_PTR] = new Type(TYPE_OBJECT_PTR, "ObjectPTr");
-  global.types[TYPE_DICT_ACCESSOR] = new Type(TYPE_DICT_ACCESSOR, "DictAccessor");
+  register_builtin_type(global, TYPE_CALL, "Call");
+  register_builtin_type(global, TYPE_FUNCTION, "Function");
+  register_builtin_type(global, TYPE_FORM, "Form");
+  register_builtin_type(global, TYPE_AST_IF, "If");
+  register_builtin_type(global, TYPE_AST_WHILE, "While");
+  register_builtin_type(global, TYPE_AST_BLOCK, "Block");
+  register_builtin_type(global, TYPE_REFERENCE, "Reference");
+  register_builtin_type(global, TYPE_OBJECT_PTR, "ObjectPTr");
+  register_builtin_type(global, TYPE_DICT_ACCESSOR, "DictAccessor");
 }
 
 void Type::print(std::ostream &o, int indent) { o << name; }
 
-Type *get_type(GlobalContext &global, Object *obj) {
-  return global.types[obj ? obj->get_type() : TYPE_NIL];
-}
+Type *get_type(GlobalContext &global, Object *obj) { return global.types[obj ? obj->get_type() : TYPE_NIL]; }
