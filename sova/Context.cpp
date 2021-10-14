@@ -35,7 +35,7 @@ Block *GlobalContext::get_macro(const std::string &name) {
 }
 
 void Context::print(std::ostream &o, int indent) {
-  o << "context {";
+  o << "context ({";
   indent++;
 
   for (auto obj : resolve_map) {
@@ -45,7 +45,7 @@ void Context::print(std::ostream &o, int indent) {
 
   indent--;
   print_obvject_newline(o, indent);
-  o << "}";
+  o << "})";
 }
 
 class LValue *Context::dot(Context &, std::string name) {

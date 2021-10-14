@@ -32,6 +32,7 @@ typedef uint32_t type_t;
 
 enum EvalFlags : uint32_t {
   EVAL_TO_LVALUE = 0x00000001,
+  EVAL_BLOCK_RETURN_CONTEXT = 0x00000002,
 };
 typedef uint32_t EvalFlags_t;
 

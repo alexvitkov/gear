@@ -3,14 +3,18 @@
 #include "Object.h"
 
 Object *Block::interpret(Context &ctx, EvalFlags_t flags) {
-  Context child_ctx(&ctx);
-
+  Context *child_ctx = new Context(&ctx);
   Object *val = nullptr;
 
   for (Object *obj : inside)
-    val = eval(child_ctx, obj, flags);
+    val = eval(*child_ctx, obj, flags);
 
-  return val;
+  if (flags & EVAL_BLOCK_RETURN_CONTEXT) {
+    child_ctx->parent = nullptr;
+    return child_ctx;
+  } else {
+    return val;
+  }
 }
 
 void Block::print(std::ostream &o, int indent) {

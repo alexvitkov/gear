@@ -210,9 +210,17 @@ public:
   }
 };
 
-class ContextConstructorFunction : public Function {
+class ContextForm : public Form {
 public:
-  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override { return new Context(nullptr); }
+  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
+
+    if (args.size() != 1 || !args[0])
+      return nullptr;
+
+    Block *block = args[0]->as_block();
+
+    return block->interpret(ctx, EVAL_BLOCK_RETURN_CONTEXT);
+  }
 };
 
 class PrintFunction : public Function {
@@ -330,7 +338,7 @@ void setup_global_context(Context &ctx) {
   ctx.define("=>", new ArrowForm());
   ctx.define(".", new DotForm());
 
-  ctx.define("context", new ContextConstructorFunction());
+  ctx.define("context", new ContextForm());
   ctx.define("print", new PrintFunction());
   ctx.define("gc", new RunGCFunction());
   ctx.define("system", new SystemFunction());
