@@ -3,7 +3,7 @@
 #include "Object.h"
 
 Object *Block::interpret(Context &ctx, bool to_lvalue) {
-  Context child_ctx(ctx);
+  Context child_ctx(&ctx);
 
   Object *val = nullptr;
 

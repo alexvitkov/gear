@@ -59,7 +59,7 @@ Object *Lambda::call_fn(Context &ctx, std::vector<Object *> &args) {
   if (args.size() != param_names.size())
     return nullptr;
 
-  Context child_ctx(ctx);
+  Context child_ctx(&ctx);
 
   for (int i = 0; i < args.size(); i++)
     child_ctx.define(param_names[i], args[i]);

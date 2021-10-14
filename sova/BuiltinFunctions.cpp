@@ -85,6 +85,7 @@ template <Comparator Compare> class ComparisonFunction : public Function {
 
 class EqFunction : public Function {
   bool negate;
+
 public:
   EqFunction(bool negate) : negate(negate) {}
 

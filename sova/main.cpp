@@ -12,7 +12,7 @@
 #include <readline/readline.h>
 #include <string.h>
 
-class GlobalContext global;
+GlobalContext global;
 bool run_gc = false;
 
 void repl() {

@@ -18,7 +18,6 @@ void register_builtin_types(GlobalContext &global) {
   global.types.resize(TYPE_MAX_ENUM_SIZE);
 
   register_builtin_type(global, TYPE_NIL, "Nil");
-  register_builtin_type(global, TYPE_NIL, "Type");
 
   register_builtin_type(global, TYPE_BOOL, "Bool");
   register_builtin_type(global, TYPE_NUMBER, "Number");

@@ -9,6 +9,8 @@ public:
   Context *parent;
 
   Context(Context *parent);
+  Context(Context &) = delete;
+
   Object* resolve(const std::string& name);
   void define(const std::string& name, Object* value);
 
