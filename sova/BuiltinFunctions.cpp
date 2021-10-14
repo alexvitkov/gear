@@ -84,11 +84,15 @@ template <Comparator Compare> class ComparisonFunction : public Function {
 };
 
 class EqFunction : public Function {
+  bool negate;
+public:
+  EqFunction(bool negate) : negate(negate) {}
+
   virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
-    return ::equals(args[0], args[1]) ? &True : &False;
+    return (::equals(args[0], args[1]) != negate) ? &True : &False;
   }
 };
 
@@ -317,8 +321,9 @@ void setup_global_context(Context &ctx) {
   ctx.define("<", new ComparisonFunction<lt>());
   ctx.define(">=", new ComparisonFunction<ge>());
   ctx.define("<=", new ComparisonFunction<le>());
-  ctx.define("==", new ComparisonFunction<eq>());
-  ctx.define("!=", new ComparisonFunction<ne>());
+
+  ctx.define("==", new EqFunction(false));
+  ctx.define("!=", new EqFunction(true));
 
   ctx.define(":=", new AssignForm(true));
   ctx.define("=", new AssignForm(false));
