@@ -16,7 +16,8 @@ Object *While::interpret(Context &ctx, EvalFlags_t flags) {
 }
 
 void While::print(std::ostream &o, int indent) {
-  o << "while (" << condition << ") " << body;
+  o << "while (" << condition << ") ";
+  body->print(o, indent);
 }
 
 type_t While::get_type() {
