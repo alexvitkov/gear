@@ -17,4 +17,4 @@ bool Number::equals(Object *other) {
 
 Number *Number::as_number() { return this; }
 
-Type Number::get_type() { return TYPE_NUMBER; }
+type_t Number::get_type() { return TYPE_NUMBER; }

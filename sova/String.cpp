@@ -17,7 +17,7 @@ void String::print(std::ostream &o, int indent) {
   o << '"';
 }
 
-Type String::get_type() { return TYPE_STRING; }
+type_t String::get_type() { return TYPE_STRING; }
 
 class String *String::as_string() {
   return this;

@@ -38,7 +38,7 @@ Object *If::dot(Context &, std::string str) {
   return nullptr;
 }
 
-Type If::get_type() { return TYPE_AST_IF; }
+type_t If::get_type() { return TYPE_AST_IF; }
 
 void If::iterate_references(std::vector<Object *> &out) {
   out.push_back(condition);

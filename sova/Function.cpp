@@ -13,4 +13,4 @@ void Function::print(std::ostream& o, int indent) {
   o << "<function>";
 }
 
-Type Function::get_type() { return TYPE_FUNCTION; }
+type_t Function::get_type() { return TYPE_FUNCTION; }

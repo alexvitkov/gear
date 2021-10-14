@@ -18,7 +18,7 @@ void While::print(std::ostream &o, int indent) {
   o << "while (" << condition << ") " << body;
 }
 
-Type While::get_type() {
+type_t While::get_type() {
   return TYPE_AST_WHILE;
 }
 

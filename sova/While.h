@@ -10,6 +10,6 @@ public:
 
   virtual Object *interpret(Context &ctx, bool to_lvalue) override;
   virtual void print(std::ostream &o, int indent) override;
-  virtual Type get_type() override;
+  virtual type_t get_type() override;
   virtual void iterate_references(std::vector<Object *> &out) override;
 };

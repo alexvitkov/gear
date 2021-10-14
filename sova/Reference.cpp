@@ -24,4 +24,4 @@ void Reference::print(std::ostream &o, int indent) { o << name; }
 
 Reference *Reference::as_reference() { return this; }
 
-Type Reference::get_type() { return TYPE_REFERENCE; }
+type_t Reference::get_type() { return TYPE_REFERENCE; }

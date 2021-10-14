@@ -9,6 +9,6 @@ void Bool::print(std::ostream& o, int indent) {
   o << (value ? "true" : "false");
 }
 
-Type Bool::get_type() {
+type_t Bool::get_type() {
   return TYPE_BOOL;
 }

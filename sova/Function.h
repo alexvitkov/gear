@@ -8,5 +8,5 @@ public:
 
   virtual Object *invoke_form(Context &, std::vector<Object *> &args, bool to_lvalue) override;
   virtual Object *call_fn(Context &, std::vector<Object *> &args) = 0;
-  virtual Type get_type() override;
+  virtual type_t get_type() override;
 };

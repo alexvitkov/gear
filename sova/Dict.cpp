@@ -33,8 +33,8 @@ Object *DictAccessor::interpret(class Context &ctx, bool to_lvalue) {
   return to_lvalue ? this : map->children[name];
 }
 
-Type Dict::get_type() { return TYPE_DICT; }
-Type DictAccessor::get_type() { return TYPE_DICT_ACCESSOR; }
+type_t Dict::get_type() { return TYPE_DICT; }
+type_t DictAccessor::get_type() { return TYPE_DICT_ACCESSOR; }
 
 void Dict::iterate_references(std::vector<Object *> & out) {
   for (auto kvp : children)

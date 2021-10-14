@@ -21,16 +21,17 @@ enum Type {
   TYPE_DICT_ACCESSOR,
 };
 
+typedef uint32_t type_t;
+
 class Object {
   bool marked_for_gc;
   friend void gc(class GlobalContext &);
 
 public:
-
   void *operator new(size_t size);
   void operator delete(void *);
 
-  virtual Type get_type() = 0;
+  virtual type_t get_type() = 0;
   virtual void iterate_references(std::vector<Object *> &out);
   virtual Object *interpret(class Context &ctx, bool to_lvalue = false);
   virtual void print(std::ostream &o, int indent = 0);

@@ -12,5 +12,5 @@ public:
   virtual void print(std::ostream &o, int indent) override;
 
   virtual class Reference* as_reference() override;
-  virtual Type get_type() override;
+  virtual type_t get_type() override;
 };
