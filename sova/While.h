@@ -12,4 +12,5 @@ public:
   virtual void print(std::ostream &o, int indent) override;
   virtual type_t get_type() override;
   virtual void iterate_references(std::vector<Object *> &out) override;
+  virtual Object *dot(Context &, std::string) override;
 };

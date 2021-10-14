@@ -1,5 +1,6 @@
 #include "While.h"
 #include "If.h"
+#include "ObjectPtr.h"
 
 While::While(Object *condition, Object *body)
     : condition(condition), body(body) {}
@@ -25,4 +26,12 @@ type_t While::get_type() {
 void While::iterate_references(std::vector<Object *> &out) {
   out.push_back(condition);
   out.push_back(body);
+}
+
+Object *While::dot(Context &, std::string str) {
+  if (str == "condition")
+    return new ObjectPtr(this, &condition);
+  if (str == "body")
+    return new ObjectPtr(this, &body);
+  return nullptr;
 }
