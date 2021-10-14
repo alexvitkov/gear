@@ -4,7 +4,7 @@
 #include "Reference.h"
 #include "Token.h"
 
-const bool ALWAYS_BRACKETS = false;
+const bool ALWAYS_BRACKETS = true;
 
 Call::Call(Object *fn, std::vector<Object *> args) : fn(fn), args(args) {}
 
@@ -32,8 +32,7 @@ static bool call_operator_data(Object *_call, OperatorData &data) {
   if (!r)
     return false;
 
-  get_infix_precedence(r->name, data);
-  return true;
+  return get_infix_precedence(r->name, data);
 }
 
 void Call::print(std::ostream &o, bool needs_infix_breackets) {
@@ -44,26 +43,26 @@ void Call::print(std::ostream &o, bool needs_infix_breackets) {
     // prefix operator - TODO remove "prefix" string
     if (args.size() == 1) {
       o << fn << args[0];
-    }
-    else {
+    } else {
       if (needs_infix_breackets || ALWAYS_BRACKETS)
         o << '(';
 
       OperatorData data2;
       if (call_operator_data(args[0], data2)) {
-        Call* lhs = args[0]->as_call();
+        Call *lhs = args[0]->as_call();
 
         int add = data.precedence == data2.precedence && data.assoc == Associativity::Right;
         bool lhs_needs_brackets = lhs->args.size() == 2 && data2.precedence < (data.precedence + add);
 
         lhs->print(o, lhs_needs_brackets);
-      }
-      else {
+      } else {
         o << args[0];
       }
 
       // TODO remove spaces for dot
-      o << ' ' << fn << ' ' << args[1];
+      o << ' ';
+      for (int i = 1; i < args.size(); i++)
+        o << fn << ' ' << args[i];
 
       if (needs_infix_breackets || ALWAYS_BRACKETS)
         o << ')';

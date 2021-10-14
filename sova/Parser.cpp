@@ -109,6 +109,8 @@ Call *Parser::fix_precedence(Call *call) {
     return call;
 
   if (data.infix.assoc == Associativity::FoldToVector && data.op == rhs_data.op) {
+    rhs = fix_precedence(rhs);
+
     call->args.pop_back();
 
     for (auto arg : rhs->args)
