@@ -1,5 +1,6 @@
 #include "Block.h"
 #include "Context.h"
+#include "Function.h"
 #include "Object.h"
 
 Object *Block::interpret(Context &ctx, EvalFlags_t flags) {
@@ -41,4 +42,23 @@ type_t Block::get_type() { return TYPE_AST_BLOCK; }
 void Block::iterate_references(std::vector<Object *> &out) {
   for (auto o : inside)
     out.push_back(o);
+}
+
+class BlockPushFunction : public Function {
+  Block *block;
+
+public:
+  BlockPushFunction(Block *block) : block(block) {}
+
+  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+    for (auto arg : args)
+      block->inside.push_back(arg);
+    return nullptr;
+  }
+};
+
+Object *Block::dot(Context &, std::string str) {
+  if (str == "push")
+    return new BlockPushFunction(this);
+  return nullptr;
 }
