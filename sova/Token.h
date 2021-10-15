@@ -67,3 +67,5 @@ public:
   bool has_more();
   void rewind();
 };
+
+std::ostream &operator<<(std::ostream &o, Token &t);

@@ -2,6 +2,39 @@
 #include "Parser.h"
 #include <sstream>
 
+std::ostream &operator<<(std::ostream &o, Token &t) {
+  switch (t.type) {
+    case TOK_INFIX_OP:
+    case TOK_ID: {
+      o << t.name;
+      break;
+    }
+
+    case TOK_STRING: {
+      o << "string(\"" << t.name << "\")";
+      break;
+    }
+
+    case TOK_NUMBER: {
+      o << t.number;
+      break;
+    }
+
+    default: {
+      if (t.type == TOK_EOF)
+        o << "end of file";
+      else if (t.type == TOK_ERR_AN_EXPRESSION)
+        o << "an expression";
+      else if (t.type < 128)
+        o << '"' << (char)t.type << '"';
+      else
+        o << t.name;
+      break;
+    }
+  }
+  return o;
+}
+
 Token TokenStream::pop() {
   if (current_token >= tokens.size()) {
     // TODO error
