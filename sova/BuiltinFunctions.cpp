@@ -220,7 +220,7 @@ public:
 
     Block *block = args[0]->as_block();
 
-    return block->interpret( EVAL_BLOCK_RETURN_CONTEXT);
+    return block->interpret(EVAL_BLOCK_RETURN_CONTEXT);
   }
 };
 
@@ -312,6 +312,7 @@ void setup_global_context(Context &ctx) {
   set_prefix("-");
   set_prefix("+");
   set_prefix("'");
+  set_prefix("#");
   set_prefix("!");
 
   ctx.define("+", new AddFunction());

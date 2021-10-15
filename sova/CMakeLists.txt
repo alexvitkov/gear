@@ -19,6 +19,7 @@ add_executable(sova
   If.cpp
   Type.cpp
   While.cpp
+  Unquote.cpp
   BuiltinFunctions.cpp
   Token.cpp
   Parser.cpp

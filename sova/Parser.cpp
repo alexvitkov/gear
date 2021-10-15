@@ -8,6 +8,7 @@
 #include "Reference.h"
 #include "String.h"
 #include "Token.h"
+#include "Unquote.h"
 #include "While.h"
 #include <assert.h>
 #include <readline/history.h>
@@ -141,7 +142,6 @@ Call *Parser::fix_precedence(Call *call) {
   Call *rhs = call->args[1]->as_call();
   if (!rhs)
     return call;
-
 
   it = infix_calls.find(rhs);
   if (it == infix_calls.end())
@@ -331,9 +331,9 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
               .has_brackets = false,
           };
 
-          //std::cout << "pre: " << call << "\n";
+          // std::cout << "pre: " << call << "\n";
           call = fix_precedence(call);
-          //std::cout << "post: " << call << "\n";
+          // std::cout << "post: " << call << "\n";
 
           if (top_level_infix)
             fold(call);
@@ -358,7 +358,12 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           if (!parse(fast_break, false, false))
             return false;
 
-          stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()});
+          // TODO - this is a hack until we have a sufficiently powerful macro system
+          if (t.name == "#") {
+            stack.back() = new Unquote(stack.back());
+          } else {
+            stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()});
+          }
           last = true;
           goto NextToken;
         }

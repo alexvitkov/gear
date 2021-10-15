@@ -34,6 +34,7 @@ void register_builtin_types(GlobalContext &global) {
   register_builtin_type(global, TYPE_REFERENCE, "Reference");
   register_builtin_type(global, TYPE_OBJECT_PTR, "ObjectPTr");
   register_builtin_type(global, TYPE_CONTEXT_FIELD_ACCESSOR, "ContextFieldAccessor");
+  register_builtin_type(global, TYPE_UNQUOTE, "Unquote");
 }
 
 void Type::print(std::ostream &o, int indent) { o << name; }

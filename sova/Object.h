@@ -24,6 +24,7 @@ enum TypeId : uint32_t {
   TYPE_REFERENCE,
   TYPE_OBJECT_PTR,
   TYPE_CONTEXT_FIELD_ACCESSOR,
+  TYPE_UNQUOTE,
 
   TYPE_MAX_ENUM_SIZE, // used to track the number of elements in the enum
 };
