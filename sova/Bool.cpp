@@ -12,3 +12,7 @@ void Bool::print(std::ostream& o, int indent) {
 type_t Bool::get_type() {
   return TYPE_BOOL;
 }
+
+Object *Bool::clone() {
+  return this;
+}

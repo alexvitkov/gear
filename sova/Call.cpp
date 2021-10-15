@@ -99,3 +99,11 @@ void Call::iterate_references(std::vector<Object *> &out) {
   for (auto arg : args)
     out.push_back(arg);
 }
+
+Object *Call::clone() {
+  std::vector<Object*> cloned_args;
+  for (auto arg : args)
+    cloned_args.push_back(::clone(arg));
+
+  return new Call(fn, cloned_args);
+}

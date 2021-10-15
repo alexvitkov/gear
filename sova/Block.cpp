@@ -62,3 +62,10 @@ Object *Block::dot(Context &, std::string str) {
     return new BlockPushFunction(this);
   return nullptr;
 }
+
+Object *Block::clone() {
+  Block *b = new Block();
+  for (auto o : inside)
+    b->inside.push_back(::clone(o));
+  return b;
+}

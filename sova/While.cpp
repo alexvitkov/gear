@@ -7,16 +7,15 @@ While::While(Object *condition, Object *body)
 
 Object *While::interpret(Context &ctx, EvalFlags_t flags) {
   Object *value = nullptr;
-  Object *evaled_cond;
 
-  while (truthy(evaled_cond = eval(ctx, condition, flags)))
+
+  while (truthy(eval(ctx, condition, flags)))
     value = eval(ctx, body, false);
 
   return value;
 }
 
 void While::print(std::ostream &o, int indent) {
-  o << "while (" << condition << ") ";
   body->print(o, indent);
 }
 
@@ -35,4 +34,8 @@ Object *While::dot(Context &, std::string str) {
   if (str == "body")
     return new ObjectPtr(this, &body);
   return nullptr;
+}
+
+Object *While::clone() {
+  return new While(::clone(condition), ::clone(body));
 }

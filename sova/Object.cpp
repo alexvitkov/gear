@@ -68,3 +68,14 @@ class String *Object::as_string() {
 Object::~Object() {}
 
 void Object::iterate_references(std::vector<Object *> &) {}
+
+Object *Object::clone() {
+  std::cout << "clone() not implemented\n";
+  exit(1);
+}
+
+Object *clone(Object *o) {
+  if (!o)
+    return nullptr;
+  return o->clone();
+}

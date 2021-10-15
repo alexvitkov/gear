@@ -22,3 +22,7 @@ type_t String::get_type() { return TYPE_STRING; }
 class String *String::as_string() {
   return this;
 }
+
+Object* String::clone() {
+  return new String(*this);
+}

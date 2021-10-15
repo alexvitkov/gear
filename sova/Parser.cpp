@@ -7,8 +7,10 @@
 #include "Number.h"
 #include "Reference.h"
 #include "String.h"
+#include "Token.h"
 #include "While.h"
 #include <assert.h>
+#include <readline/history.h>
 #include <stdlib.h>
 
 std::unordered_map<std::string, OperatorData> infix_precedence;
@@ -84,9 +86,41 @@ void TokenStream::emit_id(const char *code, int start, int i) {
     push(Token{.type = TOK_ID, .name = str});
 }
 
+void Parser::fold(Call *call) {
+  auto it = infix_calls.find(call);
+  if (it == infix_calls.end())
+    return;
+  CallInfixData data = it->second;
+
+  if (data.infix.assoc != Associativity::FoldToVector)
+    return;
+
+  Object *_next = call->args[1];
+  call->args.pop_back();
+
+  Call *next;
+
+  while (_next && (next = call->as_call())) {
+    assert(next->args.size() == 2);
+
+    it = infix_calls.find(next);
+    if (it == infix_calls.end()) {
+      call->args.push_back(next);
+      return;
+    }
+    CallInfixData data2 = it->second;
+
+    if (data2.op == data.op) {
+      call->args.push_back(next->args[0]);
+    }
+
+  }
+
+}
+
 Call *Parser::fix_precedence(Call *call) {
-  if (call->args.size() != 2)
-    return call;
+  // if (call->args.size() != 2)
+  //   return call;
 
   auto it = infix_calls.find(call);
   if (it == infix_calls.end())
@@ -108,27 +142,22 @@ Call *Parser::fix_precedence(Call *call) {
   if (rhs_data.has_brackets)
     return call;
 
-  if (data.infix.assoc == Associativity::FoldToVector && data.op == rhs_data.op) {
-    rhs = fix_precedence(rhs);
-
-    call->args.pop_back();
-
-    for (auto arg : rhs->args)
-      call->args.push_back(arg);
-
-    return call;
-  }
-
-  else if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
-    auto tmp = rhs->args[0];
-    rhs->args[0] = call;
-    call->args[1] = tmp;
-
-    return fix_precedence(rhs);
-  }
   else {
-    call->args[1] = fix_precedence(rhs);
-    return call;
+    Call *end;
+
+    if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
+      auto tmp = rhs->args[0];
+      rhs->args[0] = call;
+      call->args[1] = tmp;
+
+      end = fix_precedence(rhs);
+    } else {
+      call->args[1] = fix_precedence(rhs);
+      end = call;
+    }
+
+    end = fold(end);
+    return end;
   }
 }
 
@@ -252,7 +281,6 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
           Object *fn = stack.back();
           stack.pop_back();
-
 
           Call *args;
           if (in_brackets && (args = in_brackets->as_call()) && args->is_comma_list())

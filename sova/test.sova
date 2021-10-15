@@ -1,22 +1,16 @@
 
-macro(one, {
-    emit(x := 100);
+
+for := form((initial, condition, increment, body), {
+    block := '{};
+
+    loop := '(while(false){});
+    loop.condition = condition;
+
+    (loop.body.push)(body); 
+    (loop.body.push)(increment); 
+
+    (block.push)(initial);
+    (block.push)(loop);
+
+    block;
 });
-
-
-// comment
-// commment comment comment
-
-fact_iter := n => {
-    acc := 1;
-
-    while (n > 1) {
-        acc = acc * n;
-        n = n - 1;
-    };
-
-    acc;
-};
-
-fact_rec := n => if (n == 0) 1
-                 else n * fact_rec(n - 1)

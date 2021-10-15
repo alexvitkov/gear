@@ -45,3 +45,7 @@ void If::iterate_references(std::vector<Object *> &out) {
   out.push_back(if_true);
   out.push_back(if_false);
 }
+
+Object *If::clone() {
+  return new If(::clone(condition), ::clone(if_true), ::clone(if_false));
+}

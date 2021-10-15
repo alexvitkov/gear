@@ -32,6 +32,7 @@ struct ParseExitCondition {
 
 class Parser {
   class Call *fix_precedence(class Call *);
+  void fold(class Call *);
 
   bool parse_if(ParseExitCondition &exit_cond);
   bool parse_while(ParseExitCondition &exit_cond);

@@ -4,7 +4,9 @@
 
 Reference::Reference(std::string name) : name(name) {}
 
-Object *Reference::interpret(Context &ctx, EvalFlags_t flags) { return (flags & EVAL_TO_LVALUE) ? this : ctx.resolve(name); }
+Object *Reference::interpret(Context &ctx, EvalFlags_t flags) {
+  return (flags & EVAL_TO_LVALUE) ? this : ctx.resolve(name);
+}
 
 bool set(Context *ctx, std::string name, Object *value) { return false; }
 
@@ -25,3 +27,5 @@ void Reference::print(std::ostream &o, int indent) { o << name; }
 Reference *Reference::as_reference() { return this; }
 
 type_t Reference::get_type() { return TYPE_REFERENCE; }
+
+Object *Reference::clone() { return new Reference(name); }

@@ -50,6 +50,7 @@ public:
   virtual void print(std::ostream &o, int indent = 0);
   virtual bool equals(Object *other);
   virtual Object *dot(Context &, std::string);
+  virtual Object *clone();
 
   virtual class Form *as_form();
   virtual class Reference *as_reference();
@@ -68,3 +69,5 @@ Object *eval(Context &ctx, Object *obj, EvalFlags_t = 0);
 bool equals(Object *, Object *);
 
 void print_obvject_newline(std::ostream &, int indent);
+
+Object *clone(Object *o);

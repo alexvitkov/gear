@@ -18,3 +18,7 @@ bool Number::equals(Object *other) {
 Number *Number::as_number() { return this; }
 
 type_t Number::get_type() { return TYPE_NUMBER; }
+
+Object *Number::clone() {
+  return new Number(value);
+}

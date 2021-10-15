@@ -197,7 +197,7 @@ public:
     if (args.size() != 1)
       return nullptr;
 
-    return args[0];
+    return ::clone(args[0]);
   }
 };
 
@@ -289,8 +289,8 @@ static bool eq(double a, double b) { return a == b; }
 static bool ne(double a, double b) { return a != b; }
 
 void setup_global_context(Context &ctx) {
+  set_infix(",", 5, Associativity::FoldToVector);
   set_infix(":=", 10, Associativity::Right);
-  set_infix(",", 20, Associativity::FoldToVector);
   set_infix("=>", 30, Associativity::Right);
   set_infix("=", 40, Associativity::Right);
 
