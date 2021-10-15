@@ -9,7 +9,7 @@
 #include "Number.h"
 #include "Parser.h"
 #include "Reference.h"
-#include "String.h"
+#include "StringObject.h"
 #include "Type.h"
 #include <assert.h>
 #include <sstream>

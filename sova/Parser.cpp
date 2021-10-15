@@ -6,7 +6,7 @@
 #include "If.h"
 #include "Number.h"
 #include "Reference.h"
-#include "String.h"
+#include "StringObject.h"
 #include "Token.h"
 #include "Unquote.h"
 #include "While.h"
