@@ -96,11 +96,10 @@ void Parser::fold(Call *call) {
     return;
 
   Object *_next = call->args[1];
+  Call *next = _next->as_call();
   call->args.pop_back();
 
-  Call *next;
-
-  while (_next && (next = call->as_call())) {
+  while (next) {
     assert(next->args.size() == 2);
 
     it = infix_calls.find(next);
@@ -112,15 +111,24 @@ void Parser::fold(Call *call) {
 
     if (data2.op == data.op) {
       call->args.push_back(next->args[0]);
+      _next = next->args[1];
+      next = _next->as_call();
+      if (!next) {
+        call->args.push_back(_next);
+        return;
+      }
+    } else {
+      call->args.push_back(next);
+      return;
     }
-
   }
-
 }
 
 Call *Parser::fix_precedence(Call *call) {
   // if (call->args.size() != 2)
   //   return call;
+
+  // std::cout << "fixing " << call << "\n";
 
   auto it = infix_calls.find(call);
   if (it == infix_calls.end())
@@ -134,30 +142,31 @@ Call *Parser::fix_precedence(Call *call) {
   if (!rhs)
     return call;
 
+
   it = infix_calls.find(rhs);
   if (it == infix_calls.end())
     return call;
   CallInfixData rhs_data = it->second;
 
-  if (rhs_data.has_brackets)
-    return call;
+  // if (rhs_data.has_brackets)
+  // return call;
 
-  else {
-    Call *end;
-
+  {
+    // std::cout << "rhs: " << rhs_data.op << " i am " << data.op << "\n";
     if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
+
       auto tmp = rhs->args[0];
       rhs->args[0] = call;
       call->args[1] = tmp;
 
-      end = fix_precedence(rhs);
+      auto res = rhs;
+      // std::cout << "became " << res << "\n";
+      return res;
     } else {
-      call->args[1] = fix_precedence(rhs);
-      end = call;
+      call->args[1] = rhs;
+      // std::cout << "rhs became "<<call->args[1]<<"\n";
+      return call;
     }
-
-    end = fold(end);
-    return end;
   }
 }
 
@@ -258,7 +267,6 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
       case (TokenType)'(': {
 
         // if se see ) followed directly by (, push nil to the stack
-
         if (tokens.pop_if((TokenType)')'))
           stack.push_back(nullptr);
 
@@ -276,6 +284,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
         }
 
         if (last) {
+          // emit function call
           auto in_brackets = stack.back();
           stack.pop_back();
 
@@ -289,9 +298,9 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
             stack.push_back(new Call(fn, {in_brackets}));
           else
             stack.push_back(new Call(fn, {}));
-        } else {
-          last = true;
         }
+
+        last = true;
         goto NextToken;
       }
 
@@ -322,8 +331,12 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
               .has_brackets = false,
           };
 
+          //std::cout << "pre: " << call << "\n";
+          call = fix_precedence(call);
+          //std::cout << "post: " << call << "\n";
+
           if (top_level_infix)
-            call = fix_precedence(call);
+            fold(call);
 
           stack.pop_back();
           stack.back() = call;
