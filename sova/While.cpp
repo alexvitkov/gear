@@ -15,7 +15,7 @@ Object *While::interpret(EvalFlags_t flags) {
   return value;
 }
 
-void While::print(std::ostream &o) {
+void While::print(Ostream &o) {
   o << body;
 }
 

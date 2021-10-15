@@ -34,7 +34,7 @@ Block *GlobalContext::get_macro(const std::string &name) {
     return it->second;
 }
 
-void Context::print(std::ostream &o) {
+void Context::print(Ostream &o) {
   o << "context ({";
   indent++;
 

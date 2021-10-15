@@ -101,7 +101,7 @@ Call *Parser::fix_precedence(Call *call) {
   // if (call->args.size() != 2)
   //   return call;
 
-  // std::cout << "fixing " << call << "\n";
+  // cout << "fixing " << call << "\n";
 
   auto it = infix_calls.find(call);
   if (it == infix_calls.end())
@@ -124,7 +124,7 @@ Call *Parser::fix_precedence(Call *call) {
   // return call;
 
   {
-    // std::cout << "rhs: " << rhs_data.op << " i am " << data.op << "\n";
+    // cout << "rhs: " << rhs_data.op << " i am " << data.op << "\n";
     if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
 
       auto tmp = rhs->args[0];
@@ -132,11 +132,11 @@ Call *Parser::fix_precedence(Call *call) {
       call->args[1] = tmp;
 
       auto res = rhs;
-      // std::cout << "became " << res << "\n";
+      // cout << "became " << res << "\n";
       return res;
     } else {
       call->args[1] = rhs;
-      // std::cout << "rhs became "<<call->args[1]<<"\n";
+      // cout << "rhs became "<<call->args[1]<<"\n";
       return call;
     }
   }
@@ -303,9 +303,9 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
               .has_brackets = false,
           };
 
-          // std::cout << "pre: " << call << "\n";
+          // cout << "pre: " << call << "\n";
           call = fix_precedence(call);
-          // std::cout << "post: " << call << "\n";
+          // cout << "post: " << call << "\n";
 
           if (top_level_infix)
             fold(call);
@@ -469,7 +469,7 @@ bool Parser::parse_while(ParseExitCondition &exit_cond) {
   return true;
 }
 
-void print_parse_error(std::ostream &o, ParseError err) {
+void print_parse_error(Ostream &o, ParseError err) {
 
   o << "\u001b[31mparse error\u001b[0m: ";
 
@@ -506,7 +506,7 @@ bool do_parse(GlobalContext &global, const char *code, std::vector<Object *> &ou
     tokens.push({.type = (TokenType)';'});
 
   // for (Token &t : tokens.tokens)
-  //   std::cout << t << "\n";
+  //   cout << t << "\n";
 
   // top-level statements are delimited by semicolons
   TokenType semicolon_delim[] = {(TokenType)';'};
@@ -519,7 +519,7 @@ bool do_parse(GlobalContext &global, const char *code, std::vector<Object *> &ou
   while (tokens.has_more()) {
     if (!parser.parse(exit_cond)) {
       for (auto &err : parser.parse_errors)
-        print_parse_error(std::cout, err);
+        print_parse_error(cout, err);
 
       global.parser = nullptr;
       return false;

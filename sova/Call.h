@@ -15,8 +15,8 @@ public:
   virtual Call *as_call() override;
   virtual Object *clone() override;
 
-  void print(std::ostream &o, bool needs_infix_breackets);
-  virtual void print(std::ostream &o) override;
+  void print(Ostream &o, bool needs_infix_breackets);
+  virtual void print(Ostream &o) override;
 
   bool is_comma_list();
 };

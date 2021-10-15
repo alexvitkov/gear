@@ -24,6 +24,7 @@ add_executable(sova
   Token.cpp
   Parser.cpp
   GarbageCollector.cpp
+  Ostream.cpp
   main.cpp
 )
 

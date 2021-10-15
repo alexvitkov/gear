@@ -1,6 +1,8 @@
 #pragma once
-#include <iostream>
+#include "Common.h"
+#include "Ostream.h"
 #include <vector>
+#include <string>
 
 // VOLATILE - if you define new entries here, you must also add them in the
 // register_builtin_types function in Type.cpp
@@ -48,7 +50,7 @@ public:
   virtual type_t get_type() = 0;
   virtual void iterate_references(std::vector<Object *> &out);
   virtual Object *interpret(EvalFlags_t flags = 0);
-  virtual void print(std::ostream &o);
+  virtual void print(Ostream &o);
   virtual bool equals(Object *other);
   virtual Object *dot(std::string);
   virtual Object *clone();
@@ -64,9 +66,9 @@ public:
   ~Object();
 };
 
-std::ostream &operator<<(std::ostream &o, Object *obj);
+Ostream &operator<<(Ostream &o, Object *obj);
 bool equals(Object *, Object *);
-void print_obvject_newline(std::ostream &);
+void print_obvject_newline(Ostream &);
 Object *clone(Object *o);
 
 Object *eval(Object *obj, EvalFlags_t = 0);

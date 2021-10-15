@@ -230,14 +230,14 @@ public:
     for (int i = 0; i < args.size(); i++) {
 
       if (args[i] && args[i]->as_string())
-        std::cout << args[i]->as_string()->str;
+        cout << args[i]->as_string()->str;
       else
-        std::cout << args[i];
+        cout << args[i];
 
       if (i != args.size() - 1)
-        std::cout << " ";
+        cout << " ";
       else
-        std::cout << "\n";
+        cout << "\n";
     }
     return nullptr;
   }

@@ -35,7 +35,7 @@ static bool call_operator_data(Object *_call, OperatorData &data) {
   return get_infix_precedence(r->name, data);
 }
 
-void Call::print(std::ostream &o, bool needs_infix_breackets) {
+void Call::print(Ostream &o, bool needs_infix_breackets) {
 
   OperatorData data;
   if (call_operator_data(this, data)) {
@@ -80,7 +80,7 @@ void Call::print(std::ostream &o, bool needs_infix_breackets) {
   }
 }
 
-void Call::print(std::ostream &o) { print(o, false); }
+void Call::print(Ostream &o) { print(o, false); }
 
 bool Call::is_comma_list() {
   Reference *r = fn->as_reference();

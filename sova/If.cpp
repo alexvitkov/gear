@@ -22,7 +22,7 @@ Object *If::interpret(EvalFlags_t flags) {
   return eval(truthy(evaled_cond) ? if_true : if_false, flags);
 }
 
-void If::print(std::ostream &o) {
+void If::print(Ostream &o) {
   o << "if (" << condition << ") " << if_true;
   if (if_false)
     o << " else " << if_false;

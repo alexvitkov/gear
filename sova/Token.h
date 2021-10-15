@@ -1,4 +1,5 @@
 #pragma once
+#include "Ostream.h"
 #include <string>
 #include <vector>
 
@@ -68,4 +69,4 @@ public:
   void rewind();
 };
 
-std::ostream &operator<<(std::ostream &o, Token &t);
+Ostream &operator<<(Ostream &o, Token &t);

@@ -4,15 +4,15 @@
 thread_local std::vector<Context*> context_stack;
 thread_local int indent = 0;
 
-std::ostream &operator<<(std::ostream &o, Object *obj) {
+Ostream &operator<<(Ostream &o, Object *obj) {
   if (!obj)
-    std::cout << "nil";
+    o << "nil";
   else
     obj->print(o);
   return o;
 }
 
-void print_obvject_newline(std::ostream &o) {
+void print_obvject_newline(Ostream &o) {
   o << "\n";
   for (int i = 0; i < indent; i++)
     o << "    ";
@@ -22,9 +22,9 @@ Object *eval(Object *obj, EvalFlags_t flags) {
   if (!obj)
     return nullptr;
 
-  // std::cout << "begin eval " << obj << "\n";
+  // cout << "begin eval " << obj << "\n";
   auto res = obj->interpret(flags);
-  // std::cout << obj << " ---> " <<res << "\n";
+  // cout << obj << " ---> " <<res << "\n";
   return res;
 }
 
@@ -44,7 +44,7 @@ bool equals(Object *lhs, Object *rhs) {
 
 Object *Object::dot(std::string) { return nullptr; }
 
-void Object::print(std::ostream &o) { o << "<object>"; }
+void Object::print(Ostream &o) { o << "<object>"; }
 
 class Form *Object::as_form() {
   return nullptr;
@@ -73,7 +73,7 @@ Object::~Object() {}
 void Object::iterate_references(std::vector<Object *> &) {}
 
 Object *Object::clone() {
-  std::cout << "clone() not implemented\n";
+  cout << "clone() not implemented\n";
   exit(1);
 }
 

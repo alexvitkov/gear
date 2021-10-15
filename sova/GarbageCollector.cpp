@@ -83,5 +83,5 @@ void gc(GlobalContext &global) {
   }
 
   total_freed += freed;
-  std::cout << "Freed " << freed << "\nTotal allocated: " << total_alloced << "\nTotal freed: " << total_freed << "\n";
+  cout << "Freed " << freed << "\nTotal allocated: " << total_alloced << "\nTotal freed: " << total_freed << "\n";
 }

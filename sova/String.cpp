@@ -2,7 +2,7 @@
 
 String::String(std::string str) : str(str) {}
 
-void String::print(std::ostream &o) {
+void String::print(Ostream &o) {
   o << '"';
 
   for (char ch : str) {

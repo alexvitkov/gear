@@ -7,7 +7,7 @@ public:
 
   Bool(bool value);
   virtual type_t get_type() override;
-  virtual void print(std::ostream& o) override;
+  virtual void print(Ostream& o) override;
   virtual Object *clone() override;
 };
 

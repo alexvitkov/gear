@@ -2,7 +2,7 @@
 #include "Parser.h"
 #include <sstream>
 
-std::ostream &operator<<(std::ostream &o, Token &t) {
+Ostream &operator<<(Ostream &o, Token &t) {
   switch (t.type) {
     case TOK_INFIX_OP:
     case TOK_ID: {

@@ -7,7 +7,7 @@ public:
   std::string str;
 
   String(std::string str);
-  virtual void print(std::ostream &o) override;
+  virtual void print(Ostream &o) override;
   virtual type_t get_type() override;
   virtual String* as_string() override;
   virtual Object* clone() override;

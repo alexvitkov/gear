@@ -29,10 +29,10 @@ void repl() {
       continue;
 
     for (Object *obj : parsed_objects) {
-      // std::cout << obj << "\n";
+      // cout << obj << "\n";
       context_stack = {&global};
       auto val = eval(obj);
-      std::cout << val << "\n";
+      cout << val << "\n";
     }
 
     if (run_gc) {
@@ -101,7 +101,7 @@ int main(int argc, const char **argv) {
       char *file;
       auto res = read_file(arg, file);
       if (res != RunFileResult::OK) {
-        std::cout << "Failed to read file " << arg << ", error " << (int)res << "\n";
+        cout << "Failed to read file " << arg << ", error " << (int)res << "\n";
         return 1;
       }
 

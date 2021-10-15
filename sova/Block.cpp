@@ -21,7 +21,7 @@ Object *Block::interpret(EvalFlags_t flags) {
   }
 }
 
-void Block::print(std::ostream &o) {
+void Block::print(Ostream &o) {
   o << "{ ";
 
   indent++;
