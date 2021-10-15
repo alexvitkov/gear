@@ -1,5 +1,7 @@
+#include "Object.h"
 #include "Token.h"
 #include "Parser.h"
+#include <ctype.h>
 
 Ostream &operator<<(Ostream &o, Token &t) {
   switch (t.type) {

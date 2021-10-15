@@ -11,8 +11,9 @@
 #include "Unquote.h"
 #include "While.h"
 #include <assert.h>
-#include <readline/history.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <readline/history.h>
 
 std::unordered_map<String, OperatorData> infix_precedence;
 

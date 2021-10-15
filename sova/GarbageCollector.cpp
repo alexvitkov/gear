@@ -1,6 +1,5 @@
 #include "GarbageCollector.h"
 #include <set>
-#include <vector>
 
 std::set<Object *> alive_objects;
 std::unordered_map<Object *, int> object_size;

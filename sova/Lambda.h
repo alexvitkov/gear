@@ -1,7 +1,6 @@
 #pragma once
 #include "Form.h"
 #include "Function.h"
-#include <vector>
 
 class ArrowForm : public Form {
 public:

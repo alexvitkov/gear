@@ -10,6 +10,7 @@
 #include "Type.h"
 #include <readline/history.h>
 #include <readline/readline.h>
+#include <stdio.h>
 #include <string.h>
 
 GlobalContext global;

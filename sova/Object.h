@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "Ostream.h"
 #include "String.h"
+#include "Vector.h"
 #include <vector>
 
 // VOLATILE - if you define new entries here, you must also add them in the

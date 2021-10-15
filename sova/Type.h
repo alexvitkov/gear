@@ -1,6 +1,5 @@
 #pragma once
 #include "Object.h"
-#include <string>
 
 class Type : public Object {
   type_t id;

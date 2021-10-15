@@ -1,8 +1,8 @@
 #include "Ostream.h"
 #include "String.h"
-#include <cstring>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 
 FileDescriptorOstream cout(1);
 FileDescriptorOstream cerr(2);

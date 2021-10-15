@@ -2,8 +2,6 @@
 #include "Context.h"
 #include "Object.h"
 
-#include <vector>
-
 Type::Type(type_t id, String name) : id(id), name(name) {}
 
 type_t Type::get_type() { return TYPE_TYPE; }

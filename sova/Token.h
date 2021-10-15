@@ -1,8 +1,6 @@
 #pragma once
 #include "Ostream.h"
 #include "String.h"
-#include <string>
-#include <vector>
 
 enum TokenType {
   TOK_EOF = 0,
