@@ -208,7 +208,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
       case TOK_STRING: {
         last = true;
-        stack.push_back(new String(t.name));
+        stack.push_back(new StringObject(t.name));
         goto NextToken;
       }
 

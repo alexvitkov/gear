@@ -61,7 +61,7 @@ public:
   virtual class Call *as_call();
   virtual class LValue *as_lvalue();
   virtual class Block *as_block();
-  virtual class String *as_string();
+  virtual class StringObject *as_string();
 
   ~Object();
 };

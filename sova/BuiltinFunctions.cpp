@@ -41,7 +41,7 @@ class AddFunction : public Function {
       else
         out << args[1];
 
-      return new String(out.str());
+      return new StringObject(out.str());
     }
   }
 };
@@ -249,7 +249,7 @@ public:
     if (args.size() == 0 || !args[0])
       return nullptr;
 
-    String *str = args[0]->as_string();
+    StringObject *str = args[0]->as_string();
     if (!str)
       return nullptr;
 

@@ -1,8 +1,8 @@
 #include "String.h"
 
-String::String(std::string str) : str(str) {}
+StringObject::StringObject(std::string str) : str(str) {}
 
-void String::print(Ostream &o) {
+void StringObject::print(Ostream &o) {
   o << '"';
 
   for (char ch : str) {
@@ -17,12 +17,12 @@ void String::print(Ostream &o) {
   o << '"';
 }
 
-type_t String::get_type() { return TYPE_STRING; }
+type_t StringObject::get_type() { return TYPE_STRING; }
 
-class String *String::as_string() {
+class StringObject *StringObject::as_string() {
   return this;
 }
 
-Object* String::clone() {
-  return new String(*this);
+Object* StringObject::clone() {
+  return new StringObject(*this);
 }
