@@ -21,19 +21,18 @@ Object *Block::interpret(EvalFlags_t flags) {
   }
 }
 
-void Block::print(std::ostream &o, int indent) {
+void Block::print(std::ostream &o) {
   o << "{ ";
 
   indent++;
   for (Object *obj : inside) {
     if (obj) {
-      print_obvject_newline(o, indent);
-      obj->print(o, indent);
-      o << ";";
+      print_obvject_newline(o);
+      o << obj << ";";
     }
   }
   indent--;
-  print_obvject_newline(o, indent);
+  print_obvject_newline(o);
 
   o << "}";
 }

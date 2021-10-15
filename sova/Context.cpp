@@ -34,17 +34,17 @@ Block *GlobalContext::get_macro(const std::string &name) {
     return it->second;
 }
 
-void Context::print(std::ostream &o, int indent) {
+void Context::print(std::ostream &o) {
   o << "context ({";
   indent++;
 
   for (auto obj : resolve_map) {
-    print_obvject_newline(o, indent);
+    print_obvject_newline(o);
     o << obj.first << " := " << obj.second << ";";
   }
 
   indent--;
-  print_obvject_newline(o, indent);
+  print_obvject_newline(o);
   o << "})";
 }
 

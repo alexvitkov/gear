@@ -2,6 +2,7 @@
 #include "LValue.h"
 
 thread_local std::vector<Context*> context_stack;
+thread_local int indent = 0;
 
 std::ostream &operator<<(std::ostream &o, Object *obj) {
   if (!obj)
@@ -11,7 +12,7 @@ std::ostream &operator<<(std::ostream &o, Object *obj) {
   return o;
 }
 
-void print_obvject_newline(std::ostream &o, int indent) {
+void print_obvject_newline(std::ostream &o) {
   o << "\n";
   for (int i = 0; i < indent; i++)
     o << "    ";
@@ -43,7 +44,7 @@ bool equals(Object *lhs, Object *rhs) {
 
 Object *Object::dot(std::string) { return nullptr; }
 
-void Object::print(std::ostream &o, int indent) { o << "<object>"; }
+void Object::print(std::ostream &o) { o << "<object>"; }
 
 class Form *Object::as_form() {
   return nullptr;

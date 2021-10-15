@@ -10,7 +10,7 @@ class Type : public Object {
   Type(type_t id, std::string name);
   type_t get_type();
 
-  virtual void print(std::ostream &o, int indent = 0);
+  virtual void print(std::ostream &o);
 };
 
 void register_builtin_types(class GlobalContext &);

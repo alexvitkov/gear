@@ -35,7 +35,7 @@ Object *ArrowForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
 
 Lambda::Lambda(std::vector<std::string> param_names, Object *body) : param_names(param_names), body(body) {}
 
-void Lambda::print(std::ostream &o, int indent) {
+void Lambda::print(std::ostream &o) {
   switch (param_names.size()) {
     case 0: o << "()"; break;
     case 1: o << param_names[0]; break;

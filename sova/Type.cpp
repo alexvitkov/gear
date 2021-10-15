@@ -37,6 +37,6 @@ void register_builtin_types(GlobalContext &global) {
   register_builtin_type(global, TYPE_UNQUOTE, "Unquote");
 }
 
-void Type::print(std::ostream &o, int indent) { o << name; }
+void Type::print(std::ostream &o) { o << name; }
 
 Type *get_type(Object *obj) { return get_global_context().types[obj ? obj->get_type() : TYPE_NIL]; }

@@ -48,7 +48,7 @@ public:
   virtual type_t get_type() = 0;
   virtual void iterate_references(std::vector<Object *> &out);
   virtual Object *interpret(EvalFlags_t flags = 0);
-  virtual void print(std::ostream &o, int indent = 0);
+  virtual void print(std::ostream &o);
   virtual bool equals(Object *other);
   virtual Object *dot(std::string);
   virtual Object *clone();
@@ -66,10 +66,12 @@ public:
 
 std::ostream &operator<<(std::ostream &o, Object *obj);
 bool equals(Object *, Object *);
-void print_obvject_newline(std::ostream &, int indent);
+void print_obvject_newline(std::ostream &);
 Object *clone(Object *o);
 
 Object *eval(Object *obj, EvalFlags_t = 0);
 extern thread_local std::vector<class Context *> context_stack;
 Context &get_context();
 GlobalContext &get_global_context();
+
+extern thread_local int indent;

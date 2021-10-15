@@ -15,8 +15,8 @@ Object *While::interpret(EvalFlags_t flags) {
   return value;
 }
 
-void While::print(std::ostream &o, int indent) {
-  body->print(o, indent);
+void While::print(std::ostream &o) {
+  o << body;
 }
 
 type_t While::get_type() {

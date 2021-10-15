@@ -80,7 +80,7 @@ void Call::print(std::ostream &o, bool needs_infix_breackets) {
   }
 }
 
-void Call::print(std::ostream &o, int indent) { print(o, false); }
+void Call::print(std::ostream &o) { print(o, false); }
 
 bool Call::is_comma_list() {
   Reference *r = fn->as_reference();

@@ -19,7 +19,7 @@ public:
   class GlobalContext *get_global_context();
 
   virtual type_t get_type() override;
-  virtual void print(std::ostream& o, int indent) override;
+  virtual void print(std::ostream& o) override;
   virtual class LValue *dot(std::string) override;
   virtual void iterate_references(std::vector<Object *> &) override;
 };

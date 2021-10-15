@@ -9,7 +9,7 @@ Object* Function::invoke_form(std::vector<Object*>& args, bool) {
   return call_fn(evaled_args);
 }
 
-void Function::print(std::ostream& o, int indent) {
+void Function::print(std::ostream& o) {
   o << "<function>";
 }
 

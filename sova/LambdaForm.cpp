@@ -34,7 +34,7 @@ Object *FormForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
 
 LambdaForm::LambdaForm(std::vector<std::string> param_names, Object *body) : param_names(param_names), body(body) {}
 
-void LambdaForm::print(std::ostream &o, int indent) {
+void LambdaForm::print(std::ostream &o) {
   o << "form(";
   switch (param_names.size()) {
     case 0:

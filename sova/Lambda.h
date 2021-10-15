@@ -16,6 +16,6 @@ public:
   Lambda(std::vector<std::string> param_names, Object *body);
 
   virtual Object *call_fn(std::vector<Object *> &args) override;
-  virtual void print(std::ostream &o, int indent) override;
+  virtual void print(std::ostream &o) override;
   virtual void iterate_references(std::vector<Object *> &out) override;
 };

@@ -16,7 +16,7 @@ public:
   virtual Object *clone() override;
 
   void print(std::ostream &o, bool needs_infix_breackets);
-  virtual void print(std::ostream &o, int indent) override;
+  virtual void print(std::ostream &o) override;
 
   bool is_comma_list();
 };
