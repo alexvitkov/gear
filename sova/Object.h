@@ -3,7 +3,6 @@
 #include "Ostream.h"
 #include "String.h"
 #include "Vector.h"
-#include <vector>
 
 // VOLATILE - if you define new entries here, you must also add them in the
 // register_builtin_types function in Type.cpp
@@ -49,7 +48,7 @@ public:
   void operator delete(void *);
 
   virtual type_t get_type() = 0;
-  virtual void iterate_references(std::vector<Object *> &out);
+  virtual void iterate_references(Vector<Object *> &out);
   virtual Object *interpret(EvalFlags_t flags = 0);
   virtual void print(Ostream &o);
   virtual bool equals(Object *other);
@@ -73,7 +72,7 @@ void print_obvject_newline(Ostream &);
 Object *clone(Object *o);
 
 Object *eval(Object *obj, EvalFlags_t = 0);
-extern thread_local std::vector<class Context *> context_stack;
+extern thread_local Vector<class Context *> context_stack;
 Context &get_context();
 GlobalContext &get_global_context();
 

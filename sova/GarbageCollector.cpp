@@ -44,7 +44,7 @@ void gc(GlobalContext &global) {
       refs_set.insert(value);
   }
 
-  std::vector<Object *> obj_refs;
+  Vector<Object *> obj_refs;
 
   while (!refs_set.empty()) {
     Object *obj = *refs_set.begin();
@@ -62,7 +62,7 @@ void gc(GlobalContext &global) {
     marked_objects++;
   }
 
-  std::vector<Object *> to_delete(alive_objects.size() - marked_objects);
+  Vector<Object *> to_delete(alive_objects.size() - marked_objects);
 
   for (Object *obj : alive_objects) {
     if (!obj->marked_for_gc)

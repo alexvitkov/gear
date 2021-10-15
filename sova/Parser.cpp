@@ -487,7 +487,7 @@ void print_parse_error(Ostream &o, ParseError err) {
   }
 }
 
-bool do_parse(GlobalContext &global, const char *code, std::vector<Object *> &out,
+bool do_parse(GlobalContext &global, const char *code, Vector<Object *> &out,
               bool inject_trailing_semicolon) {
 
   TokenStream tokens;

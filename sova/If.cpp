@@ -40,7 +40,7 @@ Object *If::dot(String str) {
 
 type_t If::get_type() { return TYPE_AST_IF; }
 
-void If::iterate_references(std::vector<Object *> &out) {
+void If::iterate_references(Vector<Object *> &out) {
   out.push_back(condition);
   out.push_back(if_true);
   out.push_back(if_false);

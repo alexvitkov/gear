@@ -8,10 +8,13 @@
 #include "Parser.h"
 #include "Reference.h"
 #include "Type.h"
+#include <string.h>
+
+// clang-format off
+#include <stdio.h>
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <stdio.h>
-#include <string.h>
+// clang-format on
 
 GlobalContext global;
 bool run_gc = false;
@@ -24,7 +27,7 @@ void repl() {
 
     add_history(code);
 
-    std::vector<Object *> parsed_objects;
+    Vector<Object *> parsed_objects;
 
     if (!do_parse(global, code, parsed_objects, true))
       continue;
@@ -106,7 +109,7 @@ int main(int argc, const char **argv) {
         return 1;
       }
 
-      std::vector<Object *> parsed_objects;
+      Vector<Object *> parsed_objects;
       if (!do_parse(global, file, parsed_objects, true))
         return 1;
 

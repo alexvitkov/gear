@@ -5,12 +5,12 @@
 class Call : public Object {
 public:
   Object *fn;
-  std::vector<Object *> args;
-  Call(Object *fn, std::vector<Object *> args);
+  Vector<Object *> args;
+  Call(Object *fn, Vector<Object *> args);
 
   virtual Object *interpret(EvalFlags_t) override;
   virtual type_t get_type() override;
-  virtual void iterate_references(std::vector<Object *> &) override;
+  virtual void iterate_references(Vector<Object *> &) override;
   virtual Call *as_call() override;
   virtual Object *clone() override;
 

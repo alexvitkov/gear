@@ -8,6 +8,6 @@ Object *ObjectPtr::set(Context &ctx, Object *value, bool define_new) { return (*
 
 type_t ObjectPtr::get_type() { return TYPE_OBJECT_PTR; }
 
-void ObjectPtr::iterate_references(std::vector<Object *> &out) {
+void ObjectPtr::iterate_references(Vector<Object *> &out) {
   out.push_back(parent);
 }

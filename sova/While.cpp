@@ -23,7 +23,7 @@ type_t While::get_type() {
   return TYPE_AST_WHILE;
 }
 
-void While::iterate_references(std::vector<Object *> &out) {
+void While::iterate_references(Vector<Object *> &out) {
   out.push_back(condition);
   out.push_back(body);
 }

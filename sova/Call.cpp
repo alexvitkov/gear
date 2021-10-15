@@ -6,7 +6,7 @@
 
 const bool ALWAYS_BRACKETS = true;
 
-Call::Call(Object *fn, std::vector<Object *> args) : fn(fn), args(args) {}
+Call::Call(Object *fn, Vector<Object *> args) : fn(fn), args(args) {}
 
 Object *Call::interpret(EvalFlags_t flags) {
   Object *interpreted = fn->interpret();
@@ -94,14 +94,14 @@ Call *Call::as_call() { return this; }
 
 type_t Call::get_type() { return TYPE_CALL; }
 
-void Call::iterate_references(std::vector<Object *> &out) {
+void Call::iterate_references(Vector<Object *> &out) {
   out.push_back(fn);
   for (auto arg : args)
     out.push_back(arg);
 }
 
 Object *Call::clone() {
-  std::vector<Object *> cloned_args;
+  Vector<Object *> cloned_args;
   for (auto arg : args)
     cloned_args.push_back(::clone(arg));
 

@@ -18,7 +18,7 @@ using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);
 
 class AddFunction : public Function {
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
       return nullptr;
 
@@ -47,7 +47,7 @@ class AddFunction : public Function {
 
 template <Accumulator Acc> class ArithmeticFunction : public Function {
 public:
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     double val;
 
     for (int i = 0; i < args.size(); i++) {
@@ -68,7 +68,7 @@ public:
 };
 
 template <Comparator Compare> class ComparisonFunction : public Function {
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
       return nullptr;
 
@@ -88,7 +88,7 @@ class EqFunction : public Function {
 public:
   EqFunction(bool negate) : negate(negate) {}
 
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -97,7 +97,7 @@ public:
 };
 
 class UnaryMinus : public Function {
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() != 1 || !args[0])
       return nullptr;
 
@@ -110,7 +110,7 @@ class UnaryMinus : public Function {
 };
 
 class Not : public Function {
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() != 1 || !args[0])
       return nullptr;
 
@@ -128,7 +128,7 @@ public:
 
   AssignForm(bool define_new) : define_new(define_new){};
 
-  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -147,7 +147,7 @@ public:
 
 class DotForm : public Form {
 public:
-  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2 || !args[1])
       return nullptr;
 
@@ -162,7 +162,7 @@ public:
 };
 
 class MacroForm : public Form {
-  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2 || !args[0] || args[1])
       return nullptr;
 
@@ -180,7 +180,7 @@ class MacroForm : public Form {
 };
 
 class EmitForm : public Form {
-  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
     auto parser = get_global_context().parser;
     if (!parser || parser->blocks.size() == 0) // TODO error
       return nullptr;
@@ -192,7 +192,7 @@ class EmitForm : public Form {
 
 class QuoteForm : public Form {
 public:
-  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 1)
       return nullptr;
 
@@ -202,7 +202,7 @@ public:
 
 class EvalFunction : public Function {
 public:
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() != 1)
       return nullptr;
 
@@ -212,7 +212,7 @@ public:
 
 class ContextForm : public Form {
 public:
-  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
 
     if (args.size() != 1 || !args[0])
       return nullptr;
@@ -225,7 +225,7 @@ public:
 
 class PrintFunction : public Function {
 public:
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     for (int i = 0; i < args.size(); i++) {
 
       if (args[i] && args[i]->as_string())
@@ -244,7 +244,7 @@ public:
 
 class SystemFunction : public Function {
 public:
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() == 0 || !args[0])
       return nullptr;
 
@@ -259,7 +259,7 @@ public:
 
 class RunGCFunction : public Function {
 public:
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     run_gc = true;
     return nullptr;
   }
@@ -267,7 +267,7 @@ public:
 
 class GetTypeFunction : public Function {
 public:
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     if (args.size() != 1)
       return nullptr;
 

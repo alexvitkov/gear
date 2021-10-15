@@ -51,7 +51,7 @@ struct Token {
 
 
 class TokenStream {
-  std::vector<Token> tokens;
+  Vector<Token> tokens;
   int current_token = 0;
 
   void emit_id(const char *code, int start, int i);

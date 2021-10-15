@@ -3,12 +3,12 @@
 #include "Object.h"
 #include "Reference.h"
 
-Object *ArrowForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
+Object *ArrowForm::invoke_form(Vector<Object *> &args, bool to_lvalue) {
 
   if (args.size() != 2 || !args[0])
     return nullptr;
 
-  std::vector<String> param_names;
+  Vector<String> param_names;
 
   // a => .....
   Reference *param = args[0]->as_reference();
@@ -33,7 +33,7 @@ Object *ArrowForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
   return new Lambda(param_names, args[1]);
 }
 
-Lambda::Lambda(std::vector<String> param_names, Object *body) : param_names(param_names), body(body) {}
+Lambda::Lambda(Vector<String> param_names, Object *body) : param_names(param_names), body(body) {}
 
 void Lambda::print(Ostream &o) {
   switch (param_names.size()) {
@@ -52,7 +52,7 @@ void Lambda::print(Ostream &o) {
   o << " => " << body;
 }
 
-Object *Lambda::call_fn(std::vector<Object *> &args) {
+Object *Lambda::call_fn(Vector<Object *> &args) {
   if (args.size() != param_names.size())
     return nullptr;
 
@@ -68,4 +68,4 @@ Object *Lambda::call_fn(std::vector<Object *> &args) {
   return result;
 }
 
-void Lambda::iterate_references(std::vector<Object *> &out) { out.push_back(body); }
+void Lambda::iterate_references(Vector<Object *> &out) { out.push_back(body); }

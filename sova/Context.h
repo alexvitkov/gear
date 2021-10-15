@@ -20,7 +20,7 @@ public:
   virtual type_t get_type() override;
   virtual void print(Ostream& o) override;
   virtual class LValue *dot(String) override;
-  virtual void iterate_references(std::vector<Object *> &) override;
+  virtual void iterate_references(Vector<Object *> &) override;
 };
 
 
@@ -29,7 +29,7 @@ class GlobalContext : public Context {
   std::unordered_map<String, class Block *> macros_map;
 
 public:
-  std::vector<class Type *> types;
+  Vector<class Type *> types;
   GlobalContext();
   class Parser *parser;
 
@@ -49,5 +49,5 @@ public:
 
   virtual Object *set(Context&, Object *value, bool define_new) override;
   virtual Object *interpret(EvalFlags_t) override;
-  virtual void iterate_references(std::vector<Object *> &) override;
+  virtual void iterate_references(Vector<Object *> &) override;
 };

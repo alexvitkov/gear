@@ -1,7 +1,7 @@
 #include "Object.h"
 #include "LValue.h"
 
-thread_local std::vector<Context*> context_stack;
+thread_local Vector<Context*> context_stack;
 thread_local int indent = 0;
 
 Ostream &operator<<(Ostream &o, Object *obj) {
@@ -70,7 +70,7 @@ class StringObject *Object::as_string() {
 
 Object::~Object() {}
 
-void Object::iterate_references(std::vector<Object *> &) {}
+void Object::iterate_references(Vector<Object *> &) {}
 
 Object *Object::clone() {
   cout << "clone() not implemented\n";

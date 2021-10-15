@@ -70,11 +70,11 @@ Object *ContextFieldAccessor::interpret(EvalFlags_t flags) {
 type_t Context::get_type() { return TYPE_CONTEXT; }
 type_t ContextFieldAccessor::get_type() { return TYPE_CONTEXT_FIELD_ACCESSOR; }
 
-void Context::iterate_references(std::vector<Object *> & out) {
+void Context::iterate_references(Vector<Object *> & out) {
   for (auto kvp : resolve_map)
     out.push_back(kvp.second);
 }
 
-void ContextFieldAccessor::iterate_references(std::vector<Object *> & out) {
+void ContextFieldAccessor::iterate_references(Vector<Object *> & out) {
     out.push_back(map);
 }

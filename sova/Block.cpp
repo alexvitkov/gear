@@ -41,7 +41,7 @@ Block *Block::as_block() { return this; }
 
 type_t Block::get_type() { return TYPE_AST_BLOCK; }
 
-void Block::iterate_references(std::vector<Object *> &out) {
+void Block::iterate_references(Vector<Object *> &out) {
   for (auto o : inside)
     out.push_back(o);
 }
@@ -52,7 +52,7 @@ class BlockPushFunction : public Function {
 public:
   BlockPushFunction(Block *block) : block(block) {}
 
-  virtual Object *call_fn(std::vector<Object *> &args) override {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     for (auto arg : args)
       block->inside.push_back(arg);
     return nullptr;
