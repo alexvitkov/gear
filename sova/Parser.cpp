@@ -98,6 +98,10 @@ void Parser::fold(Call *call) {
 
   Object *_next = call->args[1];
   Call *next = _next->as_call();
+
+  if (!next)
+    return;
+
   call->args.pop_back();
 
   while (next) {
