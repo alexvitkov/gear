@@ -14,4 +14,4 @@ class Type : public Object {
 };
 
 void register_builtin_types(class GlobalContext &);
-Type *get_type(class GlobalContext &global, Object *obj);
+Type *get_type(Object *obj);

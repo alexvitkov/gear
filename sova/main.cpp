@@ -30,7 +30,8 @@ void repl() {
 
     for (Object *obj : parsed_objects) {
       // std::cout << obj << "\n";
-      auto val = eval(global, obj);
+      context_stack = {&global};
+      auto val = eval(obj);
       std::cout << val << "\n";
     }
 
@@ -108,8 +109,9 @@ int main(int argc, const char **argv) {
       if (!do_parse(global, file, parsed_objects, true))
         return 1;
 
+      context_stack = {&global};
       for (Object *obj : parsed_objects)
-        eval(global, obj);
+        eval(obj);
 
       continue;
     }

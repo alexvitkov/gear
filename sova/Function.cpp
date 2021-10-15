@@ -1,12 +1,12 @@
 #include "Function.h"
 
-Object* Function::invoke_form(Context& ctx, std::vector<Object*>& args, bool) {
+Object* Function::invoke_form(std::vector<Object*>& args, bool) {
   std::vector<Object*> evaled_args;
 
   for (Object* o : args)
-    evaled_args.push_back(eval(ctx, o));
+    evaled_args.push_back(eval(o));
 
-  return call_fn(ctx, evaled_args);
+  return call_fn(evaled_args);
 }
 
 void Function::print(std::ostream& o, int indent) {

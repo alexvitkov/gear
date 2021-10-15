@@ -38,4 +38,4 @@ void register_builtin_types(GlobalContext &global) {
 
 void Type::print(std::ostream &o, int indent) { o << name; }
 
-Type *get_type(GlobalContext &global, Object *obj) { return global.types[obj ? obj->get_type() : TYPE_NIL]; }
+Type *get_type(Object *obj) { return get_global_context().types[obj ? obj->get_type() : TYPE_NIL]; }

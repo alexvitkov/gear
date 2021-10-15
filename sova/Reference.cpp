@@ -4,13 +4,11 @@
 
 Reference::Reference(std::string name) : name(name) {}
 
-Object *Reference::interpret(Context &ctx, EvalFlags_t flags) {
-  return (flags & EVAL_TO_LVALUE) ? this : ctx.resolve(name);
+Object *Reference::interpret(EvalFlags_t flags) {
+  return (flags & EVAL_TO_LVALUE) ? this : get_context().resolve(name);
 }
 
-bool set(Context *ctx, std::string name, Object *value) { return false; }
-
-Object *Reference::set(Context &ctx, Object *value, bool define_new) {
+Object *Reference::set(Context& ctx, Object *value, bool define_new) {
   if (define_new || ctx.resolve_map.contains(name)) {
     ctx.define(name, value);
     return value;

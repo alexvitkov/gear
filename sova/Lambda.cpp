@@ -1,8 +1,9 @@
 #include "Lambda.h"
 #include "Call.h"
+#include "Object.h"
 #include "Reference.h"
 
-Object *ArrowForm::invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) {
+Object *ArrowForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
 
   if (args.size() != 2 || !args[0])
     return nullptr;
@@ -36,12 +37,8 @@ Lambda::Lambda(std::vector<std::string> param_names, Object *body) : param_names
 
 void Lambda::print(std::ostream &o, int indent) {
   switch (param_names.size()) {
-    case 0:
-      o << "()";
-      break;
-    case 1:
-      o << param_names[0];
-      break;
+    case 0: o << "()"; break;
+    case 1: o << param_names[0]; break;
     default:
       o << "(";
       for (int i = 0; i < param_names.size(); i++) {
@@ -55,18 +52,20 @@ void Lambda::print(std::ostream &o, int indent) {
   o << " => " << body;
 }
 
-Object *Lambda::call_fn(Context &ctx, std::vector<Object *> &args) {
+Object *Lambda::call_fn(std::vector<Object *> &args) {
   if (args.size() != param_names.size())
     return nullptr;
 
-  Context child_ctx(&ctx);
+  Context child_ctx(&get_context());
+  context_stack.push_back(&child_ctx);
 
   for (int i = 0; i < args.size(); i++)
     child_ctx.define(param_names[i], args[i]);
 
-  return eval(child_ctx, body);
+  Object *result = eval(body);
+
+  context_stack.pop_back();
+  return result;
 }
 
-void Lambda::iterate_references(std::vector<Object *> &out) {
-  out.push_back(body);
-}
+void Lambda::iterate_references(std::vector<Object *> &out) { out.push_back(body); }

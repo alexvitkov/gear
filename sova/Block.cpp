@@ -3,12 +3,15 @@
 #include "Function.h"
 #include "Object.h"
 
-Object *Block::interpret(Context &ctx, EvalFlags_t flags) {
-  Context *child_ctx = new Context(&ctx);
+Object *Block::interpret(EvalFlags_t flags) {
+  Context *child_ctx = new Context(context_stack.back());
+  context_stack.push_back(child_ctx);
   Object *val = nullptr;
 
   for (Object *obj : inside)
-    val = eval(*child_ctx, obj, flags);
+    val = eval(obj, flags);
+
+  context_stack.pop_back();
 
   if (flags & EVAL_BLOCK_RETURN_CONTEXT) {
     child_ctx->parent = nullptr;
@@ -50,14 +53,14 @@ class BlockPushFunction : public Function {
 public:
   BlockPushFunction(Block *block) : block(block) {}
 
-  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     for (auto arg : args)
       block->inside.push_back(arg);
     return nullptr;
   }
 };
 
-Object *Block::dot(Context &, std::string str) {
+Object *Block::dot(std::string str) {
   if (str == "push")
     return new BlockPushFunction(this);
   return nullptr;

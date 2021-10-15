@@ -48,7 +48,7 @@ void Context::print(std::ostream &o, int indent) {
   o << "})";
 }
 
-class LValue *Context::dot(Context &, std::string name) {
+class LValue *Context::dot(std::string name) {
   return new ContextFieldAccessor(this, name);
 }
 
@@ -63,7 +63,7 @@ Object *ContextFieldAccessor::set(Context &ctx, Object *value, bool define_new) 
   return value;
 }
 
-Object *ContextFieldAccessor::interpret(class Context &ctx, EvalFlags_t flags) {
+Object *ContextFieldAccessor::interpret(EvalFlags_t flags) {
   return (flags & EVAL_TO_LVALUE) ? this : map->resolve_map[name];
 }
 

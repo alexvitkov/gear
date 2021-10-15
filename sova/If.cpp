@@ -17,9 +17,9 @@ bool truthy(Object *o) {
   return true;
 }
 
-Object *If::interpret(Context &ctx, EvalFlags_t flags) {
-  Object *evaled_cond = eval(ctx, condition, 0);
-  return eval(ctx, truthy(evaled_cond) ? if_true : if_false, flags);
+Object *If::interpret(EvalFlags_t flags) {
+  Object *evaled_cond = eval(condition, 0);
+  return eval(truthy(evaled_cond) ? if_true : if_false, flags);
 }
 
 void If::print(std::ostream &o, int indent) {
@@ -28,7 +28,7 @@ void If::print(std::ostream &o, int indent) {
     o << " else " << if_false;
 }
 
-Object *If::dot(Context &, std::string str) {
+Object *If::dot(std::string str) {
   if (str == "condition")
     return new ObjectPtr(this, &condition);
   if (str == "if_true")

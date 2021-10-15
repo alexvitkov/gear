@@ -2,7 +2,7 @@
 #include "Call.h"
 #include "Reference.h"
 
-Object *FormForm::invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) {
+Object *FormForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
 
   if (args.size() != 2 || !args[0])
     return nullptr;
@@ -56,16 +56,20 @@ void LambdaForm::print(std::ostream &o, int indent) {
   o << "," << body << ")";
 }
 
-Object *LambdaForm::invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) {
+Object *LambdaForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
   if (args.size() != param_names.size())
     return nullptr;
 
-  Context child_ctx(&ctx);
+  Context child_ctx(&get_context());
+  context_stack.push_back(&child_ctx);
 
   for (int i = 0; i < args.size(); i++)
     child_ctx.define(param_names[i], args[i]);
 
-  return eval(child_ctx, body);
+  auto res = eval(body);
+
+  context_stack.pop_back();
+  return res;
 }
 
 void LambdaForm::iterate_references(std::vector<Object *> &out) {

@@ -20,7 +20,7 @@ public:
 
   virtual type_t get_type() override;
   virtual void print(std::ostream& o, int indent) override;
-  virtual class LValue *dot(Context &, std::string) override;
+  virtual class LValue *dot(std::string) override;
   virtual void iterate_references(std::vector<Object *> &) override;
 };
 
@@ -48,7 +48,7 @@ public:
   ContextFieldAccessor(Context *map, std::string name);
   virtual type_t get_type() override;
 
-  virtual Object *set(Context &ctx, Object *value, bool define_new) override;
-  virtual Object *interpret(class Context &ctx, EvalFlags_t) override;
+  virtual Object *set(Context&, Object *value, bool define_new) override;
+  virtual Object *interpret(EvalFlags_t) override;
   virtual void iterate_references(std::vector<Object *> &) override;
 };

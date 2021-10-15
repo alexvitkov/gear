@@ -8,8 +8,8 @@ const bool ALWAYS_BRACKETS = true;
 
 Call::Call(Object *fn, std::vector<Object *> args) : fn(fn), args(args) {}
 
-Object *Call::interpret(Context &ctx, EvalFlags_t flags) {
-  Object *interpreted = fn->interpret(ctx);
+Object *Call::interpret(EvalFlags_t flags) {
+  Object *interpreted = fn->interpret();
   if (!interpreted)
     return nullptr;
 
@@ -17,7 +17,7 @@ Object *Call::interpret(Context &ctx, EvalFlags_t flags) {
   if (!casted_fn)
     return nullptr;
 
-  return casted_fn->invoke_form(ctx, args, flags);
+  return casted_fn->invoke_form(args, flags);
 }
 
 static bool call_operator_data(Object *_call, OperatorData &data) {
@@ -101,7 +101,7 @@ void Call::iterate_references(std::vector<Object *> &out) {
 }
 
 Object *Call::clone() {
-  std::vector<Object*> cloned_args;
+  std::vector<Object *> cloned_args;
   for (auto arg : args)
     cloned_args.push_back(::clone(arg));
 

@@ -1,6 +1,8 @@
 #include "Object.h"
 #include "LValue.h"
 
+thread_local std::vector<Context*> context_stack;
+
 std::ostream &operator<<(std::ostream &o, Object *obj) {
   if (!obj)
     std::cout << "nil";
@@ -15,19 +17,19 @@ void print_obvject_newline(std::ostream &o, int indent) {
     o << "    ";
 }
 
-Object *eval(Context &ctx, Object *obj, EvalFlags_t flags) {
+Object *eval(Object *obj, EvalFlags_t flags) {
   if (!obj)
     return nullptr;
 
   // std::cout << "begin eval " << obj << "\n";
-  auto res = obj->interpret(ctx, flags);
+  auto res = obj->interpret(flags);
   // std::cout << obj << " ---> " <<res << "\n";
   return res;
 }
 
 bool Object::equals(Object *other) { return this == other; }
 
-Object *Object::interpret(class Context &, EvalFlags_t) { return this; }
+Object *Object::interpret(EvalFlags_t) { return this; }
 
 bool equals(Object *lhs, Object *rhs) {
   if (lhs == rhs)
@@ -39,7 +41,7 @@ bool equals(Object *lhs, Object *rhs) {
   return lhs->equals(rhs);
 }
 
-Object *Object::dot(Context &, std::string) { return nullptr; }
+Object *Object::dot(std::string) { return nullptr; }
 
 void Object::print(std::ostream &o, int indent) { o << "<object>"; }
 
@@ -79,3 +81,7 @@ Object *clone(Object *o) {
     return nullptr;
   return o->clone();
 }
+
+
+Context &get_context() { return *context_stack.back(); }
+GlobalContext &get_global_context() { return *(GlobalContext*)context_stack[0]; }

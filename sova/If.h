@@ -10,9 +10,9 @@ public:
 
   If(Object *condition, Object *if_true, Object *if_false);
 
-  virtual Object *interpret(Context &, EvalFlags_t) override;
+  virtual Object *interpret(EvalFlags_t) override;
   virtual void print(std::ostream &o, int indent) override;
-  virtual Object *dot(Context &, std::string) override;
+  virtual Object *dot(std::string) override;
   virtual void iterate_references(std::vector<Object *> &out) override;
   virtual type_t get_type() override;
   virtual Object *clone() override;

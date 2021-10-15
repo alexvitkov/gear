@@ -215,7 +215,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
         if (macro) {
           last = true;
-          stack.push_back(macro->interpret(global, false));
+          stack.push_back(macro->interpret(false));
           goto NextToken;
         }
 

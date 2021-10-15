@@ -46,10 +46,10 @@ public:
 
   virtual type_t get_type() = 0;
   virtual void iterate_references(std::vector<Object *> &out);
-  virtual Object *interpret(class Context &ctx, EvalFlags_t flags = 0);
+  virtual Object *interpret(EvalFlags_t flags = 0);
   virtual void print(std::ostream &o, int indent = 0);
   virtual bool equals(Object *other);
-  virtual Object *dot(Context &, std::string);
+  virtual Object *dot(std::string);
   virtual Object *clone();
 
   virtual class Form *as_form();
@@ -64,10 +64,11 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &o, Object *obj);
-Object *eval(Context &ctx, Object *obj, EvalFlags_t = 0);
-
 bool equals(Object *, Object *);
-
 void print_obvject_newline(std::ostream &, int indent);
-
 Object *clone(Object *o);
+
+Object *eval(Object *obj, EvalFlags_t = 0);
+extern thread_local std::vector<class Context *> context_stack;
+Context &get_context();
+GlobalContext &get_global_context();

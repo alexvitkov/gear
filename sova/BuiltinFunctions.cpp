@@ -19,7 +19,7 @@ using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);
 
 class AddFunction : public Function {
-  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
       return nullptr;
 
@@ -48,7 +48,7 @@ class AddFunction : public Function {
 
 template <Accumulator Acc> class ArithmeticFunction : public Function {
 public:
-  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     double val;
 
     for (int i = 0; i < args.size(); i++) {
@@ -69,7 +69,7 @@ public:
 };
 
 template <Comparator Compare> class ComparisonFunction : public Function {
-  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
       return nullptr;
 
@@ -89,7 +89,7 @@ class EqFunction : public Function {
 public:
   EqFunction(bool negate) : negate(negate) {}
 
-  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
@@ -98,7 +98,7 @@ public:
 };
 
 class UnaryMinus : public Function {
-  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() != 1 || !args[0])
       return nullptr;
 
@@ -111,7 +111,7 @@ class UnaryMinus : public Function {
 };
 
 class Not : public Function {
-  virtual Object *call_fn(Context &, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() != 1 || !args[0])
       return nullptr;
 
@@ -129,11 +129,11 @@ public:
 
   AssignForm(bool define_new) : define_new(define_new){};
 
-  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2)
       return nullptr;
 
-    auto evaled_lhs = eval(ctx, args[0], EVAL_TO_LVALUE);
+    auto evaled_lhs = eval(args[0], EVAL_TO_LVALUE);
     if (!evaled_lhs)
       return nullptr;
 
@@ -141,29 +141,29 @@ public:
     if (!lhs)
       return nullptr;
 
-    Object *evaled_rhs = eval(ctx, args[1]);
-    return lhs->set(ctx, evaled_rhs, define_new);
+    Object *evaled_rhs = eval(args[1]);
+    return lhs->set(get_context(), evaled_rhs, define_new);
   }
 };
 
 class DotForm : public Form {
 public:
-  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2 || !args[1])
       return nullptr;
 
-    Object *lhs = eval(ctx, args[0]);
+    Object *lhs = eval(args[0]);
     Reference *rhs = args[1]->as_reference();
 
     if (!lhs || !rhs)
       return nullptr;
 
-    return eval(ctx, lhs->dot(ctx, rhs->name), to_lvalue ? EVAL_TO_LVALUE : 0);
+    return eval(lhs->dot(rhs->name), to_lvalue ? EVAL_TO_LVALUE : 0);
   }
 };
 
 class MacroForm : public Form {
-  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 2 || !args[0] || args[1])
       return nullptr;
 
@@ -175,14 +175,14 @@ class MacroForm : public Form {
     if (!value)
       return nullptr;
 
-    ctx.get_global_context()->define_macro(name->name, value);
+    get_global_context().define_macro(name->name, value);
     return nullptr;
   }
 };
 
 class EmitForm : public Form {
-  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
-    auto parser = ctx.get_global_context()->parser;
+  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
+    auto parser = get_global_context().parser;
     if (!parser || parser->blocks.size() == 0) // TODO error
       return nullptr;
 
@@ -193,7 +193,7 @@ class EmitForm : public Form {
 
 class QuoteForm : public Form {
 public:
-  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
     if (args.size() != 1)
       return nullptr;
 
@@ -203,30 +203,30 @@ public:
 
 class EvalFunction : public Function {
 public:
-  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() != 1)
       return nullptr;
 
-    return eval(ctx, args[0]);
+    return eval(args[0]);
   }
 };
 
 class ContextForm : public Form {
 public:
-  virtual Object *invoke_form(Context &ctx, std::vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override {
 
     if (args.size() != 1 || !args[0])
       return nullptr;
 
     Block *block = args[0]->as_block();
 
-    return block->interpret(ctx, EVAL_BLOCK_RETURN_CONTEXT);
+    return block->interpret( EVAL_BLOCK_RETURN_CONTEXT);
   }
 };
 
 class PrintFunction : public Function {
 public:
-  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     for (int i = 0; i < args.size(); i++) {
 
       if (args[i] && args[i]->as_string())
@@ -245,7 +245,7 @@ public:
 
 class SystemFunction : public Function {
 public:
-  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() == 0 || !args[0])
       return nullptr;
 
@@ -260,7 +260,7 @@ public:
 
 class RunGCFunction : public Function {
 public:
-  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     run_gc = true;
     return nullptr;
   }
@@ -268,11 +268,11 @@ public:
 
 class GetTypeFunction : public Function {
 public:
-  virtual Object *call_fn(Context &ctx, std::vector<Object *> &args) override {
+  virtual Object *call_fn(std::vector<Object *> &args) override {
     if (args.size() != 1)
       return nullptr;
 
-    return ::get_type(*ctx.get_global_context(), args[0]);
+    return ::get_type(args[0]);
   }
 };
 
