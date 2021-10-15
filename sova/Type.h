@@ -4,10 +4,10 @@
 
 class Type : public Object {
   type_t id;
-  std::string name;
+  String name;
 
  public:
-  Type(type_t id, std::string name);
+  Type(type_t id, String name);
   type_t get_type();
 
   virtual void print(Ostream &o);

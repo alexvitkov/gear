@@ -59,7 +59,7 @@ public:
   }
 };
 
-Object *Block::dot(std::string str) {
+Object *Block::dot(String str) {
   if (str == "push")
     return new BlockPushFunction(this);
   return nullptr;

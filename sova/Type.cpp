@@ -4,11 +4,11 @@
 
 #include <vector>
 
-Type::Type(type_t id, std::string name) : id(id), name(name) {}
+Type::Type(type_t id, String name) : id(id), name(name) {}
 
 type_t Type::get_type() { return TYPE_TYPE; }
 
-void register_builtin_type(GlobalContext &global, type_t id, std::string name) {
+void register_builtin_type(GlobalContext &global, type_t id, String name) {
   Type *t = new Type(id, name);
   global.types[id] = t;
   global.define(name, t);

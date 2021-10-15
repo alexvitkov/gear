@@ -1,6 +1,5 @@
 #include "Token.h"
 #include "Parser.h"
-#include <sstream>
 
 Ostream &operator<<(Ostream &o, Token &t) {
   switch (t.type) {
@@ -105,7 +104,7 @@ bool TokenStream::lex(const char *code) {
     else if (code[i] == '"') {
       i++;
 
-      std::ostringstream out;
+      StringStream out;
 
       while (true) {
         switch (code[i]) {
@@ -183,7 +182,7 @@ bool TokenStream::lex(const char *code) {
       }
 
       for (int j = remaining; j > 0; j--) {
-        std::string op(code + i, j);
+        String op(code + i, j);
         OperatorData data;
         bool is_infix = get_infix_precedence(op, data);
 

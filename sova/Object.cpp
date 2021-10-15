@@ -42,7 +42,7 @@ bool equals(Object *lhs, Object *rhs) {
   return lhs->equals(rhs);
 }
 
-Object *Object::dot(std::string) { return nullptr; }
+Object *Object::dot(String) { return nullptr; }
 
 void Object::print(Ostream &o) { o << "<object>"; }
 

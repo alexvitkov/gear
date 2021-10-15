@@ -4,9 +4,9 @@
 
 class Reference : public LValue {
 public:
-  std::string name;
+  String name;
 
-  Reference(std::string name);
+  Reference(String name);
   virtual Object *interpret(EvalFlags_t) override;
   Object *set(Context &, Object *value, bool define_new) override;
   virtual void print(Ostream &o) override;

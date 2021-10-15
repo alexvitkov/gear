@@ -6,6 +6,7 @@ add_executable(sova
   Block.cpp
   Bool.cpp
   Number.cpp
+  String.cpp
   StringObject.cpp
   Call.cpp
   Form.cpp

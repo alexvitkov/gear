@@ -12,6 +12,6 @@ public:
   virtual Block* as_block() override;
   virtual type_t get_type() override;
   virtual void iterate_references(std::vector<Object *> &out) override;
-  virtual Object *dot(std::string) override;
+  virtual Object *dot(String) override;
   virtual Object *clone() override;
 };

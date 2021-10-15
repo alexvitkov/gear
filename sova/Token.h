@@ -1,5 +1,6 @@
 #pragma once
 #include "Ostream.h"
+#include "String.h"
 #include <string>
 #include <vector>
 
@@ -42,7 +43,7 @@ struct OperatorData {
 
 struct Token {
   TokenType type;
-  std::string name;
+  String name;
   double number;
 
   OperatorData infix_data;

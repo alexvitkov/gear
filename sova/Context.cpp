@@ -2,7 +2,7 @@
 
 Context::Context(Context *parent) : parent(parent) {}
 
-Object *Context::resolve(const std::string &name) {
+Object *Context::resolve(const String &name) {
   auto it = resolve_map.find(name);
   if (it == resolve_map.end()) {
     if (parent)
@@ -12,7 +12,7 @@ Object *Context::resolve(const std::string &name) {
   return it->second;
 }
 
-void Context::define(const std::string &name, Object *value) { resolve_map[name] = value; }
+void Context::define(const String &name, Object *value) { resolve_map[name] = value; }
 
 
 
@@ -24,9 +24,9 @@ GlobalContext *Context::get_global_context() {
   return (GlobalContext *)this;
 }
 
-void GlobalContext::define_macro(const std::string &name, Block *value) { macros_map[name] = value; }
+void GlobalContext::define_macro(const String &name, Block *value) { macros_map[name] = value; }
 
-Block *GlobalContext::get_macro(const std::string &name) {
+Block *GlobalContext::get_macro(const String &name) {
   auto it = macros_map.find(name);
   if (it == macros_map.end())
     return nullptr;
@@ -48,11 +48,11 @@ void Context::print(Ostream &o) {
   o << "})";
 }
 
-class LValue *Context::dot(std::string name) {
+class LValue *Context::dot(String name) {
   return new ContextFieldAccessor(this, name);
 }
 
-ContextFieldAccessor::ContextFieldAccessor(Context *map, std::string name) : map(map), name(name) {}
+ContextFieldAccessor::ContextFieldAccessor(Context *map, String name) : map(map), name(name) {}
 
 Object *ContextFieldAccessor::set(Context &ctx, Object *value, bool define_new) {
   if (value) {

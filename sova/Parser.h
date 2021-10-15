@@ -17,7 +17,7 @@ struct ParseError {
 };
 
 struct CallInfixData {
-  std::string op;
+  String op;
   OperatorData infix;
   bool has_brackets;
 };
@@ -50,9 +50,9 @@ public:
   bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_level_infix = true);
 };
 
-void set_infix(std::string op, int precedence, Associativity assoc);
-void set_prefix(std::string op);
+void set_infix(String op, int precedence, Associativity assoc);
+void set_prefix(String op);
 
 bool do_parse(GlobalContext& global, const char *code, std::vector<Object *> &out, bool inject_trailing_semicolon);
 
-bool get_infix_precedence(std::string op, OperatorData &out);
+bool get_infix_precedence(String op, OperatorData &out);

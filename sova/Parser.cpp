@@ -14,10 +14,10 @@
 #include <readline/history.h>
 #include <stdlib.h>
 
-std::unordered_map<std::string, OperatorData> infix_precedence;
+std::unordered_map<String, OperatorData> infix_precedence;
 
 
-bool get_infix_precedence(std::string op, OperatorData &out) {
+bool get_infix_precedence(String op, OperatorData &out) {
   auto it = infix_precedence.find(op);
   if (it == infix_precedence.end())
     return false;
@@ -25,7 +25,7 @@ bool get_infix_precedence(std::string op, OperatorData &out) {
   return true;
 }
 
-void set_infix(std::string op, int precedence, Associativity assoc) {
+void set_infix(String op, int precedence, Associativity assoc) {
   infix_precedence[op] = {
       .precedence = precedence,
       .assoc = assoc,
@@ -33,11 +33,11 @@ void set_infix(std::string op, int precedence, Associativity assoc) {
   };
 }
 
-void set_prefix(std::string op) { infix_precedence[op].is_prefix = true; }
+void set_prefix(String op) { infix_precedence[op].is_prefix = true; }
 
 void TokenStream::emit_id(const char *code, int start, int i) {
 
-  std::string str(code + start, i - start);
+  String str(code + start, i - start);
 
   if (str == "if")
     push(Token{.type = TOK_IF, .name = str});

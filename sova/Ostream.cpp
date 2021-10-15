@@ -1,4 +1,5 @@
 #include "Ostream.h"
+#include "String.h"
 #include <cstring>
 #include <unistd.h>
 #include <stdio.h>
@@ -12,13 +13,23 @@ void FileDescriptorOstream::write(u8 *bytes, int length) {
   ::write(fd, bytes, length);
 }
 
+void StringStream::write(u8 *bytes, int length) {
+  memcpy(out + ptr, bytes, length);
+  ptr += length;
+}
+
+String StringStream::str() {
+  out[ptr] = 0;
+  return String(out);
+}
+
 Ostream& operator<<(Ostream& o, const char *str) {
   long len = strlen(str);
   o.write((u8*)str, len);
   return o;
 }
 
-Ostream& operator<<(Ostream& o, const std::string &str) {
+Ostream& operator<<(Ostream& o, const String &str) {
   o << str.c_str();
   return o;
 }

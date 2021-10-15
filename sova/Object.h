@@ -1,8 +1,8 @@
 #pragma once
 #include "Common.h"
 #include "Ostream.h"
+#include "String.h"
 #include <vector>
-#include <string>
 
 // VOLATILE - if you define new entries here, you must also add them in the
 // register_builtin_types function in Type.cpp
@@ -52,7 +52,7 @@ public:
   virtual Object *interpret(EvalFlags_t flags = 0);
   virtual void print(Ostream &o);
   virtual bool equals(Object *other);
-  virtual Object *dot(std::string);
+  virtual Object *dot(String);
   virtual Object *clone();
 
   virtual class Form *as_form();

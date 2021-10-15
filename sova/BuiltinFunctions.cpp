@@ -12,7 +12,6 @@
 #include "StringObject.h"
 #include "Type.h"
 #include <assert.h>
-#include <sstream>
 #include <stdlib.h>
 
 using Accumulator = double (*)(double, double);
@@ -29,7 +28,7 @@ class AddFunction : public Function {
     if (num1 && num2)
       return new Number(num1->value + num2->value);
     else {
-      std::ostringstream out;
+      StringStream out;
 
       if (args[0]->as_string())
         out << args[0]->as_string()->str;

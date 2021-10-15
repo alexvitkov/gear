@@ -9,10 +9,10 @@ public:
 
 class LambdaForm : public Form {
 public:
-  std::vector<std::string> param_names;
+  std::vector<String> param_names;
   Object *body;
 
-  LambdaForm(std::vector<std::string> param_names, Object *body);
+  LambdaForm(std::vector<String> param_names, Object *body);
 
   virtual Object *invoke_form(std::vector<Object *> &args, bool to_lvalue) override;
   virtual void print(Ostream &o) override;

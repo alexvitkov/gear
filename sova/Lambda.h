@@ -10,10 +10,10 @@ public:
 
 class Lambda : public Function {
 public:
-  std::vector<std::string> param_names;
+  std::vector<String> param_names;
   Object *body;
 
-  Lambda(std::vector<std::string> param_names, Object *body);
+  Lambda(std::vector<String> param_names, Object *body);
 
   virtual Object *call_fn(std::vector<Object *> &args) override;
   virtual void print(Ostream &o) override;

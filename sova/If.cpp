@@ -10,7 +10,7 @@ bool truthy(Object *o) {
   if (!o || o == &False)
     return false;
 
-  Number *num = num->as_number();
+  Number *num = o->as_number();
   if (num && num->value == 0.0)
     return false;
 
@@ -28,7 +28,7 @@ void If::print(Ostream &o) {
     o << " else " << if_false;
 }
 
-Object *If::dot(std::string str) {
+Object *If::dot(String str) {
   if (str == "condition")
     return new ObjectPtr(this, &condition);
   if (str == "if_true")

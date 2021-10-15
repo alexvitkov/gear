@@ -7,7 +7,7 @@ Object *FormForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
   if (args.size() != 2 || !args[0])
     return nullptr;
 
-  std::vector<std::string> param_names;
+  std::vector<String> param_names;
 
   // a => .....
   Reference *param = args[0]->as_reference();
@@ -32,7 +32,7 @@ Object *FormForm::invoke_form(std::vector<Object *> &args, bool to_lvalue) {
   return new LambdaForm(param_names, args[1]);
 }
 
-LambdaForm::LambdaForm(std::vector<std::string> param_names, Object *body) : param_names(param_names), body(body) {}
+LambdaForm::LambdaForm(std::vector<String> param_names, Object *body) : param_names(param_names), body(body) {}
 
 void LambdaForm::print(Ostream &o) {
   o << "form(";

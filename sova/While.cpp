@@ -28,7 +28,7 @@ void While::iterate_references(std::vector<Object *> &out) {
   out.push_back(body);
 }
 
-Object *While::dot(std::string str) {
+Object *While::dot(String str) {
   if (str == "condition")
     return new ObjectPtr(this, &condition);
   if (str == "body")

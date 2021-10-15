@@ -7,45 +7,45 @@
 class Context : public Object {
 public:
   friend class ContextFieldAccessor;
-  std::unordered_map<std::string, Object *> resolve_map;
+  std::unordered_map<String, Object *> resolve_map;
   Context *parent;
 
   Context(Context *parent);
   Context(Context &) = delete;
 
-  Object *resolve(const std::string &name);
-  void define(const std::string &name, Object *value);
+  Object *resolve(const String &name);
+  void define(const String &name, Object *value);
 
   class GlobalContext *get_global_context();
 
   virtual type_t get_type() override;
   virtual void print(Ostream& o) override;
-  virtual class LValue *dot(std::string) override;
+  virtual class LValue *dot(String) override;
   virtual void iterate_references(std::vector<Object *> &) override;
 };
 
 
 
 class GlobalContext : public Context {
-  std::unordered_map<std::string, class Block *> macros_map;
+  std::unordered_map<String, class Block *> macros_map;
 
 public:
   std::vector<class Type *> types;
   GlobalContext();
   class Parser *parser;
 
-  void define_macro(const std::string &name, Block *value);
-  Block *get_macro(const std::string &name);
+  void define_macro(const String &name, Block *value);
+  Block *get_macro(const String &name);
 };
 
 
 
 class ContextFieldAccessor : public LValue {
   Context *map;
-  std::string name;
+  String name;
 
 public:
-  ContextFieldAccessor(Context *map, std::string name);
+  ContextFieldAccessor(Context *map, String name);
   virtual type_t get_type() override;
 
   virtual Object *set(Context&, Object *value, bool define_new) override;

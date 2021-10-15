@@ -1,6 +1,7 @@
 #pragma once
 #include "Common.h"
-#include <string>
+
+class String;
 
 class Ostream {
  public:
@@ -14,12 +15,20 @@ class FileDescriptorOstream : public Ostream {
   virtual void write(u8 *bytes, int length) override;
 };
 
+class StringStream : public Ostream {
+  char out[1024];
+  int ptr = 0;
+public:
+  virtual void write(u8 *bytes, int length) override;
+  String str();
+};
+
 extern FileDescriptorOstream cout;
 extern FileDescriptorOstream cerr;
 
 Ostream& operator<<(Ostream& o, const char *str);
-Ostream& operator<<(Ostream& o, const std::string &str);
 Ostream& operator<<(Ostream& o, char ch);
+Ostream& operator<<(Ostream& o, const String &str);
 Ostream& operator<<(Ostream& o, int);
 Ostream& operator<<(Ostream& o, float);
 Ostream& operator<<(Ostream& o, double);
