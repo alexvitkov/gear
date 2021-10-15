@@ -3,7 +3,6 @@
 #include "Token.h"
 #include <unordered_map>
 
-
 enum class ParseErrorType {
   UnexpectedId,
 };
@@ -27,7 +26,6 @@ struct ParseExitCondition {
   bool fast_break;
 };
 
-
 class Parser {
   class Call *fix_precedence(class Call *);
   void fold(class Call *);
@@ -39,18 +37,19 @@ public:
   TokenStream &tokens;
   GlobalContext &global;
 
-  Vector<Block*> blocks;
+  Vector<Block *> blocks;
   Vector<Object *> stack;
   Vector<ParseError> parse_errors;
   std::unordered_map<class Call *, CallInfixData> infix_calls;
 
   void parse_error(ParseError err) { parse_errors.push_back(err); }
   bool parse(ParseExitCondition &exit_cond, bool in_brackets = false, bool top_level_infix = true);
+  bool parse_block(TokenType final_delimiter);
 };
 
 void set_infix(String op, int precedence, Associativity assoc);
 void set_prefix(String op);
 
-bool do_parse(GlobalContext& global, const char *code, Vector<Object *> &out, bool inject_trailing_semicolon);
+Block *do_parse(GlobalContext &global, const char *code);
 
 bool get_infix_precedence(String op, OperatorData &out);

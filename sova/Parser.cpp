@@ -12,11 +12,8 @@
 #include "While.h"
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <readline/history.h>
 
 std::unordered_map<String, OperatorData> infix_precedence;
-
 
 bool get_infix_precedence(String op, OperatorData &out) {
   auto it = infix_precedence.find(op);
@@ -143,6 +140,37 @@ Call *Parser::fix_precedence(Call *call) {
   }
 }
 
+bool Parser::parse_block(TokenType final_delimiter) {
+  Block *block = new Block();
+  blocks.push_back(block);
+
+  while (true) {
+    if (tokens.pop_if(final_delimiter)) {
+      break;
+    }
+
+    TokenType in_block_delimiters[] = {(TokenType)';', final_delimiter};
+    ParseExitCondition in_block_exit_cond = {
+        .delims_count = 2,
+        .consumed_delims = 1,
+        .delims = in_block_delimiters,
+    };
+
+    if (!parse(in_block_exit_cond)) {
+      blocks.pop_back();
+      return false;
+    }
+
+    if (stack.back() != nullptr)
+      block->inside.push_back(stack.back());
+    stack.pop_back();
+  }
+
+  stack.push_back(block);
+  blocks.pop_back();
+  return true;
+}
+
 bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_level_infix) {
 
   bool last = false;
@@ -152,14 +180,6 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
       return true;
 
     Token t = tokens.pop();
-    if (!t) {
-      parse_error(ParseError{
-          .type = ParseErrorType::UnexpectedId,
-          .unexpected = t,
-          .expected = exit_cond.delims[0],
-      });
-      return false;
-    }
 
     for (int i = 0; i < exit_cond.delims_count; i++) {
       if (exit_cond.delims[i] == t.type) {
@@ -167,6 +187,15 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           tokens.rewind();
         return true;
       }
+    }
+
+    if (!t) {
+      parse_error(ParseError{
+          .type = ParseErrorType::UnexpectedId,
+          .unexpected = t,
+          .expected = exit_cond.delims[0],
+      });
+      return false;
     }
 
     if (last && (t.type == TOK_ID || t.type == TOK_IF || t.type == TOK_WHILE || t.type == TOK_NUMBER ||
@@ -343,35 +372,9 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
       }
 
       case '{': {
-        Block *block = new Block();
-        blocks.push_back(block);
-
-        while (true) {
-          if (tokens.pop_if((TokenType)'}')) {
-            break;
-          }
-
-          TokenType in_block_delimiters[] = {(TokenType)';', (TokenType)'}'};
-          ParseExitCondition in_block_exit_cond = {
-              .delims_count = 2,
-              .consumed_delims = 1,
-              .delims = in_block_delimiters,
-          };
-
-          if (!parse(in_block_exit_cond)) {
-            blocks.pop_back();
-            return false;
-          }
-
-          if (stack.back() != nullptr)
-            block->inside.push_back(stack.back());
-          stack.pop_back();
-        }
-
-        stack.push_back(block);
+        if (!parse_block((TokenType)'}'))
+          return false;
         last = true;
-
-        blocks.pop_back();
         goto NextToken;
       }
 
@@ -487,9 +490,7 @@ void print_parse_error(Ostream &o, ParseError err) {
   }
 }
 
-bool do_parse(GlobalContext &global, const char *code, Vector<Object *> &out,
-              bool inject_trailing_semicolon) {
-
+Block *do_parse(GlobalContext &global, const char *code) {
   TokenStream tokens;
 
   Parser parser = {
@@ -500,34 +501,18 @@ bool do_parse(GlobalContext &global, const char *code, Vector<Object *> &out,
 
   if (!tokens.lex(code)) {
     global.parser = nullptr;
-    return false;
+    return nullptr;
   }
 
-  if (inject_trailing_semicolon)
-    tokens.push({.type = (TokenType)';'});
-
+  tokens.push({.type = TOK_EOF });
+    
   // for (Token &t : tokens.tokens)
   //   cout << t << "\n";
 
-  // top-level statements are delimited by semicolons
-  TokenType semicolon_delim[] = {(TokenType)';'};
-  ParseExitCondition exit_cond = {
-      .delims_count = 1,
-      .consumed_delims = 1,
-      .delims = semicolon_delim,
-  };
+  if (!parser.parse_block(TOK_EOF))
+    return nullptr;
 
-  while (tokens.has_more()) {
-    if (!parser.parse(exit_cond)) {
-      for (auto &err : parser.parse_errors)
-        print_parse_error(cout, err);
-
-      global.parser = nullptr;
-      return false;
-    }
-  }
-
-  out = parser.stack;
+  Block *out = (Block*)parser.stack.back();
   global.parser = nullptr;
-  return true;
+  return out;
 }

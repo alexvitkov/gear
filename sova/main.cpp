@@ -27,17 +27,13 @@ void repl() {
 
     add_history(code);
 
-    Vector<Object *> parsed_objects;
-
-    if (!do_parse(global, code, parsed_objects, true))
+    Block *block = do_parse(global, code);
+    if (!block)
       continue;
 
-    for (Object *obj : parsed_objects) {
-      // cout << obj << "\n";
-      context_stack = {&global};
-      auto val = eval(obj);
-      cout << val << "\n";
-    }
+    context_stack = {&global};
+    auto val = eval((Object*)block);
+    cout << val << "\n";
 
     if (run_gc) {
       gc(global);
@@ -109,13 +105,12 @@ int main(int argc, const char **argv) {
         return 1;
       }
 
-      Vector<Object *> parsed_objects;
-      if (!do_parse(global, file, parsed_objects, true))
+      Block *block = do_parse(global, file);
+      if (!block)
         return 1;
 
       context_stack = {&global};
-      for (Object *obj : parsed_objects)
-        eval(obj);
+      eval((Object*)block);
 
       continue;
     }

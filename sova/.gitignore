@@ -2,3 +2,4 @@
 run.sh
 build
 vgcore.*
+compile_commands.json
