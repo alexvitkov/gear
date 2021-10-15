@@ -1,16 +1,15 @@
 
-
+// implement a c-like for loop backed by a while loop
 for := form((initial, condition, increment, body), {
-    block := '{};
-
-    loop := '(while(false){});
-    loop.condition = condition;
-
-    (loop.body.push)(body); 
-    (loop.body.push)(increment); 
-
-    (block.push)(initial);
-    (block.push)(loop);
-
-    block;
+    eval ('{
+        #initial;
+        while (#condition) {
+              #body;
+              #increment;
+        }
+    });
 });
+
+for(i := 0, i<5, i=i+1, {
+    print("i is ", i)
+})
