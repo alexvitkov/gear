@@ -22,6 +22,8 @@ public:
 
   const char *c_str() const;
   long size() const;
+
+  String substring(int start, int length = -1);
 };
 
 namespace std {

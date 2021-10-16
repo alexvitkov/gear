@@ -63,3 +63,19 @@ String operator+(const String &lhs, const String &rhs) {
 
   return s;
 }
+
+String String::substring(int start, int length) {
+  if (length < 0)
+    length = size();
+
+  int max_length = size() - start;
+  if (max_length <= 0)
+    return "";
+  if (length > max_length)
+    length = max_length;
+
+  String out(length);
+
+  memcpy(out.str, str+start, length);
+  return out;
+}
