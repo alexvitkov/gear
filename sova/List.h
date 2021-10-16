@@ -12,6 +12,7 @@ class List : public Object {
   virtual Object *clone() override;
   virtual type_t get_type() override;
   virtual void iterate_references(Vector<Object *> &out) override;
+  virtual Object *dot(String) override;
 };
 
 class ListAccessor : public LValue {

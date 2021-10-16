@@ -1,5 +1,6 @@
 #include "List.h"
 #include "Number.h"
+#include <iterator>
 
 void List::print(Ostream &o) {
   o << "list(";
@@ -60,4 +61,11 @@ void ListAccessor::iterate_references(Vector<Object *> &out) {
 
 type_t ListAccessor::get_type() {
   return TYPE_LIST_ACCESSOR;
+}
+
+
+Object *List::dot(String field) {
+  if (field == "length")
+    return new Number(backing_vector.size());
+  return nullptr;
 }
