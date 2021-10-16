@@ -16,7 +16,7 @@
 #include <readline/readline.h>
 // clang-format on
 
-thread_local GlobalContext global;
+thread_local GlobalContext _global;
 bool run_gc = false;
 
 void repl() {
@@ -27,17 +27,17 @@ void repl() {
 
     add_history(code);
 
-    Block *block = do_parse(global, code);
+    Block *block = do_parse(_global, code);
     if (!block)
       continue;
 
     block->create_own_context = false;
-    context_stack = {&global};
+    context_stack = {&_global};
     auto val = eval((Object *)block);
     cout << val << "\n";
 
     if (run_gc) {
-      gc(global);
+      gc(_global);
       run_gc = false;
     }
   }
@@ -104,11 +104,11 @@ int main(int argc, const char **argv) {
         return 1;
       }
 
-      Block *block = do_parse(global, file);
+      Block *block = do_parse(_global, file);
       if (!block)
         return 1;
 
-      context_stack = {&global};
+      context_stack = {&_global};
 
       cout << (Object *)block << "\n";
 

@@ -40,12 +40,12 @@ void Type::init(GlobalContext &global) {
 
 void Type::print(Ostream &o) { o << name; }
 
-Type *get_type(Object *obj) { return get_global_context().types[obj ? obj->get_type() : TYPE_NIL]; }
+Type *get_type(Object *obj) { return global().types[obj ? obj->get_type() : TYPE_NIL]; }
 
 Type *Type::get(type_t t) {
-  return get_global_context().types[t];
+  return global().types[t];
 }
 
 type_t Type::get_new_id() {
-  return get_global_context().next_type_id++;
+  return global().next_type_id++;
 }

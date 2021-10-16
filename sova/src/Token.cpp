@@ -187,7 +187,7 @@ bool TokenStream::lex(const char *code) {
       for (int j = remaining; j > 0; j--) {
         String op(code + i, j);
         OperatorData data;
-        bool is_infix = get_global_context().get_infix_precedence(op, data);
+        bool is_infix = global().get_infix_precedence(op, data);
 
         if (is_infix) {
           if (start >= 0) {

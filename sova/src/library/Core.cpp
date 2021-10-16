@@ -174,14 +174,14 @@ class MacroForm : public Form {
     if (!value)
       return nullptr;
 
-    get_global_context().define_macro(name->name, value);
+    global().define_macro(name->name, value);
     return nullptr;
   }
 };
 
 class EmitFunction : public Function {
   virtual Object *call(Vector<Object *> &args) override {
-    auto parser = get_global_context().parser;
+    auto parser = global().parser;
     if (!parser || parser->blocks.size() == 0) // TODO error
       return nullptr;
 
@@ -212,10 +212,10 @@ class ParseForm : public Form {
     exit_cond.delims_count = delims.size();
     exit_cond.consumed_delims = delims.size();
 
-    Parser *parser = get_global_context().parser;
+    Parser *parser = global().parser;
     assert(parser);
 
-    if (!get_global_context().parser->parse(exit_cond)) {
+    if (!global().parser->parse(exit_cond)) {
       assert(0);
     }
 
@@ -237,9 +237,9 @@ class ExpectTokenFunction : public Function {
     if (!resolve_token_type(str->str, tok))
       return nullptr;
 
-    assert(get_global_context().parser);
+    assert(global().parser);
 
-    Token t = get_global_context().parser->tokens.pop();
+    Token t = global().parser->tokens.pop();
     assert(t.type == tok);
 
     return nullptr;

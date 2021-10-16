@@ -46,7 +46,7 @@ static bool call_operator_data(Object *_call, OperatorData &data) {
   if (!r)
     return false;
 
-  return get_global_context().get_infix_precedence(r->name, data);
+  return global().get_infix_precedence(r->name, data);
 }
 
 void Call::print(Ostream &o, bool needs_infix_breackets) {

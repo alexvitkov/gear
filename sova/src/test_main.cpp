@@ -3,6 +3,6 @@
 
 bool run_gc = false;
 
-thread_local GlobalContext global;
+thread_local GlobalContext _global;
 
 int main() { return 0; }

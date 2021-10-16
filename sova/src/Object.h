@@ -73,7 +73,7 @@ Object *clone(Object *o);
 Object *eval(Object *obj);
 extern thread_local Vector<class Context *> context_stack;
 Context &get_context();
-GlobalContext &get_global_context();
+GlobalContext &global();
 
 extern thread_local int indent;
 

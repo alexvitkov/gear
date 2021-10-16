@@ -96,5 +96,5 @@ Object *clone(Object *o) {
 Context &get_context() { return *context_stack.back(); }
 
 
-extern thread_local GlobalContext global;
-GlobalContext &get_global_context() { return global; }
+extern thread_local GlobalContext _global;
+GlobalContext &global() { return _global; }
