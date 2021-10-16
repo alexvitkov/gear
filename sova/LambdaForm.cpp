@@ -2,7 +2,7 @@
 #include "Call.h"
 #include "Reference.h"
 
-Object *FormForm::invoke_form(Vector<Object *> &args, bool to_lvalue) {
+Object *FormForm::invoke(Vector<Object *> &args, bool to_lvalue) {
 
   if (args.size() != 2 || !args[0])
     return nullptr;
@@ -56,7 +56,7 @@ void LambdaForm::print(Ostream &o) {
   o << "," << body << ")";
 }
 
-Object *LambdaForm::invoke_form(Vector<Object *> &args, bool to_lvalue) {
+Object *LambdaForm::invoke(Vector<Object *> &args, bool to_lvalue) {
   if (args.size() != param_names.size())
     return nullptr;
 

@@ -3,7 +3,7 @@
 
 class FormForm : public Form {
 public:
-  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override;
+  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override;
 };
 
 class LambdaForm : public Form {
@@ -13,7 +13,7 @@ public:
 
   LambdaForm(Vector<String> param_names, Object *body);
 
-  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override;
+  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override;
   virtual void print(Ostream &o) override;
   virtual void iterate_references(Vector<Object *> &out) override;
 };

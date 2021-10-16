@@ -19,7 +19,7 @@ Object *Call::interpret(EvalFlags_t flags) {
       if (!form)
         return nullptr;
 
-      return form->invoke_form(args, flags);
+      return form->invoke(args, flags);
     }
 
     case '[': {

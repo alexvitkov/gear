@@ -2,7 +2,7 @@
 #include "FunctionType.h"
 #include <assert.h>
 
-Object *Function::invoke_form(Vector<Object *> &args, bool) {
+Object *Function::invoke(Vector<Object *> &args, bool) {
   Vector<Object *> evaled_args;
 
   for (Object *o : args)
@@ -22,7 +22,7 @@ Object *Function::invoke_form(Vector<Object *> &args, bool) {
     }
   }
 
-  return call_fn(evaled_args);
+  return call(evaled_args);
 }
 
 void Function::print(Ostream &o) { o << "<function>"; }

@@ -37,7 +37,7 @@ public:
   SubstringFunction(StringObject *s) : s(s) {
   }
 
-  Object *call_fn(Vector<Object *> &args) {
+  Object *call(Vector<Object *> &args) {
     if (args.size() == 0 || args.size() > 2)
       return nullptr;
 

@@ -3,7 +3,7 @@
 #include "Object.h"
 #include "Reference.h"
 
-Object *ArrowForm::invoke_form(Vector<Object *> &args, bool to_lvalue) {
+Object *ArrowForm::invoke(Vector<Object *> &args, bool to_lvalue) {
 
   if (args.size() != 2 || !args[0])
     return nullptr;
@@ -52,7 +52,7 @@ void Lambda::print(Ostream &o) {
   o << " => " << body;
 }
 
-Object *Lambda::call_fn(Vector<Object *> &args) {
+Object *Lambda::call(Vector<Object *> &args) {
   if (args.size() != param_names.size())
     return nullptr;
 

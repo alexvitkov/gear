@@ -60,7 +60,7 @@ class BlockPushFunction : public Function {
 public:
   BlockPushFunction(Block *block) : block(block) {}
 
-  virtual Object *call_fn(Vector<Object *> &args) override {
+  virtual Object *call(Vector<Object *> &args) override {
     for (auto arg : args)
       block->inside.push_back(arg);
     return nullptr;

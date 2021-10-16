@@ -11,7 +11,7 @@ namespace library::os {
 
 class SystemFunction : public Function {
 public:
-  virtual Object *call_fn(Vector<Object *> &args) override {
+  virtual Object *call(Vector<Object *> &args) override {
     if (args.size() == 0 || !args[0])
       return nullptr;
 
@@ -26,7 +26,7 @@ public:
 
 class LsFunction : public Function {
 public:
-  virtual Object *call_fn(Vector<Object *> &args) override {
+  virtual Object *call(Vector<Object *> &args) override {
 
     String dir_to_read = ".";
 
