@@ -12,7 +12,7 @@ void register_builtin_type(GlobalContext &global, type_t id, String name) {
   global.define(name, t);
 }
 
-void register_builtin_types(GlobalContext &global) {
+void Type::init(GlobalContext &global) {
   global.next_type_id = TYPE_MAX_ENUM_SIZE;
   global.types.resize(TYPE_MAX_ENUM_SIZE);
 

@@ -1,5 +1,4 @@
 #include "Block.h"
-#include "BuiltinFunctions.h"
 #include "Call.h"
 #include "Context.h"
 #include "GarbageCollector.h"
@@ -83,8 +82,6 @@ RunFileResult read_file(const char *path, char *&out) {
 }
 
 int main(int argc, const char **argv) {
-  register_builtin_types(global);
-  setup_global_context(global);
 
   // if -- has been passed, treat everything after it as filenames
   bool done_parsing_args = false;

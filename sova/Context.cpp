@@ -1,4 +1,6 @@
 #include "Context.h"
+#include "Libraries.h"
+#include "Type.h"
 
 Context::Context(Context *parent) : parent(parent) {}
 
@@ -16,7 +18,11 @@ void Context::define(const String &name, Object *value) { resolve_map[name] = va
 
 
 
-GlobalContext::GlobalContext() : Context(nullptr) {}
+GlobalContext::GlobalContext() : Context(nullptr) {
+  Type::init(*this);
+  library::core::load(*this);
+  library::os::load(*this);
+}
 
 GlobalContext *Context::get_global_context() {
   if (parent)

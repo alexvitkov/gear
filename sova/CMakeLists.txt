@@ -23,12 +23,14 @@ add_executable(sova
   Type.cpp
   While.cpp
   Unquote.cpp
-  BuiltinFunctions.cpp
   Token.cpp
   Parser.cpp
   GarbageCollector.cpp
   Ostream.cpp
   main.cpp
+
+  library/Core.cpp
+  library/OS.cpp
 )
 
 target_link_libraries(sova readline)

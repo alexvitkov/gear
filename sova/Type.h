@@ -15,7 +15,8 @@ public:
 
   static type_t get_new_id();
   static Type *get(type_t t);
+
+  static void init(class GlobalContext &);
 };
 
-void register_builtin_types(class GlobalContext &);
 Type *get_type(Object *obj);

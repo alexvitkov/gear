@@ -120,6 +120,7 @@ Call *Parser::fix_precedence(Call *call) {
       auto tmp = rhs->fn;
       rhs->fn = call;
       call->args[1] = tmp;
+
       return fix_precedence(rhs);
     } else {
       // operator has lower precedence than a function call

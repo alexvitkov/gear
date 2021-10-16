@@ -1,21 +1,23 @@
-#include "BuiltinFunctions.h"
-#include "Block.h"
-#include "Bool.h"
-#include "Form.h"
-#include "Function.h"
-#include "FunctionType.h"
-#include "Global.h"
-#include "Lambda.h"
-#include "LambdaForm.h"
-#include "List.h"
-#include "Number.h"
-#include "Object.h"
-#include "Parser.h"
-#include "Reference.h"
-#include "StringObject.h"
-#include "Type.h"
+#include "../Block.h"
+#include "../Bool.h"
+#include "../Form.h"
+#include "../Function.h"
+#include "../FunctionType.h"
+#include "../Lambda.h"
+#include "../LambdaForm.h"
+#include "../List.h"
+#include "../Number.h"
+#include "../Object.h"
+#include "../Parser.h"
+#include "../Reference.h"
+#include "../StringObject.h"
+#include "../Type.h"
 #include <assert.h>
 #include <stdlib.h>
+
+extern bool run_gc;
+
+namespace library::core {
 
 using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);
@@ -305,20 +307,6 @@ public:
   }
 };
 
-class SystemFunction : public Function {
-public:
-  virtual Object *call_fn(Vector<Object *> &args) override {
-    if (args.size() == 0 || !args[0])
-      return nullptr;
-
-    StringObject *str = args[0]->as_string();
-    if (!str)
-      return nullptr;
-
-    system(str->str.c_str());
-    return nullptr;
-  }
-};
 
 class RunGCFunction : public Function {
 public:
@@ -350,7 +338,7 @@ static bool le(double a, double b) { return a <= b; }
 static bool eq(double a, double b) { return a == b; }
 static bool ne(double a, double b) { return a != b; }
 
-void setup_global_context(Context &ctx) {
+void load(Context &ctx) {
   set_infix(",", 5, Associativity::FoldToVector);
   set_infix(":=", 10, Associativity::Right);
   set_infix("=>", 30, Associativity::Right);
@@ -369,7 +357,7 @@ void setup_global_context(Context &ctx) {
   set_infix("*", 120, Associativity::Left);
   set_infix("/", 130, Associativity::Left);
 
-  // --- Call precedence is 150 ---
+  // --- Call brackets precedence is 150 ---
 
   set_infix(".", 200, Associativity::Left);
 
@@ -411,6 +399,6 @@ void setup_global_context(Context &ctx) {
   ctx.define("list", new ListFunction());
   ctx.define("print", new PrintFunction());
   ctx.define("gc", new RunGCFunction());
-  ctx.define("system", new SystemFunction());
   ctx.define("type", new GetTypeFunction());
 }
+}; // namespace lib::core
