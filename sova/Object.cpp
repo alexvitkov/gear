@@ -3,6 +3,8 @@
 
 thread_local Vector<Context*> context_stack;
 thread_local int indent = 0;
+thread_local bool eval_to_lvalue;
+thread_local bool eval_block_return_context;
 
 Ostream &operator<<(Ostream &o, Object *obj) {
   if (!obj)
@@ -18,19 +20,19 @@ void print_obvject_newline(Ostream &o) {
     o << "    ";
 }
 
-Object *eval(Object *obj, EvalFlags_t flags) {
+Object *eval(Object *obj) {
   if (!obj)
     return nullptr;
 
   // cout << "begin eval " << obj << "\n";
-  auto res = obj->interpret(flags);
+  auto res = obj->interpret();
   // cout << obj << " ---> " <<res << "\n";
   return res;
 }
 
 bool Object::equals(Object *other) { return this == other; }
 
-Object *Object::interpret(EvalFlags_t) { return this; }
+Object *Object::interpret() { return this; }
 
 bool equals(Object *lhs, Object *rhs) {
   if (lhs == rhs)
@@ -44,7 +46,7 @@ bool equals(Object *lhs, Object *rhs) {
 
 Object *Object::dot(String) { return nullptr; }
 
-Object *Object::square_brackets(const Vector<Object*>& args, bool) {
+Object *Object::square_brackets(const Vector<Object*>& args) {
   return nullptr;
 }
 

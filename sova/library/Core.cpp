@@ -108,18 +108,14 @@ class UnaryMinusFunction : public Function {
 public:
   UnaryMinusFunction() { type = FunctionType::get({Type::get(TYPE_NUMBER)}, Type::get(TYPE_NUMBER)); }
 
-  virtual Object *call(Vector<Object *> &args) override {
-    return new Number(-args[0]->as_number()->value);
-  }
+  virtual Object *call(Vector<Object *> &args) override { return new Number(-args[0]->as_number()->value); }
 };
 
 class NotFunction : public Function {
 public:
   NotFunction() { type = FunctionType::get({Type::get(TYPE_BOOL)}, Type::get(TYPE_BOOL)); }
 
-  virtual Object *call(Vector<Object *> &args) override {
-    return args[0]->as_bool()->value ? &False : &True;
-  }
+  virtual Object *call(Vector<Object *> &args) override { return args[0]->as_bool()->value ? &False : &True; }
 };
 
 class AssignForm : public Form {
@@ -128,11 +124,15 @@ public:
 
   AssignForm(bool define_new) : define_new(define_new){};
 
-  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke(Vector<Object *> &args) override {
     if (args.size() != 2)
       return nullptr;
 
-    auto evaled_lhs = eval(args[0], EVAL_TO_LVALUE);
+    bool eval_to_lvalue_old = eval_to_lvalue;
+    eval_to_lvalue = true;
+    auto evaled_lhs = eval(args[0]);
+    eval_to_lvalue = eval_to_lvalue_old;
+
     if (!evaled_lhs)
       return nullptr;
 
@@ -147,7 +147,7 @@ public:
 
 class DotForm : public Form {
 public:
-  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke(Vector<Object *> &args) override {
     if (args.size() != 2 || !args[1])
       return nullptr;
 
@@ -157,12 +157,12 @@ public:
     if (!lhs || !rhs)
       return nullptr;
 
-    return eval(lhs->dot(rhs->name), to_lvalue ? EVAL_TO_LVALUE : 0);
+    return eval(lhs->dot(rhs->name));
   }
 };
 
 class MacroForm : public Form {
-  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke(Vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
       return nullptr;
 
@@ -191,7 +191,7 @@ class EmitFunction : public Function {
 };
 
 class ParseForm : public Form {
-  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke(Vector<Object *> &args) override {
     Vector<TokenType> delims;
 
     for (Object *arg : args) {
@@ -248,7 +248,7 @@ class ExpectTokenFunction : public Function {
 
 class QuoteForm : public Form {
 public:
-  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke(Vector<Object *> &args) override {
     if (args.size() != 1)
       return nullptr;
 
@@ -268,14 +268,18 @@ public:
 
 class ContextForm : public Form {
 public:
-  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override {
+  virtual Object *invoke(Vector<Object *> &args) override {
 
     if (args.size() != 1 || !args[0])
       return nullptr;
 
     Block *block = args[0]->as_block();
 
-    return block->interpret(EVAL_BLOCK_RETURN_CONTEXT);
+    bool eval_block_return_context_old = eval_block_return_context;
+    eval_block_return_context = true;
+    auto res = block->interpret();
+    eval_block_return_context = eval_block_return_context_old;
+    return res;
   }
 };
 
@@ -306,7 +310,6 @@ public:
     return nullptr;
   }
 };
-
 
 class RunGCFunction : public Function {
 public:
@@ -401,4 +404,4 @@ void load(Context &ctx) {
   ctx.define("gc", new RunGCFunction());
   ctx.define("type", new GetTypeFunction());
 }
-}; // namespace lib::core
+}; // namespace library::core

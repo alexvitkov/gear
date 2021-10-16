@@ -7,7 +7,7 @@ public:
   Vector<Object *> inside;
 
   // TODO virtual bool equals(Object* other) override;
-  virtual Object *interpret(EvalFlags_t) override;
+  virtual Object *interpret() override;
   virtual void print(Ostream &o) override;
   virtual Block* as_block() override;
   virtual type_t get_type() override;

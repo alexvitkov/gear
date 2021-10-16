@@ -4,7 +4,7 @@
 #include "Object.h"
 #include <assert.h>
 
-Object *Block::interpret(EvalFlags_t flags) {
+Object *Block::interpret() {
   Context *child_ctx = 0;
 
   if (create_own_context) {
@@ -15,12 +15,12 @@ Object *Block::interpret(EvalFlags_t flags) {
   Object *val = nullptr;
 
   for (Object *obj : inside)
-    val = eval(obj, flags);
+    val = eval(obj);
 
   if (create_own_context)
     context_stack.pop_back();
 
-  if (flags & EVAL_BLOCK_RETURN_CONTEXT) {
+  if (eval_block_return_context) {
     assert(create_own_context);
     child_ctx->parent = nullptr;
     return child_ctx;

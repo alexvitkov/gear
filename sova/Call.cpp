@@ -8,7 +8,7 @@ const bool ALWAYS_BRACKETS = true;
 
 Call::Call(Object *fn, Vector<Object *> args, char brackets) : fn(fn), args(args), brackets(brackets) {}
 
-Object *Call::interpret(EvalFlags_t flags) {
+Object *Call::interpret() {
   Object *interpreted = fn->interpret();
   if (!interpreted)
     return nullptr;
@@ -19,14 +19,14 @@ Object *Call::interpret(EvalFlags_t flags) {
       if (!form)
         return nullptr;
 
-      return form->invoke(args, flags);
+      return form->invoke(args);
     }
 
     case '[': {
       Vector<Object *> evaled_args;
       for (Object *arg : args)
         evaled_args.push_back(eval(arg));
-      return interpreted->square_brackets(evaled_args, flags & EVAL_TO_LVALUE);
+      return interpreted->square_brackets(evaled_args);
     }
 
     default: return nullptr;

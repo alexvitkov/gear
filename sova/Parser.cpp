@@ -181,7 +181,7 @@ bool Parser::parse_block(TokenType final_delimiter) {
       if (macro) {
         tokens.pop();
         context_stack = {&global};
-        stack.push_back(macro->interpret(0));
+        stack.push_back(macro->interpret());
         continue;
       }
     } else if (t.type == TOK_DEFMACRO) {

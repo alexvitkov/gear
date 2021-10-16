@@ -2,7 +2,7 @@
 #include "FunctionType.h"
 #include <assert.h>
 
-Object *Function::invoke(Vector<Object *> &args, bool) {
+Object *Function::invoke(Vector<Object *> &args) {
   Vector<Object *> evaled_args;
 
   for (Object *o : args)

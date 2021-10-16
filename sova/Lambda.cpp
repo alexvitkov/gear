@@ -3,7 +3,7 @@
 #include "Object.h"
 #include "Reference.h"
 
-Object *ArrowForm::invoke(Vector<Object *> &args, bool to_lvalue) {
+Object *ArrowForm::invoke(Vector<Object *> &args) {
 
   if (args.size() != 2 || !args[0])
     return nullptr;

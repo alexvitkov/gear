@@ -4,7 +4,7 @@
 
 class ArrowForm : public Form {
 public:
-  virtual Object *invoke(Vector<Object *> &args, bool to_lvalue) override;
+  virtual Object *invoke(Vector<Object *> &args) override;
 };
 
 class Lambda : public Function {

@@ -1,5 +1,6 @@
 #include "Context.h"
 #include "Libraries.h"
+#include "Object.h"
 #include "Type.h"
 
 Context::Context(Context *parent) : parent(parent) {}
@@ -69,8 +70,8 @@ Object *ContextFieldAccessor::set(Context &ctx, Object *value, bool define_new) 
   return value;
 }
 
-Object *ContextFieldAccessor::interpret(EvalFlags_t flags) {
-  return (flags & EVAL_TO_LVALUE) ? this : map->resolve_map[name];
+Object *ContextFieldAccessor::interpret() {
+  return eval_to_lvalue ? this : map->resolve_map[name];
 }
 
 type_t Context::get_type() { return TYPE_CONTEXT; }

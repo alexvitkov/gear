@@ -1,11 +1,11 @@
 #include "Reference.h"
 #include "Context.h"
-#include <memory>
+#include "Object.h"
 
 Reference::Reference(String name) : name(name) {}
 
-Object *Reference::interpret(EvalFlags_t flags) {
-  return (flags & EVAL_TO_LVALUE) ? this : get_context().resolve(name);
+Object *Reference::interpret() {
+  return (eval_to_lvalue) ? this : get_context().resolve(name);
 }
 
 Object *Reference::set(Context &ctx, Object *value, bool define_new) {

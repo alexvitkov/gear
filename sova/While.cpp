@@ -5,12 +5,12 @@
 While::While(Object *condition, Object *body)
     : condition(condition), body(body) {}
 
-Object *While::interpret(EvalFlags_t flags) {
+Object *While::interpret() {
   Object *value = nullptr;
 
 
-  while (truthy(eval(condition, flags)))
-    value = eval(body, 0);
+  while (truthy(eval(condition)))
+    value = eval(body);
 
   return value;
 }
