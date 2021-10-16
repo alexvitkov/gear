@@ -99,10 +99,10 @@ void Parser::fold(Call *call) {
 }
 
 Call *Parser::fix_precedence(Call *call) {
-
   auto it = infix_calls.find(call);
   if (it == infix_calls.end())
     return call;
+
   CallInfixData data = it->second;
 
   if (!call->args[1])
@@ -117,11 +117,18 @@ Call *Parser::fix_precedence(Call *call) {
 
     if (data.infix.precedence > 150) {
       // operator has higher precedence than a function call
+
       auto tmp = rhs->fn;
       rhs->fn = call;
       call->args[1] = tmp;
 
-      return fix_precedence(rhs);
+      if (rhs->fn->as_call())
+        rhs->fn = fix_precedence ((Call*)rhs->fn);
+
+      if (rhs->args.size() > 0 && rhs->args[0] && rhs->args[0]->as_call())
+        rhs->args[0] = fix_precedence ((Call*)rhs->args[0]);
+
+      return rhs;
     } else {
       // operator has lower precedence than a function call
       return call;
@@ -130,18 +137,19 @@ Call *Parser::fix_precedence(Call *call) {
 
   CallInfixData rhs_data = it->second;
 
-  if (rhs_data.has_brackets)
+  if (rhs_data.has_brackets) {
     return call;
+  }
 
   else {
     if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
       auto tmp = rhs->args[0];
-      rhs->args[0] = call;
       call->args[1] = tmp;
-
+      rhs->args[0] = fix_precedence(call);
       return rhs;
-    } else
+    } else {
       return call;
+    }
   }
 }
 
