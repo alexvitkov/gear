@@ -4,7 +4,7 @@
 #include "Reference.h"
 #include "Token.h"
 
-const bool ALWAYS_BRACKETS = true;
+const bool ALWAYS_BRACKETS = false;
 
 Call::Call(Object *fn, Vector<Object *> args, char brackets) : fn(fn), args(args), brackets(brackets) {}
 

@@ -115,6 +115,7 @@ int main(int argc, const char **argv) {
 
       cout << (Object *)block << "\n";
 
+      block->create_own_context = false;
       eval((Object *)block);
 
       continue;

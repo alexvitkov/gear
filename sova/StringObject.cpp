@@ -1,4 +1,5 @@
 #include "StringObject.h"
+#include "Number.h"
 
 StringObject::StringObject(String str) : str(str) {}
 
@@ -25,4 +26,13 @@ class StringObject *StringObject::as_string() {
 
 Object* StringObject::clone() {
   return new StringObject(*this);
+}
+
+
+
+
+Object *StringObject::dot(String field) {
+  if (field == "length") {
+    return new Number(str.size());
+  }
 }
