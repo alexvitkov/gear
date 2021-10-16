@@ -1,6 +1,7 @@
-#include "Object.h"
 #include "Token.h"
+#include "Object.h"
 #include "Parser.h"
+#include <assert.h>
 #include <ctype.h>
 
 Ostream &operator<<(Ostream &o, Token &t) {
@@ -215,4 +216,13 @@ bool TokenStream::lex(const char *code) {
   }
 
   return true;
+}
+
+char matching_bracket(char opening) {
+  switch (opening) {
+    case '(': return ')';
+    case '[': return ']';
+    case '{': return '}';
+    default: assert(!"Invalid input"); return 0;
+  }
 }

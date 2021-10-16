@@ -44,6 +44,10 @@ bool equals(Object *lhs, Object *rhs) {
 
 Object *Object::dot(String) { return nullptr; }
 
+Object *Object::square_brackets(const Vector<Object*>& args) {
+  return nullptr;
+}
+
 void Object::print(Ostream &o) { o << "<object>"; }
 
 class Form *Object::as_form() {

@@ -99,10 +99,6 @@ void Parser::fold(Call *call) {
 }
 
 Call *Parser::fix_precedence(Call *call) {
-  // if (call->args.size() != 2)
-  //   return call;
-
-  // cout << "fixing " << call << "\n";
 
   auto it = infix_calls.find(call);
   if (it == infix_calls.end())
@@ -120,12 +116,15 @@ Call *Parser::fix_precedence(Call *call) {
   if (it == infix_calls.end()) {
 
     if (data.infix.precedence > 150) {
+      // operator has higher precedence than a function call
       auto tmp = rhs->fn;
       rhs->fn = call;
       call->args[1] = tmp;
       return fix_precedence(rhs);
-    } else
+    } else {
+      // operator has lower precedence than a function call
       return call;
+    }
   }
 
   CallInfixData rhs_data = it->second;
@@ -283,15 +282,17 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
         goto NextToken;
       }
 
-      case (TokenType)'(': {
+      case (TokenType)'(':
+      case (TokenType)'[': {
+        TokenType match = (TokenType)matching_bracket(t.type);
 
         // if se see ) followed directly by (, push nil to the stack
-        if (tokens.pop_if((TokenType)')'))
+        if (tokens.pop_if(match))
           stack.push_back(nullptr);
 
         // if the next token is not ), parse the expression in brackets
         else {
-          TokenType close_bracket_delims[] = {(TokenType)')'};
+          TokenType close_bracket_delims[] = {match};
           ParseExitCondition exit_cond_close_bracket{
               .delims_count = 1,
               .consumed_delims = 1,
@@ -312,11 +313,11 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
           Call *args;
           if (in_brackets && (args = in_brackets->as_call()) && args->is_comma_list())
-            stack.push_back(new Call(fn, args->args));
+            stack.push_back(new Call(fn, args->args, t.type));
           else if (in_brackets)
-            stack.push_back(new Call(fn, {in_brackets}));
+            stack.push_back(new Call(fn, {in_brackets}, t.type));
           else
-            stack.push_back(new Call(fn, {}));
+            stack.push_back(new Call(fn, {}, match));
         }
 
         last = true;
@@ -343,7 +344,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           Object *lhs = stack[stack.size() - 2];
           Object *rhs = stack[stack.size() - 1];
 
-          Call *call = new Call(new Reference(t.name), {lhs, rhs});
+          Call *call = new Call(new Reference(t.name), {lhs, rhs}, '(');
           infix_calls[call] = {
               .op = t.name,
               .infix = t.infix_data,
@@ -381,7 +382,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           if (t.name == "#") {
             stack.back() = new Unquote(stack.back());
           } else {
-            stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()});
+            stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()}, t.type);
           }
           last = true;
           goto NextToken;
@@ -553,25 +554,9 @@ Block *do_parse(GlobalContext &global, const char *code) {
 }
 
 bool resolve_token_type(const String &op, TokenType &out) {
-  if (op == ";") {
-    out = (TokenType)';';
-    return true;
-  } else if (op == ",") {
-    out = (TokenType)',';
-    return true;
-  } else if (op == ")") {
-    out = (TokenType)')';
-    return true;
-  } else if (op == "}") {
-    out = (TokenType)'}';
-    return true;
-  } else if (op == "(") {
-    out = (TokenType)'(';
-    return true;
-  } else if (op == "{") {
-    out = (TokenType)'{';
+  if (op == ";" || op == "," || op == "(" || op == ")" || op == "[" || op == "]" || op == "{" || op == "}") {
+    out = (TokenType)op[0];
     return true;
   }
-
   return false;
 }

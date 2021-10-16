@@ -54,6 +54,7 @@ public:
   virtual bool equals(Object *other);
   virtual Object *dot(String);
   virtual Object *clone();
+  virtual Object *square_brackets(const Vector<Object*>& args);
 
   virtual class Form *as_form();
   virtual class Reference *as_reference();
@@ -63,6 +64,7 @@ public:
   virtual class Block *as_block();
   virtual class StringObject *as_string();
   virtual class Bool *as_bool();
+
 
   ~Object();
 };

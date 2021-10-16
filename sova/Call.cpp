@@ -6,18 +6,31 @@
 
 const bool ALWAYS_BRACKETS = true;
 
-Call::Call(Object *fn, Vector<Object *> args) : fn(fn), args(args) {}
+Call::Call(Object *fn, Vector<Object *> args, char brackets) : fn(fn), args(args), brackets(brackets) {}
 
 Object *Call::interpret(EvalFlags_t flags) {
   Object *interpreted = fn->interpret();
   if (!interpreted)
     return nullptr;
 
-  Form *casted_fn = interpreted->as_form();
-  if (!casted_fn)
-    return nullptr;
+  switch (brackets) {
+    case '(': {
+      Form *form = interpreted->as_form();
+      if (!form)
+        return nullptr;
 
-  return casted_fn->invoke_form(args, flags);
+      return form->invoke_form(args, flags);
+    }
+
+    case '[': {
+      Vector<Object *> evaled_args;
+      for (Object *arg : args)
+        evaled_args.push_back(eval(arg));
+      return interpreted->square_brackets(evaled_args);
+    }
+
+    default: return nullptr;
+  }
 }
 
 static bool call_operator_data(Object *_call, OperatorData &data) {
@@ -77,14 +90,14 @@ void Call::print(Ostream &o, bool needs_infix_breackets) {
   } else {
     if (ALWAYS_BRACKETS)
       o << '(';
-    o << fn << "(";
+    o << fn << brackets;
     for (int i = 0; i < args.size(); i++) {
       o << args[i];
 
       if (i != args.size() - 1)
         o << ", ";
     }
-    o << ")";
+    o << matching_bracket(brackets);
     if (ALWAYS_BRACKETS)
       o << ')';
   }
@@ -115,5 +128,5 @@ Object *Call::clone() {
   for (auto arg : args)
     cloned_args.push_back(::clone(arg));
 
-  return new Call(fn, cloned_args);
+  return new Call(fn, cloned_args, brackets);
 }

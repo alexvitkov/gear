@@ -1,5 +1,6 @@
 #pragma once
 #include "Ostream.h"
+#include "Vector.h"
 #include "String.h"
 
 enum TokenType {
@@ -9,6 +10,8 @@ enum TokenType {
   TOK_CLOSEBRACKET = ')',
   TOK_OPENCURLY = '{',
   TOK_CLOSECURLY = '}',
+  TOK_OPENSQUARE = '[',
+  TOK_CLOSESQUARE = ']',
 
   TOK_ID = 256,
   TOK_STRING,
@@ -70,3 +73,5 @@ public:
 };
 
 Ostream &operator<<(Ostream &o, Token &t);
+
+char matching_bracket(char opening);

@@ -2,11 +2,14 @@
 #include "Context.h"
 #include "Object.h"
 
+
 class Call : public Object {
 public:
   Object *fn;
   Vector<Object *> args;
-  Call(Object *fn, Vector<Object *> args);
+  char brackets;
+
+  Call(Object *fn, Vector<Object *> args, char brackets);
 
   virtual Object *interpret(EvalFlags_t) override;
   virtual type_t get_type() override;
