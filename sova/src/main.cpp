@@ -8,6 +8,7 @@
 #include "Parser.h"
 #include "Reference.h"
 #include "Type.h"
+#include "Util.h"
 #include <string.h>
 
 // clang-format off
@@ -43,43 +44,6 @@ void repl() {
   }
 }
 
-enum class RunFileResult {
-  OK,
-  FailedToOpenFile,
-  IO_Error,
-  OutOfMemory,
-};
-
-RunFileResult read_file(const char *path, char *&out) {
-
-  FILE *f = fopen(path, "rb");
-  if (!f)
-    return RunFileResult::FailedToOpenFile;
-
-  if (fseek(f, 0, SEEK_END) < 0)
-    return RunFileResult::IO_Error;
-
-  long length = ftell(f);
-  rewind(f);
-
-  char *buf = (char *)malloc(length + 1);
-  if (!buf) {
-    fclose(f);
-    return RunFileResult::OutOfMemory;
-  }
-
-  buf[length] = 0;
-
-  size_t num_read = fread(buf, 1, length, f);
-  if (num_read < length) {
-    fclose(f);
-    return RunFileResult::IO_Error;
-  }
-
-  fclose(f);
-  out = buf;
-  return RunFileResult::OK;
-}
 
 int main(int argc, const char **argv) {
 
@@ -99,7 +63,7 @@ int main(int argc, const char **argv) {
 
       char *file;
       auto res = read_file(arg, file);
-      if (res != RunFileResult::OK) {
+      if (res != ReadFileResult::OK) {
         cout << "Failed to read file " << arg << ", error " << (int)res << "\n";
         return 1;
       }
