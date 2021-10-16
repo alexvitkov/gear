@@ -14,25 +14,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-std::unordered_map<String, OperatorData> infix_precedence;
 
-bool get_infix_precedence(String op, OperatorData &out) {
-  auto it = infix_precedence.find(op);
-  if (it == infix_precedence.end())
-    return false;
-  out = it->second;
-  return true;
-}
-
-void set_infix(String op, int precedence, Associativity assoc) {
-  infix_precedence[op] = {
-      .precedence = precedence,
-      .assoc = assoc,
-      .is_infix = true,
-  };
-}
-
-void set_prefix(String op) { infix_precedence[op].is_prefix = true; }
 
 void TokenStream::emit_id(const char *code, int start, int i) {
 

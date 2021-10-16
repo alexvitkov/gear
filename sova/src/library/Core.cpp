@@ -341,34 +341,34 @@ static bool le(double a, double b) { return a <= b; }
 static bool eq(double a, double b) { return a == b; }
 static bool ne(double a, double b) { return a != b; }
 
-void load(Context &ctx) {
-  set_infix(",", 5, Associativity::FoldToVector);
-  set_infix(":=", 10, Associativity::Right);
-  set_infix("=>", 30, Associativity::Right);
-  set_infix("=", 40, Associativity::Right);
+void load(GlobalContext &ctx) {
+  ctx.set_infix_operator(",", 5, Associativity::FoldToVector);
+  ctx.set_infix_operator(":=", 10, Associativity::Right);
+  ctx.set_infix_operator("=>", 30, Associativity::Right);
+  ctx.set_infix_operator("=", 40, Associativity::Right);
 
-  set_infix("==", 70, Associativity::Left);
-  set_infix("!=", 70, Associativity::Left);
+  ctx.set_infix_operator("==", 70, Associativity::Left);
+  ctx.set_infix_operator("!=", 70, Associativity::Left);
 
-  set_infix("<", 80, Associativity::Left);
-  set_infix(">", 80, Associativity::Left);
-  set_infix(">=", 80, Associativity::Left);
-  set_infix("<=", 80, Associativity::Left);
+  ctx.set_infix_operator("<", 80, Associativity::Left);
+  ctx.set_infix_operator(">", 80, Associativity::Left);
+  ctx.set_infix_operator(">=", 80, Associativity::Left);
+  ctx.set_infix_operator("<=", 80, Associativity::Left);
 
-  set_infix("+", 100, Associativity::Left);
-  set_infix("-", 110, Associativity::Left);
-  set_infix("*", 120, Associativity::Left);
-  set_infix("/", 130, Associativity::Left);
+  ctx.set_infix_operator("+", 100, Associativity::Left);
+  ctx.set_infix_operator("-", 110, Associativity::Left);
+  ctx.set_infix_operator("*", 120, Associativity::Left);
+  ctx.set_infix_operator("/", 130, Associativity::Left);
 
   // --- Call brackets precedence is 150 ---
 
-  set_infix(".", 200, Associativity::Left);
+  ctx.set_infix_operator(".", 200, Associativity::Left);
 
-  set_prefix("-");
-  set_prefix("+");
-  set_prefix("'");
-  set_prefix("#");
-  set_prefix("!");
+  ctx.set_prefix_operator("-");
+  ctx.set_prefix_operator("+");
+  ctx.set_prefix_operator("'");
+  ctx.set_prefix_operator("#");
+  ctx.set_prefix_operator("!");
 
   ctx.define("+", new AddFunction());
   ctx.define("-", new ArithmeticFunction<sub>());

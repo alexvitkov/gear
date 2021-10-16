@@ -25,11 +25,11 @@ GlobalContext::GlobalContext() : Context(nullptr) {
 #endif
 
 #ifdef SOVA_LIB_OS
-    library::os::load(*this);
+  library::os::load(*this);
 #endif
 
 #ifdef SOVA_LIB_TEST
-    library::test::load(*this);
+  library::test::load(*this);
 #endif
 }
 
@@ -89,3 +89,21 @@ void Context::iterate_references(Vector<Object *> &out) {
 }
 
 void ContextFieldAccessor::iterate_references(Vector<Object *> &out) { out.push_back(map); }
+
+bool GlobalContext::get_infix_precedence(String op, OperatorData &out) {
+  auto it = infix_precedence.find(op);
+  if (it == infix_precedence.end())
+    return false;
+  out = it->second;
+  return true;
+}
+
+void GlobalContext::set_infix_operator(String op, int precedence, Associativity assoc) {
+  infix_precedence[op] = {
+      .precedence = precedence,
+      .assoc = assoc,
+      .is_infix = true,
+  };
+}
+
+void GlobalContext::set_prefix_operator(String op) { infix_precedence[op].is_prefix = true; }

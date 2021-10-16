@@ -49,11 +49,7 @@ public:
   bool parse_block(TokenType final_delimiter);
 };
 
-void set_infix(String op, int precedence, Associativity assoc);
-void set_prefix(String op);
+
 
 Block *do_parse(GlobalContext &global, const char *code);
-
-bool get_infix_precedence(String op, OperatorData &out);
-
 bool resolve_token_type(const String& op, TokenType &out);

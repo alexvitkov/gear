@@ -1,4 +1,5 @@
 #pragma once
+#include "OperatorData.h"
 #include "Ostream.h"
 #include "Vector.h"
 #include "String.h"
@@ -29,19 +30,6 @@ enum TokenType {
   TOK_ERR_AN_EXPRESSION,
 };
 
-enum class Associativity {
-  Left,
-  Right,
-  FoldToVector,
-};
-
-struct OperatorData {
-  int precedence;
-  Associativity assoc;
-
-  bool is_infix;
-  bool is_prefix;
-};
 
 struct Token {
   TokenType type;

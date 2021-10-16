@@ -8,7 +8,7 @@ namespace library {
 
 #ifdef SOVA_LIB_CORE
 namespace core {
-void load(Context &ctx);
+void load(GlobalContext &ctx);
 };
 #endif
 
