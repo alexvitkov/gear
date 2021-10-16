@@ -563,6 +563,13 @@ bool resolve_token_type(const String &op, TokenType &out) {
   } else if (op == "}") {
     out = (TokenType)'}';
     return true;
+  } else if (op == "(") {
+    out = (TokenType)'(';
+    return true;
+  } else if (op == "{") {
+    out = (TokenType)'{';
+    return true;
   }
+
   return false;
 }

@@ -1,0 +1,26 @@
+defmacro for {
+
+    expect_token("(");
+
+    initial := parse(";");
+    condition := parse(";");
+    increment := parse(")");
+
+    body := parse(";");
+
+    emit('{
+        #initial;
+        while (#condition) {
+              #body;
+              #increment;
+        };
+    })
+
+};
+
+
+for (i := 0; i < 10; i = i + 1) {
+    print("i is", i);
+}; 
+
+// Trailing semicolon required for now

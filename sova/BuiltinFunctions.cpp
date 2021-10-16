@@ -208,9 +208,10 @@ class ParseForm : public Form {
       delims.push_back(tok);
     }
 
-    ParseExitCondition exit_cond;
+    ParseExitCondition exit_cond = {};
     exit_cond.delims = delims.data();
     exit_cond.delims_count = delims.size();
+    exit_cond.consumed_delims = delims.size();
 
     Parser *parser = get_global_context().parser;
     assert(parser);
@@ -223,6 +224,27 @@ class ParseForm : public Form {
     parser->stack.pop_back();
 
     return val;
+  }
+};
+
+class ExpectTokenFunction : public Function {
+  virtual Object *call_fn(Vector<Object *> &args) override {
+    if (args.size() != 1 || !args[0])
+      return nullptr;
+
+    StringObject *str = args[0]->as_string();
+
+    TokenType tok;
+    if (!resolve_token_type(str->str, tok))
+      return nullptr;
+
+
+    assert (get_global_context().parser);
+
+    Token t = get_global_context().parser->tokens.pop();
+    assert (t.type == tok);
+
+    return nullptr;
   }
 };
 
@@ -361,6 +383,7 @@ void setup_global_context(Context &ctx) {
   ctx.define("eval", new EvalFunction());
   ctx.define("emit", new EmitFunction());
   ctx.define("parse", new ParseForm());
+  ctx.define("expect_token", new ExpectTokenFunction());
   ctx.define("macro", new MacroForm());
 
   ctx.define(">", new ComparisonFunction<gt>());
