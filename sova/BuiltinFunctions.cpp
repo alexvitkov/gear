@@ -180,8 +180,8 @@ class MacroForm : public Form {
   }
 };
 
-class EmitForm : public Form {
-  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
+class EmitFunction : public Function {
+  virtual Object *call_fn(Vector<Object *> &args) override {
     auto parser = get_global_context().parser;
     if (!parser || parser->blocks.size() == 0) // TODO error
       return nullptr;
@@ -359,7 +359,7 @@ void setup_global_context(Context &ctx) {
 
   ctx.define("prefix'", new QuoteForm());
   ctx.define("eval", new EvalFunction());
-  ctx.define("emit", new EmitForm());
+  ctx.define("emit", new EmitFunction());
   ctx.define("parse", new ParseForm());
   ctx.define("macro", new MacroForm());
 
