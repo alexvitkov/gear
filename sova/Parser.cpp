@@ -117,29 +117,31 @@ Call *Parser::fix_precedence(Call *call) {
     return call;
 
   it = infix_calls.find(rhs);
-  if (it == infix_calls.end())
-    return call;
+  if (it == infix_calls.end()) {
+
+    if (data.infix.precedence > 150) {
+      auto tmp = rhs->fn;
+      rhs->fn = call;
+      call->args[1] = tmp;
+      return fix_precedence(rhs);
+    } else
+      return call;
+  }
+
   CallInfixData rhs_data = it->second;
 
-  // if (rhs_data.has_brackets)
-  // return call;
+  if (rhs_data.has_brackets)
+    return call;
 
-  {
-    // cout << "rhs: " << rhs_data.op << " i am " << data.op << "\n";
+  else {
     if (rhs_data.infix.precedence < data.infix.precedence + (data.infix.assoc == Associativity::Left)) {
-
       auto tmp = rhs->args[0];
       rhs->args[0] = call;
       call->args[1] = tmp;
 
-      auto res = rhs;
-      // cout << "became " << res << "\n";
-      return res;
-    } else {
-      call->args[1] = rhs;
-      // cout << "rhs became "<<call->args[1]<<"\n";
+      return rhs;
+    } else
       return call;
-    }
   }
 }
 

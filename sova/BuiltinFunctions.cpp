@@ -359,6 +359,8 @@ void setup_global_context(Context &ctx) {
   set_infix("*", 120, Associativity::Left);
   set_infix("/", 130, Associativity::Left);
 
+  // --- Call precedence is 150 ---
+
   set_infix(".", 200, Associativity::Left);
 
   set_prefix("-");

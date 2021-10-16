@@ -4,7 +4,7 @@
 #include "Reference.h"
 #include "Token.h"
 
-const bool ALWAYS_BRACKETS = false;
+const bool ALWAYS_BRACKETS = true;
 
 Call::Call(Object *fn, Vector<Object *> args) : fn(fn), args(args) {}
 
@@ -42,7 +42,13 @@ void Call::print(Ostream &o, bool needs_infix_breackets) {
 
     // prefix operator - TODO remove "prefix" string
     if (args.size() == 1) {
+      if (ALWAYS_BRACKETS)
+        o << '(';
+
       o << fn << args[0];
+
+      if (ALWAYS_BRACKETS)
+        o << ')';
     } else {
       if (needs_infix_breackets || ALWAYS_BRACKETS)
         o << '(';
@@ -69,6 +75,8 @@ void Call::print(Ostream &o, bool needs_infix_breackets) {
     }
 
   } else {
+    if (ALWAYS_BRACKETS)
+      o << '(';
     o << fn << "(";
     for (int i = 0; i < args.size(); i++) {
       o << args[i];
@@ -77,6 +85,8 @@ void Call::print(Ostream &o, bool needs_infix_breackets) {
         o << ", ";
     }
     o << ")";
+    if (ALWAYS_BRACKETS)
+      o << ')';
   }
 }
 
