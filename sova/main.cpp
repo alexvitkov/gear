@@ -110,6 +110,9 @@ int main(int argc, const char **argv) {
         return 1;
 
       context_stack = {&global};
+
+      cout << (Object*)block << "\n";
+
       eval((Object*)block);
 
       continue;

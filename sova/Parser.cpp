@@ -5,6 +5,7 @@
 #include "Common.h"
 #include "If.h"
 #include "Number.h"
+#include "Object.h"
 #include "Reference.h"
 #include "StringObject.h"
 #include "Token.h"
@@ -49,6 +50,8 @@ void TokenStream::emit_id(const char *code, int start, int i) {
     push(Token{.type = TOK_FALSE, .name = str});
   else if (str == "nil")
     push(Token{.type = TOK_NIL, .name = str});
+  else if (str == "defmacro")
+    push(Token{.type = TOK_DEFMACRO, .name = str});
   else
     push(Token{.type = TOK_ID, .name = str});
 }
@@ -144,17 +147,39 @@ bool Parser::parse_block(TokenType final_delimiter) {
   Block *block = new Block();
   blocks.push_back(block);
 
-  while (true) {
-    if (tokens.pop_if(final_delimiter)) {
-      break;
-    }
+  // this exit condition means
+  //     1. stop on semicolon, consume it (so we can start parsing the next expression)
+  //     2. stop on final_delimiter (usually '}'), but don't consume it,
+  //        so we can check for it and know we're done
+  TokenType in_block_delimiters[] = {(TokenType)';', final_delimiter};
+  ParseExitCondition in_block_exit_cond = {
+      .delims_count = 2,
+      .consumed_delims = 1,
+      .delims = in_block_delimiters,
+  };
 
-    TokenType in_block_delimiters[] = {(TokenType)';', final_delimiter};
-    ParseExitCondition in_block_exit_cond = {
-        .delims_count = 2,
-        .consumed_delims = 1,
-        .delims = in_block_delimiters,
-    };
+  while (true) {
+    // if we hit the closing curly bracket, we're done
+    if (tokens.pop_if(final_delimiter))
+      break;
+
+    // if the expression starts with an identifier check if it's a statement macro
+    Token t = tokens.peek();
+    if (t.type == TOK_ID) {
+      Object *macro = global.get_macro(t.name);
+
+      if (macro) {
+        tokens.pop();
+        context_stack = {&global};
+        stack.push_back(macro->interpret(0));
+        continue;
+      }
+    } else if (t.type == TOK_DEFMACRO) {
+      tokens.pop();
+      if (!parse_defmacro(in_block_exit_cond))
+        return false;
+      continue;
+    }
 
     if (!parse(in_block_exit_cond)) {
       blocks.pop_back();
@@ -213,19 +238,9 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
 
     switch (t.type) {
       case TOK_ID: {
-        Block *macro = global.get_macro(t.name);
-
-        if (macro) {
-          last = true;
-          stack.push_back(macro->interpret(false));
-          goto NextToken;
-        }
-
-        else {
-          last = true;
-          stack.push_back(new Reference(t.name));
-          goto NextToken;
-        }
+        last = true;
+        stack.push_back(new Reference(t.name));
+        goto NextToken;
       }
 
       case TOK_IF: {
@@ -473,6 +488,24 @@ bool Parser::parse_while(ParseExitCondition &exit_cond) {
   return true;
 }
 
+bool Parser::parse_defmacro(ParseExitCondition &exit_cond) {
+  Token t = tokens.pop();
+  if (!t)
+    return false;
+
+  if (t.type != TOK_ID) {
+    // TODO ERROR
+    return false;
+  }
+
+  if (!parse(exit_cond))
+    return false;
+
+  global.define_macro(t.name, stack.pop());
+
+  return true;
+}
+
 void print_parse_error(Ostream &o, ParseError err) {
 
   o << "\u001b[31mparse error\u001b[0m: ";
@@ -504,15 +537,32 @@ Block *do_parse(GlobalContext &global, const char *code) {
     return nullptr;
   }
 
-  tokens.push({.type = TOK_EOF });
-    
+  tokens.push({.type = TOK_EOF});
+
   // for (Token &t : tokens.tokens)
   //   cout << t << "\n";
 
   if (!parser.parse_block(TOK_EOF))
     return nullptr;
 
-  Block *out = (Block*)parser.stack.back();
+  Block *out = (Block *)parser.stack.back();
   global.parser = nullptr;
   return out;
+}
+
+bool resolve_token_type(const String &op, TokenType &out) {
+  if (op == ";") {
+    out = (TokenType)';';
+    return true;
+  } else if (op == ",") {
+    out = (TokenType)',';
+    return true;
+  } else if (op == ")") {
+    out = (TokenType)')';
+    return true;
+  } else if (op == "}") {
+    out = (TokenType)'}';
+    return true;
+  }
+  return false;
 }

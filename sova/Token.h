@@ -19,6 +19,7 @@ enum TokenType {
   TOK_ELSE,
   TOK_TRUE,
   TOK_FALSE,
+  TOK_DEFMACRO,
   TOK_NIL,
 
   // The following are pseudotokens used by the errors

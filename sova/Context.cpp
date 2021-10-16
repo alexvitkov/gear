@@ -24,9 +24,9 @@ GlobalContext *Context::get_global_context() {
   return (GlobalContext *)this;
 }
 
-void GlobalContext::define_macro(const String &name, Block *value) { macros_map[name] = value; }
+void GlobalContext::define_macro(const String &name, Object *value) { macros_map[name] = value; }
 
-Block *GlobalContext::get_macro(const String &name) {
+Object *GlobalContext::get_macro(const String &name) {
   auto it = macros_map.find(name);
   if (it == macros_map.end())
     return nullptr;

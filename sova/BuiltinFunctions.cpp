@@ -7,6 +7,7 @@
 #include "Lambda.h"
 #include "LambdaForm.h"
 #include "Number.h"
+#include "Object.h"
 #include "Parser.h"
 #include "Reference.h"
 #include "StringObject.h"
@@ -163,7 +164,7 @@ public:
 
 class MacroForm : public Form {
   virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
-    if (args.size() != 2 || !args[0] || args[1])
+    if (args.size() != 2 || !args[0] || !args[1])
       return nullptr;
 
     Reference *name = args[0]->as_reference();
@@ -187,6 +188,41 @@ class EmitForm : public Form {
 
     parser->blocks.back()->inside.push_back(args[0]);
     return nullptr;
+  }
+};
+
+class ParseForm : public Form {
+  virtual Object *invoke_form(Vector<Object *> &args, bool to_lvalue) override {
+    Vector<TokenType> delims;
+
+    for (Object *arg : args) {
+      if (!arg)
+        return nullptr;
+
+      StringObject *str = arg->as_string();
+
+      TokenType tok;
+      if (!resolve_token_type(str->str, tok))
+        return nullptr;
+
+      delims.push_back(tok);
+    }
+
+    ParseExitCondition exit_cond;
+    exit_cond.delims = delims.data();
+    exit_cond.delims_count = delims.size();
+
+    Parser *parser = get_global_context().parser;
+    assert(parser);
+
+    if (!get_global_context().parser->parse(exit_cond)) {
+      assert(0);
+    }
+
+    auto val = parser->stack.back();
+    parser->stack.pop_back();
+
+    return val;
   }
 };
 
@@ -324,6 +360,7 @@ void setup_global_context(Context &ctx) {
   ctx.define("prefix'", new QuoteForm());
   ctx.define("eval", new EvalFunction());
   ctx.define("emit", new EmitForm());
+  ctx.define("parse", new ParseForm());
   ctx.define("macro", new MacroForm());
 
   ctx.define(">", new ComparisonFunction<gt>());

@@ -110,6 +110,12 @@ public:
     new (&items[_size++]) T(std::move(item));
   }
 
+  T pop() {
+    T item = std::move(items[_size - 1]);
+    _size--;
+    return item;
+  }
+
   void pop_back() {
     items[_size - 1].~T();
     _size--;
@@ -127,6 +133,7 @@ public:
   T &back() { return items[_size - 1]; }
 
   u32 size() { return _size; }
+  T* data() { return items; };
 
   T *begin() { return items; }
   T *end() { return items + _size; }

@@ -26,15 +26,15 @@ public:
 
 
 class GlobalContext : public Context {
-  std::unordered_map<String, class Block *> macros_map;
+  std::unordered_map<String, class Object *> macros_map;
 
 public:
   Vector<class Type *> types;
   GlobalContext();
   class Parser *parser;
 
-  void define_macro(const String &name, Block *value);
-  Block *get_macro(const String &name);
+  void define_macro(const String &name, Object *value);
+  Object *get_macro(const String &name);
 };
 
 
