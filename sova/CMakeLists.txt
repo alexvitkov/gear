@@ -16,6 +16,7 @@ add_executable(sova
   LambdaForm.cpp
   LValue.cpp
   Context.cpp
+  List.cpp
   Reference.cpp
   ObjectPtr.cpp
   If.cpp

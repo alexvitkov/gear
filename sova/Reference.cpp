@@ -8,7 +8,7 @@ Object *Reference::interpret(EvalFlags_t flags) {
   return (flags & EVAL_TO_LVALUE) ? this : get_context().resolve(name);
 }
 
-Object *Reference::set(Context& ctx, Object *value, bool define_new) {
+Object *Reference::set(Context &ctx, Object *value, bool define_new) {
   if (define_new || ctx.resolve_map.contains(name)) {
     ctx.define(name, value);
     return value;

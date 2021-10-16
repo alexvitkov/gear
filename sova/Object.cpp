@@ -44,7 +44,7 @@ bool equals(Object *lhs, Object *rhs) {
 
 Object *Object::dot(String) { return nullptr; }
 
-Object *Object::square_brackets(const Vector<Object*>& args) {
+Object *Object::square_brackets(const Vector<Object*>& args, bool) {
   return nullptr;
 }
 

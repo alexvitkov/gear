@@ -2,18 +2,26 @@
 #include "Context.h"
 #include "Function.h"
 #include "Object.h"
+#include <assert.h>
 
 Object *Block::interpret(EvalFlags_t flags) {
-  Context *child_ctx = new Context(context_stack.back());
-  context_stack.push_back(child_ctx);
+  Context *child_ctx = 0;
+
+  if (create_own_context) {
+    child_ctx = new Context(context_stack.back());
+    context_stack.push_back(child_ctx);
+  }
+
   Object *val = nullptr;
 
   for (Object *obj : inside)
     val = eval(obj, flags);
 
-  context_stack.pop_back();
+  if (create_own_context)
+    context_stack.pop_back();
 
   if (flags & EVAL_BLOCK_RETURN_CONTEXT) {
+    assert(create_own_context);
     child_ctx->parent = nullptr;
     return child_ctx;
   } else {

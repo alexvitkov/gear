@@ -3,6 +3,7 @@
 
 class Block : public Object {
 public:
+  bool create_own_context = true;
   Vector<Object *> inside;
 
   // TODO virtual bool equals(Object* other) override;

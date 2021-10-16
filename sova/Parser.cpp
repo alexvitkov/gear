@@ -317,7 +317,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           else if (in_brackets)
             stack.push_back(new Call(fn, {in_brackets}, t.type));
           else
-            stack.push_back(new Call(fn, {}, match));
+            stack.push_back(new Call(fn, {}, t.type));
         }
 
         last = true;
@@ -382,7 +382,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           if (t.name == "#") {
             stack.back() = new Unquote(stack.back());
           } else {
-            stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()}, t.type);
+            stack.back() = new Call(new Reference("prefix" + t.name), {stack.back()}, '(');
           }
           last = true;
           goto NextToken;

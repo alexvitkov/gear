@@ -13,6 +13,7 @@ enum TypeId : uint32_t {
   TYPE_NUMBER,
   TYPE_STRING,
   TYPE_CONTEXT,
+  TYPE_LIST,
   TYPE_TYPE,
 
   TYPE_CALL,
@@ -26,6 +27,7 @@ enum TypeId : uint32_t {
   TYPE_REFERENCE,
   TYPE_OBJECT_PTR,
   TYPE_CONTEXT_FIELD_ACCESSOR,
+  TYPE_LIST_ACCESSOR,
   TYPE_UNQUOTE,
 
   TYPE_MAX_ENUM_SIZE, // used to track the number of elements in the enum
@@ -54,7 +56,7 @@ public:
   virtual bool equals(Object *other);
   virtual Object *dot(String);
   virtual Object *clone();
-  virtual Object *square_brackets(const Vector<Object*>& args);
+  virtual Object *square_brackets(const Vector<Object*>& args, bool to_lvalue);
 
   virtual class Form *as_form();
   virtual class Reference *as_reference();

@@ -132,7 +132,7 @@ public:
 
   T &back() { return items[_size - 1]; }
 
-  u32 size() { return _size; }
+  u32 size() const { return _size; }
   T* data() { return items; };
 
   T *begin() { return items; }

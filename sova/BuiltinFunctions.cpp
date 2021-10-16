@@ -7,6 +7,7 @@
 #include "Global.h"
 #include "Lambda.h"
 #include "LambdaForm.h"
+#include "List.h"
 #include "Number.h"
 #include "Object.h"
 #include "Parser.h"
@@ -276,6 +277,15 @@ public:
   }
 };
 
+class ListFunction : public Function {
+public:
+  virtual Object *call_fn(Vector<Object *> &args) override {
+    List *list = new List();
+    list->backing_vector = args;
+    return list;
+  }
+};
+
 class PrintFunction : public Function {
 public:
   virtual Object *call_fn(Vector<Object *> &args) override {
@@ -398,6 +408,7 @@ void setup_global_context(Context &ctx) {
   ctx.define(".", new DotForm());
 
   ctx.define("context", new ContextForm());
+  ctx.define("list", new ListFunction());
   ctx.define("print", new PrintFunction());
   ctx.define("gc", new RunGCFunction());
   ctx.define("system", new SystemFunction());

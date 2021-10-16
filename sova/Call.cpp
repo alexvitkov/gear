@@ -26,7 +26,7 @@ Object *Call::interpret(EvalFlags_t flags) {
       Vector<Object *> evaled_args;
       for (Object *arg : args)
         evaled_args.push_back(eval(arg));
-      return interpreted->square_brackets(evaled_args);
+      return interpreted->square_brackets(evaled_args, flags & EVAL_TO_LVALUE);
     }
 
     default: return nullptr;

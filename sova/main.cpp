@@ -1,3 +1,4 @@
+#include "Block.h"
 #include "BuiltinFunctions.h"
 #include "Call.h"
 #include "Context.h"
@@ -31,8 +32,9 @@ void repl() {
     if (!block)
       continue;
 
+    block->create_own_context = false;
     context_stack = {&global};
-    auto val = eval((Object*)block);
+    auto val = eval((Object *)block);
     cout << val << "\n";
 
     if (run_gc) {
@@ -111,9 +113,9 @@ int main(int argc, const char **argv) {
 
       context_stack = {&global};
 
-      cout << (Object*)block << "\n";
+      cout << (Object *)block << "\n";
 
-      eval((Object*)block);
+      eval((Object *)block);
 
       continue;
     }

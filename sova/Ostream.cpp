@@ -1,17 +1,15 @@
 #include "Ostream.h"
 #include "String.h"
-#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 FileDescriptorOstream cout(1);
 FileDescriptorOstream cerr(2);
 
 FileDescriptorOstream::FileDescriptorOstream(int fd) : fd(fd) {}
 
-void FileDescriptorOstream::write(u8 *bytes, int length) {
-  ::write(fd, bytes, length);
-}
+void FileDescriptorOstream::write(u8 *bytes, int length) { ::write(fd, bytes, length); }
 
 void StringStream::write(u8 *bytes, int length) {
   memcpy(out + ptr, bytes, length);
@@ -23,20 +21,20 @@ String StringStream::str() {
   return String(out);
 }
 
-Ostream& operator<<(Ostream& o, const char *str) {
+Ostream &operator<<(Ostream &o, const char *str) {
   long len = strlen(str);
-  o.write((u8*)str, len);
+  o.write((u8 *)str, len);
   return o;
 }
 
-Ostream& operator<<(Ostream& o, const String &str) {
+Ostream &operator<<(Ostream &o, const String &str) {
   o << str.c_str();
   return o;
 }
 
-Ostream& operator<<(Ostream& o, char ch) {
+Ostream &operator<<(Ostream &o, char ch) {
   char _ch = ch;
-  o.write((u8*)&ch, 1);
+  o.write((u8 *)&ch, 1);
   return o;
 }
 
@@ -84,23 +82,30 @@ Ostream& operator<<(Ostream& o, char ch) {
 //   return o;
 // }
 
-Ostream& operator<<(Ostream& o, int num) {
+Ostream &operator<<(Ostream &o, int num) {
   char str[30];
   sprintf(str, "%d", num);
   o << str;
   return o;
 }
 
-Ostream& operator<<(Ostream& o, float num) {
+Ostream &operator<<(Ostream &o, float num) {
   char str[30];
   sprintf(str, "%f", num);
   o << str;
   return o;
 }
 
-Ostream& operator<<(Ostream& o, double num) {
+Ostream &operator<<(Ostream &o, double num) {
   char str[30];
   sprintf(str, "%f", num);
+  o << str;
+  return o;
+}
+
+Ostream &operator<<(Ostream &o, void *num) {
+  char str[30];
+  sprintf(str, "%p", num);
   o << str;
   return o;
 }
