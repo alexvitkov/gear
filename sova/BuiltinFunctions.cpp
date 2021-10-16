@@ -70,16 +70,19 @@ public:
 };
 
 template <Comparator Compare> class ComparisonFunction : public Function {
-  virtual Object *call_fn(Vector<Object *> &args) override {
-    if (args.size() != 2 || !args[0] || !args[1])
-      return nullptr;
+public:
+  ComparisonFunction() {
+    type = FunctionType::get(
+        {
+            Type::get(TYPE_NUMBER),
+            Type::get(TYPE_NUMBER),
+        },
+        Type::get(TYPE_BOOL));
+  }
 
+  virtual Object *call_fn(Vector<Object *> &args) override {
     Number *lhs = args[0]->as_number();
     Number *rhs = args[1]->as_number();
-
-    if (!lhs || !rhs)
-      return nullptr;
-
     return Compare(lhs->value, rhs->value) ? &True : &False;
   }
 };
