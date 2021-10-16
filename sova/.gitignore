@@ -1,5 +1,6 @@
 .cache
 run.sh
+test.sh
 build
 vgcore.*
 compile_commands.json

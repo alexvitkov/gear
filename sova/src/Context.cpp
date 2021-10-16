@@ -17,12 +17,20 @@ Object *Context::resolve(const String &name) {
 
 void Context::define(const String &name, Object *value) { resolve_map[name] = value; }
 
-
-
 GlobalContext::GlobalContext() : Context(nullptr) {
   Type::init(*this);
+
+#ifdef SOVA_LIB_CORE
   library::core::load(*this);
-  library::os::load(*this);
+#endif
+
+#ifdef SOVA_LIB_OS
+    library::os::load(*this);
+#endif
+
+#ifdef SOVA_LIB_TEST
+    library::test::load(*this);
+#endif
 }
 
 GlobalContext *Context::get_global_context() {
@@ -70,18 +78,14 @@ Object *ContextFieldAccessor::set(Context &ctx, Object *value, bool define_new) 
   return value;
 }
 
-Object *ContextFieldAccessor::interpret() {
-  return eval_to_lvalue ? this : map->resolve_map[name];
-}
+Object *ContextFieldAccessor::interpret() { return eval_to_lvalue ? this : map->resolve_map[name]; }
 
 type_t Context::get_type() { return TYPE_CONTEXT; }
 type_t ContextFieldAccessor::get_type() { return TYPE_CONTEXT_FIELD_ACCESSOR; }
 
-void Context::iterate_references(Vector<Object *> & out) {
+void Context::iterate_references(Vector<Object *> &out) {
   for (auto kvp : resolve_map)
     out.push_back(kvp.second);
 }
 
-void ContextFieldAccessor::iterate_references(Vector<Object *> & out) {
-    out.push_back(map);
-}
+void ContextFieldAccessor::iterate_references(Vector<Object *> &out) { out.push_back(map); }

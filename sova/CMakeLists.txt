@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(sova)
 
-add_executable(sova
+
+set(SOURCES
   src/Object.cpp
   src/Block.cpp
   src/Bool.cpp
@@ -27,12 +28,29 @@ add_executable(sova
   src/Parser.cpp
   src/GarbageCollector.cpp
   src/Ostream.cpp
-  src/main.cpp
 
-  src/library/Core.cpp
+  src/library/Core.cpp)
+
+add_executable(sova
+  ${SOURCES}
   src/library/OS.cpp
-)
+  src/main.cpp)
+
+target_compile_definitions(sova PUBLIC
+  SOVA_LIB_CORE
+  SOVA_LIB_OS)
+
+add_executable(test
+  ${SOURCES}
+  src/library/Test.cpp
+  src/test_main.cpp)
+
+target_compile_definitions(test PUBLIC
+  SOVA_LIB_CORE
+  SOVA_LIB_TEST)
 
 target_link_libraries(sova readline)
 
+
 set_property(TARGET sova PROPERTY CXX_STANDARD 20)
+set_property(TARGET test PROPERTY CXX_STANDARD 20)
