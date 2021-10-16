@@ -3,6 +3,7 @@
 #include "Bool.h"
 #include "Form.h"
 #include "Function.h"
+#include "FunctionType.h"
 #include "Global.h"
 #include "Lambda.h"
 #include "LambdaForm.h"
@@ -97,29 +98,21 @@ public:
   }
 };
 
-class UnaryMinus : public Function {
+class UnaryMinusFunction : public Function {
+public:
+  UnaryMinusFunction() { type = FunctionType::get({Type::get(TYPE_NUMBER)}, Type::get(TYPE_NUMBER)); }
+
   virtual Object *call_fn(Vector<Object *> &args) override {
-    if (args.size() != 1 || !args[0])
-      return nullptr;
-
-    Number *num = args[0]->as_number();
-    if (!num)
-      return nullptr;
-
-    return new Number(-num->value);
+    return new Number(-args[0]->as_number()->value);
   }
 };
 
-class Not : public Function {
+class NotFunction : public Function {
+public:
+  NotFunction() { type = FunctionType::get({Type::get(TYPE_BOOL)}, Type::get(TYPE_BOOL)); }
+
   virtual Object *call_fn(Vector<Object *> &args) override {
-    if (args.size() != 1 || !args[0])
-      return nullptr;
-
-    Bool *b = dynamic_cast<Bool *>(args[0]);
-    if (!b)
-      return nullptr;
-
-    return b->value ? &False : &True;
+    return args[0]->as_bool()->value ? &False : &True;
   }
 };
 
@@ -238,11 +231,10 @@ class ExpectTokenFunction : public Function {
     if (!resolve_token_type(str->str, tok))
       return nullptr;
 
-
-    assert (get_global_context().parser);
+    assert(get_global_context().parser);
 
     Token t = get_global_context().parser->tokens.pop();
-    assert (t.type == tok);
+    assert(t.type == tok);
 
     return nullptr;
   }
@@ -376,8 +368,8 @@ void setup_global_context(Context &ctx) {
   ctx.define("-", new ArithmeticFunction<sub>());
   ctx.define("*", new ArithmeticFunction<mul>());
   ctx.define("/", new ArithmeticFunction<div>());
-  ctx.define("prefix-", new UnaryMinus());
-  ctx.define("prefix!", new Not());
+  ctx.define("prefix-", new UnaryMinusFunction());
+  ctx.define("prefix!", new NotFunction());
 
   ctx.define("prefix'", new QuoteForm());
   ctx.define("eval", new EvalFunction());

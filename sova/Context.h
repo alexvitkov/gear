@@ -29,6 +29,7 @@ class GlobalContext : public Context {
   std::unordered_map<String, class Object *> macros_map;
 
 public:
+  type_t next_type_id;
   Vector<class Type *> types;
   GlobalContext();
   class Parser *parser;

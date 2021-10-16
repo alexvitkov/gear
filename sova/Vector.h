@@ -137,4 +137,15 @@ public:
 
   T *begin() { return items; }
   T *end() { return items + _size; }
+
+  bool operator== (const Vector &other) const {
+    if (_size != other._size || !items || !other.items)
+      return false;
+
+    for (u32 i = 0; i < _size; i++)
+      if (items[i] != other.items[i])
+        return false;
+
+    return true;
+  }
 };

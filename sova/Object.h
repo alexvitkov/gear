@@ -62,6 +62,7 @@ public:
   virtual class LValue *as_lvalue();
   virtual class Block *as_block();
   virtual class StringObject *as_string();
+  virtual class Bool *as_bool();
 
   ~Object();
 };

@@ -13,6 +13,7 @@ void register_builtin_type(GlobalContext &global, type_t id, String name) {
 }
 
 void register_builtin_types(GlobalContext &global) {
+  global.next_type_id = TYPE_MAX_ENUM_SIZE;
   global.types.resize(TYPE_MAX_ENUM_SIZE);
 
   register_builtin_type(global, TYPE_NIL, "Nil");
@@ -38,3 +39,11 @@ void register_builtin_types(GlobalContext &global) {
 void Type::print(Ostream &o) { o << name; }
 
 Type *get_type(Object *obj) { return get_global_context().types[obj ? obj->get_type() : TYPE_NIL]; }
+
+Type *Type::get(type_t t) {
+  return get_global_context().types[t];
+}
+
+type_t Type::get_new_id() {
+  return get_global_context().next_type_id++;
+}

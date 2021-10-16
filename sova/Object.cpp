@@ -67,6 +67,9 @@ class Block *Object::as_block() {
 class StringObject *Object::as_string() {
   return nullptr;
 }
+class Bool *Object::as_bool() {
+  return nullptr;
+}
 
 Object::~Object() {}
 
@@ -85,4 +88,7 @@ Object *clone(Object *o) {
 
 
 Context &get_context() { return *context_stack.back(); }
-GlobalContext &get_global_context() { return *(GlobalContext*)context_stack[0]; }
+
+
+extern thread_local GlobalContext global;
+GlobalContext &get_global_context() { return global; }

@@ -16,7 +16,7 @@
 #include <readline/readline.h>
 // clang-format on
 
-GlobalContext global;
+thread_local GlobalContext global;
 bool run_gc = false;
 
 void repl() {
@@ -81,8 +81,8 @@ RunFileResult read_file(const char *path, char *&out) {
 }
 
 int main(int argc, const char **argv) {
-  setup_global_context(global);
   register_builtin_types(global);
+  setup_global_context(global);
 
   // if -- has been passed, treat everything after it as filenames
   bool done_parsing_args = false;

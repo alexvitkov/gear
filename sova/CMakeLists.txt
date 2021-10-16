@@ -11,6 +11,7 @@ add_executable(sova
   Call.cpp
   Form.cpp
   Function.cpp
+  FunctionType.cpp
   Lambda.cpp
   LambdaForm.cpp
   LValue.cpp

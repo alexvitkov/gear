@@ -16,3 +16,7 @@ type_t Bool::get_type() {
 Object *Bool::clone() {
   return this;
 }
+
+Bool *Bool::as_bool() {
+  return this;
+}

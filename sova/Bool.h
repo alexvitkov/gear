@@ -9,6 +9,7 @@ public:
   virtual type_t get_type() override;
   virtual void print(Ostream& o) override;
   virtual Object *clone() override;
+  virtual Bool *as_bool() override;
 };
 
 extern Bool True;
