@@ -19,6 +19,7 @@ public:
 
   void print(Ostream &o, bool needs_infix_breackets);
   virtual void print(Ostream &o) override;
+  virtual bool equals(Object *other) override;
 
   bool is_comma_list();
 };

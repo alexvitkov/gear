@@ -131,3 +131,28 @@ Object *Call::clone() {
 
   return new Call(fn, cloned_args, brackets);
 }
+
+bool Call::equals(Object *_other) {
+  if (!_other)
+    return false;
+
+  Call *other = _other->as_call();
+  if (!other)
+    return false;
+
+  if (!::equals(fn, other->fn))
+    return false;
+
+  if (args.size() != other->args.size())
+    return false;
+
+  if (brackets != other->brackets)
+    return false;
+
+  for (u32 i = 0; i < args.size(); i++) {
+    if (!::equals(args[i], other->args[i]))
+      return false;
+  }
+
+  return true;
+}
