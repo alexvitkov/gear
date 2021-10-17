@@ -12,4 +12,5 @@ public:
   virtual class Reference *as_reference() override;
   virtual type_t get_type() override;
   virtual Object *clone() override;
+  virtual bool equals(Object *other) override;
 };

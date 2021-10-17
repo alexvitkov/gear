@@ -27,3 +27,14 @@ Reference *Reference::as_reference() { return this; }
 type_t Reference::get_type() { return TYPE_REFERENCE; }
 
 Object *Reference::clone() { return new Reference(name); }
+
+bool Reference::equals(Object *_other) {
+  if (!_other)
+    return false;
+
+  Reference *other = _other->as_reference();
+  if (!other)
+    return false;
+
+  return name == other->name;
+}
