@@ -14,8 +14,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-
-
 void TokenStream::emit_id(const char *code, int start, int i) {
 
   String str(code + start, i - start);
@@ -42,14 +40,16 @@ void Parser::fold(Call *call) {
   auto it = infix_calls.find(call);
   if (it == infix_calls.end())
     return;
-  CallInfixData data = it->second;
+  CallInfixData &data = it->second;
 
   if (data.infix.assoc != Associativity::FoldToVector)
     return;
 
   Object *_next = call->args[1];
-  Call *next = _next->as_call();
+  if (!_next)
+    return;
 
+  Call *next = _next->as_call();
   if (!next)
     return;
 
@@ -63,19 +63,22 @@ void Parser::fold(Call *call) {
       call->args.push_back(next);
       return;
     }
-    CallInfixData data2 = it->second;
+    CallInfixData &data2 = it->second;
+
+    if (data2.op != data.op || data2.has_brackets) {
+      call->args.push_back(next);
+      return;
+    }
 
     if (data2.op == data.op) {
       call->args.push_back(next->args[0]);
       _next = next->args[1];
       next = _next->as_call();
+
       if (!next) {
         call->args.push_back(_next);
         return;
       }
-    } else {
-      call->args.push_back(next);
-      return;
     }
   }
 }
@@ -85,7 +88,7 @@ Call *Parser::fix_precedence(Call *call) {
   if (it == infix_calls.end())
     return call;
 
-  CallInfixData data = it->second;
+  CallInfixData &data = it->second;
 
   if (!call->args[1])
     return call;
@@ -105,10 +108,10 @@ Call *Parser::fix_precedence(Call *call) {
       call->args[1] = tmp;
 
       if (rhs->fn->as_call())
-        rhs->fn = fix_precedence ((Call*)rhs->fn);
+        rhs->fn = fix_precedence((Call *)rhs->fn);
 
       if (rhs->args.size() > 0 && rhs->args[0] && rhs->args[0]->as_call())
-        rhs->args[0] = fix_precedence ((Call*)rhs->args[0]);
+        rhs->args[0] = fix_precedence((Call *)rhs->args[0]);
 
       return rhs;
     } else {
@@ -117,7 +120,7 @@ Call *Parser::fix_precedence(Call *call) {
     }
   }
 
-  CallInfixData rhs_data = it->second;
+  CallInfixData &rhs_data = it->second;
 
   if (rhs_data.has_brackets) {
     return call;
@@ -128,6 +131,9 @@ Call *Parser::fix_precedence(Call *call) {
       auto tmp = rhs->args[0];
       call->args[1] = tmp;
       rhs->args[0] = fix_precedence(call);
+
+      if (data.has_brackets)
+        rhs_data.has_brackets = true;
       return rhs;
     } else {
       return call;
@@ -290,23 +296,23 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
               .delims = close_bracket_delims,
           };
 
-          if (!parse(exit_cond_close_bracket, false))
+          if (!parse(exit_cond_close_bracket, true))
             return false;
         }
 
         if (last) {
           // emit function call
-          auto in_brackets = stack.back();
+          auto thing_in_brackets = stack.back();
           stack.pop_back();
 
           Object *fn = stack.back();
           stack.pop_back();
 
           Call *args;
-          if (in_brackets && (args = in_brackets->as_call()) && args->is_comma_list())
+          if (thing_in_brackets && (args = thing_in_brackets->as_call()) && args->is_comma_list())
             stack.push_back(new Call(fn, args->args, t.type));
-          else if (in_brackets)
-            stack.push_back(new Call(fn, {in_brackets}, t.type));
+          else if (thing_in_brackets)
+            stack.push_back(new Call(fn, {thing_in_brackets}, t.type));
           else
             stack.push_back(new Call(fn, {}, t.type));
         }
@@ -329,7 +335,7 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           }
 
           // parse the rhs
-          if (!parse(exit_cond, in_brackets, false))
+          if (!parse(exit_cond))
             return false;
 
           Object *lhs = stack[stack.size() - 2];
@@ -339,12 +345,10 @@ bool Parser::parse(ParseExitCondition &exit_cond, bool in_brackets, bool top_lev
           infix_calls[call] = {
               .op = t.name,
               .infix = t.infix_data,
-              .has_brackets = false,
+              .has_brackets = in_brackets,
           };
 
-          // cout << "pre: " << call << "\n";
           call = fix_precedence(call);
-          // cout << "post: " << call << "\n";
 
           if (top_level_infix)
             fold(call);
@@ -532,9 +536,6 @@ Block *do_parse(GlobalContext &global, const char *code) {
   }
 
   tokens.push({.type = TOK_EOF});
-
-  // for (Token &t : tokens.tokens)
-  //   cout << t << "\n";
 
   if (!parser.parse_block(TOK_EOF))
     return nullptr;

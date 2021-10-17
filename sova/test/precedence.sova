@@ -9,7 +9,4 @@ test.ast_eq(
 
 
 // prec(:=) > prec(,)
-test.ast_eq(
-  (a := b, c),
-  (a := b, c)
-);
+test.ast_eq((a := b, c), (a := b, c));
