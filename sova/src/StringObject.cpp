@@ -35,25 +35,20 @@ class SubstringFunction : public Function {
 
 public:
   SubstringFunction(StringObject *s) : s(s) {
+    type = FunctionType::get(
+        {
+            Type::get(TYPE_NUMBER),
+            Type::get(TYPE_NUMBER),
+        },
+        Type::get(TYPE_STRING));
+
+    default_values = new Vector<Object *>({new Number(-1)});
   }
 
   Object *call(Vector<Object *> &args) {
-    if (args.size() == 0 || args.size() > 2)
-      return nullptr;
-
     Number *start = args[0]->as_number();
-    if (!start)
-      return nullptr;
-
-    if (args.size() == 1) {
-      return new StringObject(s->str.substring(start->value));
-    }
-    else {
     Number *length = args[1]->as_number();
-    if (!length)
-      return nullptr;
     return new StringObject(s->str.substring(start->value, length->value));
-    }
   }
 };
 
