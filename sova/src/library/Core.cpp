@@ -343,9 +343,10 @@ static bool ne(double a, double b) { return a != b; }
 
 void load(GlobalContext &ctx) {
   ctx.set_infix_operator(",", 5, Associativity::FoldToVector);
-  ctx.set_infix_operator(":=", 10, Associativity::Right);
+
+  ctx.set_infix_operator("=", 10, Associativity::Right);
+  ctx.set_infix_operator(":=", 15, Associativity::Right);
   ctx.set_infix_operator("=>", 30, Associativity::Right);
-  ctx.set_infix_operator("=", 40, Associativity::Right);
 
   ctx.set_infix_operator("==", 70, Associativity::Left);
   ctx.set_infix_operator("!=", 70, Associativity::Left);
@@ -356,9 +357,9 @@ void load(GlobalContext &ctx) {
   ctx.set_infix_operator("<=", 80, Associativity::Left);
 
   ctx.set_infix_operator("+", 100, Associativity::Left);
-  ctx.set_infix_operator("-", 110, Associativity::Left);
+  ctx.set_infix_operator("-", 100, Associativity::Left);
   ctx.set_infix_operator("*", 120, Associativity::Left);
-  ctx.set_infix_operator("/", 130, Associativity::Left);
+  ctx.set_infix_operator("/", 120, Associativity::Left);
 
   // --- Call brackets precedence is 150 ---
 

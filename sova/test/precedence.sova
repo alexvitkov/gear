@@ -1,12 +1,163 @@
-// prec(*) > prec(+)
 test.ast_eq(
+  "* has higher precedence than +",
   a*b + c,
   (a*b) + c);
 
 test.ast_eq(
+  "* has higher precedence than +",
   a + b*c,
   a + (b*c));
 
 
-// prec(:=) > prec(,)
-test.ast_eq((a := b, c), (a := b, c));
+
+test.ast_eq(
+  ":= has higher precedence than ,",
+  (a := b, c),
+  ((a := b), c));
+
+test.ast_eq(
+  "* has higher precedence than +",
+  (a, b := c),
+  (a, (b := c)));
+
+
+
+test.ast_eq(
+  ":= has higher precedence than ,",
+  a := b = c,
+  (a := b) = c);
+
+test.ast_eq(
+  ":= has higher precedence than ,",
+  a = b := c,
+  a = (b := c));
+
+
+
+test.ast_eq(
+  "=> has higher precedence than =",
+  a = b => c,
+  a = (b => c));
+
+test.ast_eq(
+  "=> has higher precedence than =",
+  a => b = c,
+  (a => b) = c);
+
+
+
+test.ast_eq(
+  "> has higher precedence than ==",
+  a == b > c,
+  a == (b > c));
+
+test.ast_eq(
+  "> has higher precedence than =",
+  a > b == c,
+  (a > b) == c);
+
+test.ast_eq(
+  "< has higher precedence than ==",
+  a == b < c,
+  a == (b < c));
+
+test.ast_eq(
+  "< has higher precedence than =",
+  a < b == c,
+  (a < b) == c);
+
+test.ast_eq(
+  "=> has higher precedence than ==",
+  a == b >= c,
+  a == (b >= c));
+
+test.ast_eq(
+  ">= has higher precedence than =",
+  a >= b == c,
+  (a >= b) == c);
+
+test.ast_eq(
+  "<= has higher precedence than ==",
+  a == b <= c,
+  a == (b <= c));
+
+test.ast_eq(
+  "<= has higher precedence than =",
+  a <= b == c,
+  (a <= b) == c);
+
+
+
+test.ast_eq(
+  "+ has higher precedence than >",
+  a + b > c,
+  (a + b) > c);
+
+test.ast_eq(
+  "+ has higher precedence than >",
+  a > b + c,
+  a > (b + c));
+
+test.ast_eq(
+  "- has higher precedence than >",
+  a - b > c,
+  (a - b) > c);
+
+test.ast_eq(
+  "- has higher precedence than >",
+  a > b - c,
+  a > (b - c));
+
+
+
+test.ast_eq(
+  "+ and - are same precedence",
+  a + b - c,
+  (a + b) - c);
+
+test.ast_eq(
+  "+ and - are same precedence",
+  a - b + c,
+  (a - b) + c);
+
+
+
+test.ast_eq(
+  "* has higher precedence than +",
+  a * b + c,
+  (a * b) + c);
+
+test.ast_eq(
+  "* has higher precedence than +",
+  a + b * c,
+  a + (b * c));
+
+
+
+test.ast_eq(
+  "* and / are same precedence",
+  a * b / c,
+  (a * b) / c);
+
+test.ast_eq(
+  "+ and - are same precedence",
+  a / b * c,
+  (a / b) * c);
+
+
+
+test.ast_eq(
+  ". has higher precedence than call",
+  a.b(c),
+  (a.b)(c));
+
+test.ast_eq(
+  ". has higher precedence than call",
+  a.b(c),
+  (a.b)(c));
+
+
+test.ast_eq(
+  "prefix operators have the lowest precedence",
+  (!a , b),
+  ((!a) , b));

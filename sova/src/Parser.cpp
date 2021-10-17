@@ -56,10 +56,8 @@ void Parser::fold(Call *call) {
   call->args.pop_back();
 
   while (next) {
-    assert(next->args.size() == 2);
-
     it = infix_calls.find(next);
-    if (it == infix_calls.end()) {
+    if (next->args.size() != 2 || it == infix_calls.end()) {
       call->args.push_back(next);
       return;
     }

@@ -2,6 +2,7 @@
 #include "../Form.h"
 #include "../Bool.h"
 #include "../Libraries.h"
+#include "../StringObject.h"
 
 namespace library::test {
 
@@ -11,7 +12,7 @@ namespace library::test {
 
 
   void begin_case(String msg) {
-    cout << "Testing " << msg << "... ";
+    cout << "Testing that " << msg << "... ";
   }
 
   void end_case(bool suc) {
@@ -29,11 +30,15 @@ namespace library::test {
 class AstEqTestForm : public Form {
 
   virtual Object* invoke(Vector<Object*>& args) override {
+
+    StringObject *s = args[0]->as_string();
+
+
     StringStream ss;
-    ss << "ast equality (" << args[0] << "), (" << args[1] << ")";
+    ss << s->str << ": (" << args[1] << "), (" << args[2] << ")";
     begin_case(ss.str());
 
-    end_case (::equals(args[0], args[1]));
+    end_case (::equals(args[1], args[2]));
     return nullptr;
   }
 
