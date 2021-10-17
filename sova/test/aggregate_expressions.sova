@@ -1,0 +1,25 @@
+
+test.ast_eq(
+  "complex expressions parse ok",
+  (a, b(), c),
+  (a, (b()), c));
+
+test.ast_eq(
+  "complex expressions parse ok",
+  foo :=  a +   b*c  / d,
+  foo := (a + ((b*c) / d)));
+
+test.ast_eq(
+  "complex expressions parse ok",
+  a.b().c,
+  ((a.b)()).c);
+
+test.ast_eq(
+  "complex expressions parse ok",
+  -a.b().c,
+  -((a.b)()).c);
+
+test.ast_eq(
+  "complex expressions parse ok",
+  a * -b * -c,
+  (a * (-b)) * (-c));

@@ -158,6 +158,11 @@ test.ast_eq(
 
 
 test.ast_eq(
-  "prefix operators have the lowest precedence",
+  "prefix operators have the higher precedence than ,",
   (!a , b),
   ((!a) , b));
+
+test.ast_eq(
+  "prefix operators have the lower precedence than dot",
+  -a.b,
+  -(a.b));

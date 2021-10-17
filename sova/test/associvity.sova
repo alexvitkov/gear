@@ -1,0 +1,79 @@
+test.ast_eq(
+  "= is right associative",
+  a=b=c=d,
+  a=(b=(c=d)));
+
+test.ast_eq(
+  ":= is right associative",
+  a:=b:=c:=d,
+  a:=(b:=(c:=d)));
+
+test.ast_eq(
+  "=> is right associative",
+  a => b => c,
+  a => (b => c));
+
+test.ast_eq(
+  "== is left associative",
+  a == b == c,
+  (a == b) == c);
+
+test.ast_eq(
+  "!= is left associative",
+  a != b != c,
+  (a != b) != c);
+
+test.ast_eq(
+  "< is left associative",
+  a < b < c,
+  (a < b) < c);
+
+test.ast_eq(
+  "> is left associative",
+  a > b > c,
+  (a > b) > c);
+
+test.ast_eq(
+  "<= is left associative",
+  a <= b <= c,
+  (a <= b) <= c);
+
+test.ast_eq(
+  ">= is left associative",
+  a >= b >= c,
+  (a >= b) >= c);
+
+test.ast_eq(
+  "+ is left associative",
+  a + b + c,
+  (a + b) + c);
+
+test.ast_eq(
+  "- is left associative",
+  a - b - c,
+  (a - b) - c);
+
+test.ast_eq(
+  "* is left associative",
+  a * b * c,
+  (a * b) * c);
+
+test.ast_eq(
+  "/ is left associative",
+  a / b / c,
+  (a / b) / c);
+
+test.ast_eq(
+  ". is left associative",
+  a . b . c,
+  (a . b) . c);
+
+test.ast_eq(
+  "prefix operators are right associative",
+  !!!a,
+  !(!(!a)));
+
+test.ast_eq(
+  "calls are right associative",
+  a()(),
+  (a())());
