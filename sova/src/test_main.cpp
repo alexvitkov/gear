@@ -14,8 +14,6 @@ void run_test(char *filename, char *code) {
   _global = GlobalContext();
   context_stack = {&_global};
 
-  cout << filename << "... ";
-
   Block *b = do_parse(_global, code);
   if (!b) {
     cout << "PARSE ERROR\n";
@@ -23,12 +21,6 @@ void run_test(char *filename, char *code) {
   }
 
   Object *res = eval((Object*)b);
-  if (res != &True) {
-    cout << "FAIL\n";
-    return;
-  }
-
-  cout << "OK\n";
 }
 
 void run_all_tests() {

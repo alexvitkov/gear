@@ -54,11 +54,10 @@ public:
 
 void load(GlobalContext &ctx) {
   Context *os = new Context(nullptr);
+  ctx.define("os", os);
 
   os->define("system", new SystemFunction());
   os->define("ls", new LsFunction());
-
-  ctx.define("os", os);
 }
 
 } // namespace library::os
