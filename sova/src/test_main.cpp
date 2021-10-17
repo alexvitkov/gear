@@ -1,4 +1,5 @@
 #include "Context.h"
+#include "Libraries.h"
 #include "Object.h"
 #include "Parser.h"
 #include "Bool.h"
@@ -47,6 +48,17 @@ void run_all_tests() {
       run_test(dir->d_name, buf);
     }
     closedir(d);
+  }
+
+  if (library::test::failed_list.size() > 0) {
+    cout << "\n\n\u001b[31mSome tests failed:\u001b[0m\n";
+
+    for (String &s : library::test::failed_list) {
+      cout << s<< "\n";
+    }
+  }
+  else {
+    cout << "\n\n\u001b[32mAll tests passed\u001b[0m\n";
   }
 }
 

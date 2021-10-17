@@ -7,21 +7,21 @@
 namespace library::test {
 
 
-  int successes = 0;
-  int fails = 0;
+  Vector<String> failed_list;
+  String current_test;
 
 
   void begin_case(String msg) {
     cout << "Testing that " << msg << "... ";
+    current_test = msg;
   }
 
   void end_case(bool suc) {
     if (suc) {
       cout << "OK\n";
-      successes++;
     } else {
-      cout << "FAIL\n";
-      fails++;
+      cout << "\u001b[31mFAIL\u001b[0m\n";
+      failed_list.push_back(current_test);
     }
   }
 
