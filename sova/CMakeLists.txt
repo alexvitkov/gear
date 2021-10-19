@@ -26,7 +26,6 @@ set(SOURCES
   src/Token.cpp
   src/Parser.cpp
   src/GarbageCollector.cpp
-  src/Ostream.cpp
   src/Util.cpp
 
   src/library/Core.cpp)

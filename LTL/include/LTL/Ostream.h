@@ -1,11 +1,11 @@
 #pragma once
-#include "Common.h"
+#include <stdint.h>
 
 class String;
 
 class Ostream {
 public:
-  virtual void write(u8 *bytes, int length) = 0;
+  virtual void write(uint8_t *bytes, int length) = 0;
 };
 
 class FileDescriptorOstream : public Ostream {
@@ -13,7 +13,7 @@ class FileDescriptorOstream : public Ostream {
 
 public:
   FileDescriptorOstream(int fd);
-  virtual void write(u8 *bytes, int length) override;
+  virtual void write(uint8_t *bytes, int length) override;
 };
 
 class StringStream : public Ostream {
@@ -21,7 +21,7 @@ class StringStream : public Ostream {
   int ptr = 0;
 
 public:
-  virtual void write(u8 *bytes, int length) override;
+  virtual void write(uint8_t *bytes, int length) override;
   String str();
 };
 

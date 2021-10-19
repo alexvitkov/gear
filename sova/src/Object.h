@@ -1,6 +1,6 @@
 #pragma once
 #include "Common.h"
-#include "Ostream.h"
+#include <LTL/Ostream.h>
 #include <LTL/String.h>
 #include <LTL/Vector.h>
 

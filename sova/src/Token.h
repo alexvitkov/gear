@@ -1,6 +1,6 @@
 #pragma once
 #include "OperatorData.h"
-#include "Ostream.h"
+#include <LTL/Ostream.h>
 #include <LTL/Vector.h>
 #include <LTL/String.h>
 

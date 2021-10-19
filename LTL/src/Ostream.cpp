@@ -1,4 +1,4 @@
-#include "Ostream.h"
+#include <LTL/Ostream.h>
 #include <LTL/String.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,9 +9,9 @@ FileDescriptorOstream cerr(2);
 
 FileDescriptorOstream::FileDescriptorOstream(int fd) : fd(fd) {}
 
-void FileDescriptorOstream::write(u8 *bytes, int length) { ::write(fd, bytes, length); }
+void FileDescriptorOstream::write(uint8_t *bytes, int length) { ::write(fd, bytes, length); }
 
-void StringStream::write(u8 *bytes, int length) {
+void StringStream::write(uint8_t *bytes, int length) {
   memcpy(out + ptr, bytes, length);
   ptr += length;
 }
@@ -23,7 +23,7 @@ String StringStream::str() {
 
 Ostream &operator<<(Ostream &o, const char *str) {
   long len = strlen(str);
-  o.write((u8 *)str, len);
+  o.write((uint8_t *)str, len);
   return o;
 }
 
@@ -34,7 +34,7 @@ Ostream &operator<<(Ostream &o, const String &str) {
 
 Ostream &operator<<(Ostream &o, char ch) {
   char _ch = ch;
-  o.write((u8 *)&ch, 1);
+  o.write((uint8_t *)&ch, 1);
   return o;
 }
 
