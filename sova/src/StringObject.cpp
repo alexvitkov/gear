@@ -54,5 +54,5 @@ EvalResult StringObject::dot(String field) {
   else if (field == "substring")
     return new SubstringFunction(this);
 
-  return new RuntimeError("no such field");
+  return new OneOffError("no such field");
 }

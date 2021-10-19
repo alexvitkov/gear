@@ -18,7 +18,7 @@ EvalResult Call::interpret() {
     case '(': {
       Form *form = interpreted->as_form();
       if (!form)
-        return new RuntimeError("Trying to call something that is not a function");
+        return new NotAFunctionError(this);
 
       return form->invoke(args);
     }

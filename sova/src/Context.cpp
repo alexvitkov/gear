@@ -12,7 +12,7 @@ EvalResult Context::resolve(const String &name) {
     if (parent)
       return parent->resolve(name);
 
-    return new RuntimeError("not defined");
+    return new OneOffError("not defined");
   }
   return it->second;
 }

@@ -7,10 +7,10 @@
 EvalResult FormForm::invoke(Vector<Object *> &args) {
 
   if (args.size() != 2)
-    return new RuntimeError("'form' expects two arguments");
+    return new OneOffError("'form' expects two arguments");
 
   if (args[0] || !args[0]->as_reference())
-    return new RuntimeError("first argument of 'form' must be an identifier");
+    return new OneOffError("first argument of 'form' must be an identifier");
 
   Vector<String> param_names;
 
@@ -23,11 +23,11 @@ EvalResult FormForm::invoke(Vector<Object *> &args) {
     Call *params = args[0]->as_call();
 
     if (!params || !params->is_comma_list())
-      return new RuntimeError("form requires a comma list");
+      return new OneOffError("form requires a comma list");
 
     for (Object *param : params->args) {
       if (!param || !param->as_reference())
-        return new RuntimeError("form comma list arguments must be identifiers");
+        return new OneOffError("form comma list arguments must be identifiers");
 
       Reference *r = param->as_reference();
       param_names.push_back(r->name);
@@ -63,7 +63,7 @@ void LambdaForm::print(Ostream &o) {
 
 EvalResult LambdaForm::invoke(Vector<Object *> &args) {
   if (args.size() != param_names.size())
-    return new RuntimeError("argument count mismatch");
+    return new OneOffError("argument count mismatch");
 
   Context child_ctx(&get_context());
   context_stack.push_back(&child_ctx);

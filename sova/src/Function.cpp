@@ -24,7 +24,7 @@ EvalResult Function::invoke(Vector<Object *> &args) {
           evaled_args.push_back((*default_values)[default_value_index]);
         }
       } else {
-        return new RuntimeError("argument count mistmatch");
+        return new OneOffError("argument count mistmatch");
       }
     }
 
@@ -35,7 +35,7 @@ EvalResult Function::invoke(Vector<Object *> &args) {
       if (!actual->casts_to(expected)) {
         cout << "Type mismatch on arg " << (int)(i + 1) << ". Expected " << expected << ", but got " << actual
              << "\n";
-        return new RuntimeError("argument type mismatch");
+        return new OneOffError("argument type mismatch");
       }
     }
   }

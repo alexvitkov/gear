@@ -7,7 +7,7 @@
 EvalResult ArrowForm::invoke(Vector<Object *> &args) {
 
   if (args.size() != 2)
-    return new RuntimeError("=> expects two arguments");
+    return new OneOffError("=> expects two arguments");
 
   Vector<String> param_names;
 
@@ -21,11 +21,11 @@ EvalResult ArrowForm::invoke(Vector<Object *> &args) {
   else {
     Call *params = args[0]->as_call();
     if (!params || !params->is_comma_list())
-      return new RuntimeError("lambda left hand side not a valid parameter list");
+      return new OneOffError("lambda left hand side not a valid parameter list");
 
     for (Object *param : params->args) {
       if (!param || !param->as_reference())
-        return new RuntimeError("lambda left hand side parameters must be identifiers");
+        return new OneOffError("lambda left hand side parameters must be identifiers");
 
       Reference *r = param->as_reference();
       param_names.push_back(r->name);
@@ -57,7 +57,7 @@ void Lambda::print(Ostream &o) {
 
 EvalResult Lambda::call(Vector<Object *> &args) {
   if (args.size() != param_names.size())
-    return new RuntimeError("lambda call argument count mismatch");
+    return new OneOffError("lambda call argument count mismatch");
 
   Context child_ctx(&get_context());
   context_stack.push_back(&child_ctx);

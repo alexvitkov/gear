@@ -16,11 +16,11 @@ void List::print(Ostream &o) {
 
 EvalResult List::square_brackets(const Vector<Object *> &args) {
   if (args.size() != 1)
-    return new RuntimeError("[] expected 1 argument");
+    return new OneOffError("[] expected 1 argument");
 
   Number *num = args[0]->as_number();
   if (!num)
-    return new RuntimeError("[] expects a number inside the square brackets");
+    return new OneOffError("[] expects a number inside the square brackets");
 
   return eval(new ListAccessor(this, (u32)num->value));
 }
@@ -50,7 +50,7 @@ EvalResult ListAccessor::interpret() {
     return (Object*)this;
   else {
     if (index >= list->backing_vector.size())
-      return new RuntimeError("Index out of range");
+      return new OneOffError("Index out of range");
 
     return list->backing_vector[index];
   }
@@ -64,5 +64,5 @@ EvalResult List::dot(String field) {
   if (field == "length")
     return new Number(backing_vector.size());
 
-  return new RuntimeError("no such member");
+  return new OneOffError("no such member");
 }

@@ -37,9 +37,9 @@ void repl() {
 
     EvalResult result = eval((Object *)block);
 
-    if (result.is_error())
-      cout << (Object*)result.get_error() << "\n";
-    else
+    if (result.is_error()) {
+      cout << "Runtime Error: " << (Object *)result.get_error() << "\n";
+    } else
       cout << result.get_value() << "\n";
 
     if (run_gc) {
@@ -48,7 +48,6 @@ void repl() {
     }
   }
 }
-
 
 int main(int argc, const char **argv) {
 

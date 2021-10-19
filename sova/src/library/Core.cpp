@@ -13,6 +13,7 @@
 #include "../RuntimeError.h"
 #include "../StringObject.h"
 #include "../Type.h"
+#include <LTL/Save.h>
 #include <assert.h>
 #include <stdlib.h>
 
@@ -30,7 +31,7 @@ public:
 
   virtual EvalResult call(Vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
-      return new RuntimeError("+ expects two non-nil arguments. TODO");
+      return new OneOffError("+ expects two non-nil arguments. TODO");
 
     Number *num1 = args[0]->as_number();
     Number *num2 = args[1]->as_number();
@@ -64,10 +65,10 @@ public:
 
     for (int i = 0; i < args.size(); i++) {
       if (!args[i])
-        return new RuntimeError("arithmetic function got nil as an argument");
+        return new OneOffError("arithmetic function got nil as an argument");
       Number *num = args[i]->as_number();
       if (!num)
-        return new RuntimeError("arithmetic function got a non-number as argument");
+        return new OneOffError("arithmetic function got a non-number as argument");
 
       if (i == 0)
         val = num->value;
@@ -111,7 +112,7 @@ public:
 
   virtual EvalResult call(Vector<Object *> &args) override {
     if (args.size() != 2)
-      return new RuntimeError("== and != expect two arguments");
+      return new OneOffError("== and != expect two arguments");
 
     return (::equals(args[0], args[1]) != negate) ? &True : &False;
   }
@@ -153,15 +154,18 @@ public:
 
   virtual EvalResult invoke(Vector<Object *> &args) override {
     if (args.size() != 2)
-      return new RuntimeError("assign form needs two arguments");
+      return new OneOffError("assign form needs two arguments");
 
-    bool eval_to_lvalue_old = eval_to_lvalue;
-    eval_to_lvalue = true;
-    Object *evaled_lhs = TRY(eval(args[0]));
-    eval_to_lvalue = eval_to_lvalue_old;
+    Object *evaled_lhs;
+
+    {
+      Save<bool> save(eval_to_lvalue);
+      eval_to_lvalue = true;
+      evaled_lhs = TRY(eval(args[0]));
+    }
 
     if (!evaled_lhs || !evaled_lhs->as_lvalue())
-      return new RuntimeError("left hand side of := and = must be a lvalue");
+      return new OneOffError("left hand side of := and = must be a lvalue");
 
     LValue *lhs = evaled_lhs->as_lvalue();
 
@@ -174,14 +178,14 @@ class DotForm : public Form {
 public:
   virtual EvalResult invoke(Vector<Object *> &args) override {
     if (args.size() != 2)
-      return new RuntimeError("dot form expects two arguments");
+      return new OneOffError("dot form expects two arguments");
 
     Object *lhs = TRY(eval(args[0]));
     if (!lhs)
-      return new RuntimeError("dot first argument cannot be null");
+      return new OneOffError("dot first argument cannot be null");
 
     if (!args[1] || !args[1]->as_reference())
-      return new RuntimeError("dot second argument must be an identifier");
+      return new OneOffError("dot second argument must be an identifier");
     Reference *rhs = args[1]->as_reference();
 
     return eval(lhs->dot(rhs->name));
@@ -191,18 +195,18 @@ public:
 class MacroForm : public Form {
   virtual EvalResult invoke(Vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
-      return new RuntimeError("invalid macro");
+      return new OneOffError("invalid macro");
 
     Reference *name = args[0]->as_reference();
     if (!name)
-      return new RuntimeError("invalid macro");
+      return new OneOffError("invalid macro");
 
     Block *value = args[1]->as_block();
     if (!value)
-      return new RuntimeError("invalid macro");
+      return new OneOffError("invalid macro");
 
     global().define_macro(name->name, value);
-    return new RuntimeError("invalid macro");
+    return new OneOffError("invalid macro");
   }
 };
 
@@ -214,7 +218,7 @@ public:
   virtual EvalResult call(Vector<Object *> &args) override {
     auto parser = global().parser;
     if (!parser || parser->blocks.size() == 0)
-      return new RuntimeError("emit cannot be called outside macros");
+      return new OneOffError("emit cannot be called outside macros");
 
     parser->blocks.back()->inside.push_back(args[0]);
     return (Object *)nullptr;
@@ -230,13 +234,13 @@ class ParseForm : public Form {
     // parse the delimiters
     for (Object *arg : args) {
       if (!arg || !arg->as_string())
-        return new RuntimeError("parse() arguments must be strings");
+        return new OneOffError("parse() arguments must be strings");
 
       StringObject *str = arg->as_string();
 
       TokenType tok;
       if (!resolve_token_type(str->str, tok))
-        return new RuntimeError("parse() argument not a valid delimiter");
+        return new OneOffError("parse() argument not a valid delimiter");
 
       delims.push_back(tok);
     }
@@ -266,13 +270,13 @@ public:
 
   virtual EvalResult call(Vector<Object *> &args) override {
     if (args.size() != 1 || !args[0] || !args[0]->as_string())
-      return new RuntimeError("expect_token() requires a single string argument");
+      return new OneOffError("expect_token() requires a single string argument");
 
     StringObject *str = args[0]->as_string();
 
     TokenType tok;
     if (!resolve_token_type(str->str, tok))
-      return new RuntimeError("expect_token() argument not a valid token");
+      return new OneOffError("expect_token() argument not a valid token");
 
     assert(global().parser);
 
@@ -287,7 +291,7 @@ class QuoteForm : public Form {
 public:
   virtual EvalResult invoke(Vector<Object *> &args) override {
     if (args.size() != 1)
-      return new RuntimeError("quote expects a single argument");
+      return new OneOffError("quote expects a single argument");
 
     return ::clone(args[0]);
   }
@@ -310,7 +314,7 @@ public:
   virtual EvalResult invoke(Vector<Object *> &args) override {
 
     if (args.size() != 1 || !args[0] || !args[0]->as_block())
-      return new RuntimeError("context expects a block as its argument");
+      return new OneOffError("context expects a block as its argument");
 
     Block *block = args[0]->as_block();
 

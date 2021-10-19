@@ -28,10 +28,10 @@ class AstEqTestForm : public Form {
 
   virtual EvalResult invoke(Vector<Object *> &args) override {
     if (args.size() != 3)
-      return new RuntimeError("test.ast_eq expects 3 arguments");
+      return new OneOffError("test.ast_eq expects 3 arguments");
     
     if (!args[0] || !args[0]->as_string())
-      return new RuntimeError("test.ast_eq first argument must be a test case name");
+      return new OneOffError("test.ast_eq first argument must be a test case name");
       
     StringObject *s = args[0]->as_string();
 

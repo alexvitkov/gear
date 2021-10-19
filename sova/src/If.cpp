@@ -37,7 +37,7 @@ EvalResult If::dot(String str) {
   if (str == "if_false")
     return new ObjectPtr(this, &if_false);
 
-  return new RuntimeError("no such field");
+  return new OneOffError("no such field");
 }
 
 type_t If::get_type() { return TYPE_AST_IF; }

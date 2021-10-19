@@ -42,7 +42,7 @@ public:
     dirent *dir;
 
     if (!d)
-      return new RuntimeError("ls(): failed to open directory");
+      return new OneOffError("ls(): failed to open directory");
 
     while ((dir = readdir(d)) != NULL)
       l->backing_vector.push_back(new StringObject(dir->d_name));

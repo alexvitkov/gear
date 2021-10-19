@@ -35,7 +35,7 @@ EvalResult While::dot(String str) {
   if (str == "body")
     return new ObjectPtr(this, &body);
 
-  return new RuntimeError("no such field");
+  return new OneOffError("no such field");
 }
 
 Object *While::clone() {

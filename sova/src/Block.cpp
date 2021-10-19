@@ -73,7 +73,7 @@ EvalResult Block::dot(String str) {
   if (str == "push")
     return new BlockPushFunction(this);
 
-  return new RuntimeError("invalid field");
+  return new OneOffError("invalid field");
 }
 
 Object *Block::clone() {

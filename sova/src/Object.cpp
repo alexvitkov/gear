@@ -46,10 +46,10 @@ bool equals(Object *lhs, Object *rhs) {
 }
 
 EvalResult Object::dot(String) {
-  return new RuntimeError("dot not supported for this object type");
+  return new OneOffError("dot not supported for this object type");
 }
 
-EvalResult Object::square_brackets(const Vector<Object *> &args) { return new RuntimeError("square brackets not supported for this type"); }
+EvalResult Object::square_brackets(const Vector<Object *> &args) { return new OneOffError("square brackets not supported for this type"); }
 
 void Object::print(Ostream &o) { o << "<object>"; }
 
