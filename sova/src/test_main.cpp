@@ -1,12 +1,13 @@
+#include "Bool.h"
 #include "Context.h"
 #include "Libraries.h"
 #include "Object.h"
 #include "Parser.h"
-#include "Bool.h"
 #include "Util.h"
 #include <dirent.h>
 
 bool run_gc = false;
+bool no_runtime_errors = true;
 
 thread_local GlobalContext _global;
 
@@ -21,7 +22,11 @@ void run_test(char *filename, char *code) {
     return;
   }
 
-  Object *res = eval((Object*)b);
+  EvalResult res = eval((Object *)b);
+  if (res.is_error()) {
+    no_runtime_errors = false;
+    cout << (Object *)res.get_error() << "\n";
+  }
 }
 
 void run_all_tests() {
@@ -54,10 +59,9 @@ void run_all_tests() {
     cout << "\n\n\u001b[31mSome tests failed:\u001b[0m\n";
 
     for (String &s : library::test::failed_list) {
-      cout << s<< "\n";
+      cout << s << "\n";
     }
-  }
-  else {
+  } else if (no_runtime_errors) {
     cout << "\n\n\u001b[32mAll tests passed\u001b[0m\n";
   }
 }

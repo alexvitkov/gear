@@ -11,7 +11,7 @@ public:
 
   virtual void print(Ostream &o) override;
 
-  virtual Object *invoke(Vector<Object *> &args) override;
-  virtual Object *call(Vector<Object *> &args) = 0;
+  virtual EvalResult invoke(Vector<Object *> &args) override;
+  virtual EvalResult call(Vector<Object *> &args) = 0;
   virtual type_t get_type() override;
 };

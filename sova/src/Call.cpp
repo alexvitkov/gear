@@ -3,22 +3,22 @@
 #include "Object.h"
 #include "Parser.h"
 #include "Reference.h"
+#include "RuntimeError.h"
 #include "Token.h"
 
 const bool ALWAYS_BRACKETS = true;
 
 Call::Call(Object *fn, Vector<Object *> args, char brackets) : fn(fn), args(args), brackets(brackets) {}
 
-Object *Call::interpret() {
-  Object *interpreted = fn->interpret();
-  if (!interpreted)
-    return nullptr;
+EvalResult Call::interpret() {
+  auto it = fn->interpret();
+  Object *interpreted = TRY(it);
 
   switch (brackets) {
     case '(': {
       Form *form = interpreted->as_form();
       if (!form)
-        return nullptr;
+        return new RuntimeError("Trying to call something that is not a function");
 
       return form->invoke(args);
     }
@@ -27,10 +27,11 @@ Object *Call::interpret() {
       Vector<Object *> evaled_args;
       for (Object *arg : args)
         evaled_args.push_back(eval(arg));
+
       return interpreted->square_brackets(evaled_args);
     }
 
-    default: return nullptr;
+  default: assert(!"unknown call type");
   }
 }
 

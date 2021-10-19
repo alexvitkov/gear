@@ -1,11 +1,12 @@
 #include "While.h"
 #include "If.h"
 #include "ObjectPtr.h"
+#include "RuntimeError.h"
 
 While::While(Object *condition, Object *body)
     : condition(condition), body(body) {}
 
-Object *While::interpret() {
+EvalResult While::interpret() {
   Object *value = nullptr;
 
 
@@ -28,12 +29,13 @@ void While::iterate_references(Vector<Object *> &out) {
   out.push_back(body);
 }
 
-Object *While::dot(String str) {
+EvalResult While::dot(String str) {
   if (str == "condition")
     return new ObjectPtr(this, &condition);
   if (str == "body")
     return new ObjectPtr(this, &body);
-  return nullptr;
+
+  return new RuntimeError("no such field");
 }
 
 Object *While::clone() {

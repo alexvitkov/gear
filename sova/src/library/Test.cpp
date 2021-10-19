@@ -3,6 +3,7 @@
 #include "../Form.h"
 #include "../Libraries.h"
 #include "../StringObject.h"
+#include "../RuntimeError.h"
 
 namespace library::test {
 
@@ -25,7 +26,13 @@ void end_case(bool suc) {
 
 class AstEqTestForm : public Form {
 
-  virtual Object *invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args) override {
+    if (args.size() != 3)
+      return new RuntimeError("test.ast_eq expects 3 arguments");
+    
+    if (!args[0] || !args[0]->as_string())
+      return new RuntimeError("test.ast_eq first argument must be a test case name");
+      
     StringObject *s = args[0]->as_string();
 
     StringStream ss;
@@ -33,14 +40,14 @@ class AstEqTestForm : public Form {
     begin_case(ss.str());
 
     end_case(::equals(args[1], args[2]));
-    return nullptr;
+    return (Object *)nullptr;
   }
 };
 
 
 class EqTestForm : public Form {
 
-  virtual Object *invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args) override {
     StringObject *s = args[0]->as_string();
 
     StringStream ss;
@@ -48,7 +55,7 @@ class EqTestForm : public Form {
     begin_case(ss.str());
 
     end_case(::equals(eval(args[1]), eval(args[2])));
-    return nullptr;
+    return (Object *)nullptr;
   }
 };
 

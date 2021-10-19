@@ -34,8 +34,13 @@ void repl() {
 
     block->create_own_context = false;
     context_stack = {&_global};
-    auto val = eval((Object *)block);
-    cout << val << "\n";
+
+    EvalResult result = eval((Object *)block);
+
+    if (result.is_error())
+      cout << (Object*)result.get_error() << "\n";
+    else
+      cout << result.get_value() << "\n";
 
     if (run_gc) {
       gc(_global);

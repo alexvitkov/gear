@@ -1,11 +1,16 @@
 #include "LambdaForm.h"
 #include "Call.h"
+#include "Object.h"
 #include "Reference.h"
+#include "RuntimeError.h"
 
-Object *FormForm::invoke(Vector<Object *> &args) {
+EvalResult FormForm::invoke(Vector<Object *> &args) {
 
-  if (args.size() != 2 || !args[0])
-    return nullptr;
+  if (args.size() != 2)
+    return new RuntimeError("'form' expects two arguments");
+
+  if (args[0] || !args[0]->as_reference())
+    return new RuntimeError("first argument of 'form' must be an identifier");
 
   Vector<String> param_names;
 
@@ -16,15 +21,15 @@ Object *FormForm::invoke(Vector<Object *> &args) {
   } else {
     // (a,b,c) => ....
     Call *params = args[0]->as_call();
+
     if (!params || !params->is_comma_list())
-      return nullptr;
+      return new RuntimeError("form requires a comma list");
 
     for (Object *param : params->args) {
-      if (!param)
-        return nullptr;
+      if (!param || !param->as_reference())
+        return new RuntimeError("form comma list arguments must be identifiers");
+
       Reference *r = param->as_reference();
-      if (!r)
-        return nullptr;
       param_names.push_back(r->name);
     }
   }
@@ -56,9 +61,9 @@ void LambdaForm::print(Ostream &o) {
   o << "," << body << ")";
 }
 
-Object *LambdaForm::invoke(Vector<Object *> &args) {
+EvalResult LambdaForm::invoke(Vector<Object *> &args) {
   if (args.size() != param_names.size())
-    return nullptr;
+    return new RuntimeError("argument count mismatch");
 
   Context child_ctx(&get_context());
   context_stack.push_back(&child_ctx);

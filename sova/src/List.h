@@ -8,11 +8,11 @@ class List : public Object {
   Vector<Object *> backing_vector;
 
   virtual void print(Ostream &o) override;
-  virtual Object *square_brackets(const Vector<Object *> &args) override;
+  virtual EvalResult square_brackets(const Vector<Object *> &args) override;
   virtual Object *clone() override;
   virtual type_t get_type() override;
   virtual void iterate_references(Vector<Object *> &out) override;
-  virtual Object *dot(String) override;
+  virtual EvalResult dot(String) override;
 };
 
 class ListAccessor : public LValue {
@@ -24,6 +24,6 @@ class ListAccessor : public LValue {
 
   virtual Object *set(Context &, Object *value, bool define_new) override;
   virtual type_t get_type() override;
-  virtual Object *interpret() override;
+  virtual EvalResult interpret() override;
   virtual void iterate_references(Vector<Object *> &) override;
 };

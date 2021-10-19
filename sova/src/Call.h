@@ -11,7 +11,7 @@ public:
 
   Call(Object *fn, Vector<Object *> args, char brackets);
 
-  virtual Object *interpret() override;
+  virtual EvalResult interpret() override;
   virtual type_t get_type() override;
   virtual void iterate_references(Vector<Object *> &) override;
   virtual Call *as_call() override;

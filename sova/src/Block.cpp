@@ -2,9 +2,10 @@
 #include "Context.h"
 #include "Function.h"
 #include "Object.h"
+#include "RuntimeError.h"
 #include <assert.h>
 
-Object *Block::interpret() {
+EvalResult Block::interpret() {
   Context *child_ctx = 0;
 
   if (create_own_context) {
@@ -15,7 +16,7 @@ Object *Block::interpret() {
   Object *val = nullptr;
 
   for (Object *obj : inside)
-    val = eval(obj);
+    val = TRY(eval(obj));
 
   if (create_own_context)
     context_stack.pop_back();
@@ -60,17 +61,18 @@ class BlockPushFunction : public Function {
 public:
   BlockPushFunction(Block *block) : block(block) {}
 
-  virtual Object *call(Vector<Object *> &args) override {
+  virtual EvalResult call(Vector<Object *> &args) override {
     for (auto arg : args)
       block->inside.push_back(arg);
-    return nullptr;
+    return (Object*)nullptr;
   }
 };
 
-Object *Block::dot(String str) {
+EvalResult Block::dot(String str) {
   if (str == "push")
     return new BlockPushFunction(this);
-  return nullptr;
+
+  return new RuntimeError("invalid field");
 }
 
 Object *Block::clone() {

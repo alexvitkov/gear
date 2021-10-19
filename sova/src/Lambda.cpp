@@ -2,11 +2,12 @@
 #include "Call.h"
 #include "Object.h"
 #include "Reference.h"
+#include "RuntimeError.h"
 
-Object *ArrowForm::invoke(Vector<Object *> &args) {
+EvalResult ArrowForm::invoke(Vector<Object *> &args) {
 
-  if (args.size() != 2 || !args[0])
-    return nullptr;
+  if (args.size() != 2)
+    return new RuntimeError("=> expects two arguments");
 
   Vector<String> param_names;
 
@@ -14,18 +15,19 @@ Object *ArrowForm::invoke(Vector<Object *> &args) {
   Reference *param = args[0]->as_reference();
   if (param) {
     param_names.push_back(param->name);
-  } else {
-    // (a,b,c) => ....
+  }
+
+  // (a,b,c) => ....
+  else {
     Call *params = args[0]->as_call();
     if (!params || !params->is_comma_list())
-      return nullptr;
+      return new RuntimeError("lambda left hand side not a valid parameter list");
 
     for (Object *param : params->args) {
-      if (!param)
-        return nullptr;
+      if (!param || !param->as_reference())
+        return new RuntimeError("lambda left hand side parameters must be identifiers");
+
       Reference *r = param->as_reference();
-      if (!r)
-        return nullptr;
       param_names.push_back(r->name);
     }
   }
@@ -52,9 +54,9 @@ void Lambda::print(Ostream &o) {
   o << " => " << body;
 }
 
-Object *Lambda::call(Vector<Object *> &args) {
+EvalResult Lambda::call(Vector<Object *> &args) {
   if (args.size() != param_names.size())
-    return nullptr;
+    return new RuntimeError("lambda call argument count mismatch");
 
   Context child_ctx(&get_context());
   context_stack.push_back(&child_ctx);

@@ -1,7 +1,8 @@
 #include "Object.h"
 #include "LValue.h"
+#include "RuntimeError.h"
 
-thread_local Vector<Context*> context_stack;
+thread_local Vector<Context *> context_stack;
 thread_local int indent = 0;
 thread_local bool eval_to_lvalue;
 thread_local bool eval_block_return_context;
@@ -20,9 +21,9 @@ void print_obvject_newline(Ostream &o) {
     o << "    ";
 }
 
-Object *eval(Object *obj) {
+EvalResult eval(Object *obj) {
   if (!obj)
-    return nullptr;
+    return EvalResult((Object *)nullptr);
 
   // cout << "begin eval " << obj << "\n";
   auto res = obj->interpret();
@@ -32,7 +33,7 @@ Object *eval(Object *obj) {
 
 bool Object::equals(Object *other) { return this == other; }
 
-Object *Object::interpret() { return this; }
+EvalResult Object::interpret() { return this; }
 
 bool equals(Object *lhs, Object *rhs) {
   if (lhs == rhs)
@@ -44,11 +45,11 @@ bool equals(Object *lhs, Object *rhs) {
   return lhs->equals(rhs);
 }
 
-Object *Object::dot(String) { return nullptr; }
-
-Object *Object::square_brackets(const Vector<Object*>& args) {
-  return nullptr;
+EvalResult Object::dot(String) {
+  return new RuntimeError("dot not supported for this object type");
 }
+
+EvalResult Object::square_brackets(const Vector<Object *> &args) { return new RuntimeError("square brackets not supported for this type"); }
 
 void Object::print(Ostream &o) { o << "<object>"; }
 
@@ -92,9 +93,7 @@ Object *clone(Object *o) {
   return o->clone();
 }
 
-
 Context &get_context() { return *context_stack.back(); }
-
 
 extern thread_local GlobalContext _global;
 GlobalContext &global() { return _global; }

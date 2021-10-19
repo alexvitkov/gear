@@ -13,14 +13,14 @@ public:
   Context(Context *parent);
   Context(Context &) = delete;
 
-  Object *resolve(const String &name);
+  EvalResult resolve(const String &name);
   void define(const String &name, Object *value);
 
   class GlobalContext *get_global_context();
 
   virtual type_t get_type() override;
   virtual void print(Ostream &o) override;
-  virtual Object *dot(String) override;
+  virtual EvalResult dot(String) override;
   virtual void iterate_references(Vector<Object *> &) override;
 };
 
@@ -51,6 +51,6 @@ public:
   virtual type_t get_type() override;
 
   virtual Object *set(Context &, Object *value, bool define_new) override;
-  virtual Object *interpret() override;
+  virtual EvalResult interpret() override;
   virtual void iterate_references(Vector<Object *> &) override;
 };

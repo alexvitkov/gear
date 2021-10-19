@@ -3,6 +3,7 @@
 #include "FunctionType.h"
 #include "Number.h"
 #include "Object.h"
+#include "RuntimeError.h"
 #include <assert.h>
 
 StringObject::StringObject(String str) : str(str) {}
@@ -45,18 +46,18 @@ public:
     default_values = new Vector<Object *>({new Number(-1)});
   }
 
-  Object *call(Vector<Object *> &args) {
+  EvalResult call(Vector<Object *> &args) {
     Number *start = args[0]->as_number();
     Number *length = args[1]->as_number();
     return new StringObject(s->str.substring(start->value, length->value));
   }
 };
 
-Object *StringObject::dot(String field) {
-  if (field == "length") {
+EvalResult StringObject::dot(String field) {
+  if (field == "length")
     return new Number(str.size());
-  } else if (field == "substring") {
+  else if (field == "substring")
     return new SubstringFunction(this);
-  }
-  return nullptr;
+
+  return new RuntimeError("no such field");
 }

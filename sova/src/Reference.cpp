@@ -4,8 +4,11 @@
 
 Reference::Reference(String name) : name(name) {}
 
-Object *Reference::interpret() {
-  return (eval_to_lvalue) ? this : get_context().resolve(name);
+EvalResult Reference::interpret() {
+  if (eval_to_lvalue)
+    return this;
+  else
+    return get_context().resolve(name);
 }
 
 Object *Reference::set(Context &ctx, Object *value, bool define_new) {

@@ -1,6 +1,7 @@
 #include "List.h"
 #include "Number.h"
 #include "Object.h"
+#include "RuntimeError.h"
 #include <iterator>
 
 void List::print(Ostream &o) {
@@ -13,13 +14,13 @@ void List::print(Ostream &o) {
   o << ")";
 }
 
-Object *List::square_brackets(const Vector<Object *> &args) {
+EvalResult List::square_brackets(const Vector<Object *> &args) {
   if (args.size() != 1)
-    return nullptr;
+    return new RuntimeError("[] expected 1 argument");
 
   Number *num = args[0]->as_number();
   if (!num)
-    return nullptr;
+    return new RuntimeError("[] expects a number inside the square brackets");
 
   return eval(new ListAccessor(this, (u32)num->value));
 }
@@ -44,12 +45,13 @@ Object *ListAccessor::set(Context &, Object *value, bool define_new) {
   return value;
 }
 
-Object *ListAccessor::interpret() {
+EvalResult ListAccessor::interpret() {
   if (eval_to_lvalue)
-    return this;
+    return (Object*)this;
   else {
     if (index >= list->backing_vector.size())
-      return nullptr;
+      return new RuntimeError("Index out of range");
+
     return list->backing_vector[index];
   }
 }
@@ -58,8 +60,9 @@ void ListAccessor::iterate_references(Vector<Object *> &out) { out.push_back(lis
 
 type_t ListAccessor::get_type() { return TYPE_LIST_ACCESSOR; }
 
-Object *List::dot(String field) {
+EvalResult List::dot(String field) {
   if (field == "length")
     return new Number(backing_vector.size());
-  return nullptr;
+
+  return new RuntimeError("no such member");
 }

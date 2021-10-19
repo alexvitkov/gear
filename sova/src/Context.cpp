@@ -1,16 +1,18 @@
 #include "Context.h"
 #include "Libraries.h"
 #include "Object.h"
+#include "RuntimeError.h"
 #include "Type.h"
 
 Context::Context(Context *parent) : parent(parent) {}
 
-Object *Context::resolve(const String &name) {
+EvalResult Context::resolve(const String &name) {
   auto it = resolve_map.find(name);
   if (it == resolve_map.end()) {
     if (parent)
       return parent->resolve(name);
-    return nullptr;
+
+    return new RuntimeError("not defined");
   }
   return it->second;
 }
@@ -63,9 +65,7 @@ void Context::print(Ostream &o) {
   o << "})";
 }
 
-Object *Context::dot(String name) {
-  return new ContextFieldAccessor(this, name);
-}
+EvalResult Context::dot(String name) { return new ContextFieldAccessor(this, name); }
 
 ContextFieldAccessor::ContextFieldAccessor(Context *map, String name) : map(map), name(name) {}
 
@@ -78,7 +78,7 @@ Object *ContextFieldAccessor::set(Context &ctx, Object *value, bool define_new) 
   return value;
 }
 
-Object *ContextFieldAccessor::interpret() { return eval_to_lvalue ? this : map->resolve_map[name]; }
+EvalResult ContextFieldAccessor::interpret() { return eval_to_lvalue ? this : map->resolve_map[name]; }
 
 type_t Context::get_type() { return TYPE_CONTEXT; }
 type_t ContextFieldAccessor::get_type() { return TYPE_CONTEXT_FIELD_ACCESSOR; }

@@ -36,6 +36,8 @@ void Type::init(GlobalContext &global) {
   register_builtin_type(global, TYPE_CONTEXT_FIELD_ACCESSOR, "ContextFieldAccessor");
   register_builtin_type(global, TYPE_LIST_ACCESSOR, "ListAccessor");
   register_builtin_type(global, TYPE_UNQUOTE, "Unquote");
+
+  register_builtin_type(global, TYPE_RUNTIME_ERROR, "RuntimeError");
 }
 
 void Type::print(Ostream &o) { o << name; }

@@ -10,9 +10,9 @@ public:
 
   If(Object *condition, Object *if_true, Object *if_false);
 
-  virtual Object *interpret() override;
+  virtual EvalResult interpret() override;
   virtual void print(Ostream &o) override;
-  virtual Object *dot(String) override;
+  virtual EvalResult dot(String) override;
   virtual void iterate_references(Vector<Object *> &out) override;
   virtual type_t get_type() override;
   virtual Object *clone() override;

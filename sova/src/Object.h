@@ -1,8 +1,14 @@
 #pragma once
 #include "Common.h"
 #include <LTL/Ostream.h>
+#include <LTL/Result.h>
 #include <LTL/String.h>
 #include <LTL/Vector.h>
+
+class Object;
+class RuntimeError;
+
+typedef Result<Object *, RuntimeError *> EvalResult;
 
 // VOLATILE - if you define new entries here, you must also add them in the
 // register_builtin_types function in Type.cpp
@@ -30,6 +36,8 @@ enum TypeId : uint32_t {
   TYPE_LIST_ACCESSOR,
   TYPE_UNQUOTE,
 
+  TYPE_RUNTIME_ERROR,
+
   TYPE_MAX_ENUM_SIZE, // used to track the number of elements in the enum
 };
 
@@ -45,12 +53,13 @@ public:
 
   virtual type_t get_type() = 0;
   virtual void iterate_references(Vector<Object *> &out);
-  virtual Object *interpret();
   virtual void print(Ostream &o);
   virtual bool equals(Object *other);
-  virtual Object *dot(String);
   virtual Object *clone();
-  virtual Object *square_brackets(const Vector<Object*>& args);
+
+  virtual EvalResult interpret();
+  virtual EvalResult square_brackets(const Vector<Object *> &args);
+  virtual EvalResult dot(String);
 
   virtual class Form *as_form();
   virtual class Reference *as_reference();
@@ -61,7 +70,6 @@ public:
   virtual class StringObject *as_string();
   virtual class Bool *as_bool();
 
-
   ~Object();
 };
 
@@ -70,7 +78,7 @@ bool equals(Object *, Object *);
 void print_obvject_newline(Ostream &);
 Object *clone(Object *o);
 
-Object *eval(Object *obj);
+EvalResult eval(Object *obj);
 extern thread_local Vector<class Context *> context_stack;
 Context &get_context();
 GlobalContext &global();

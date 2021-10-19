@@ -1,7 +1,9 @@
 #include "../Context.h"
 #include "../Function.h"
+#include "../FunctionType.h"
 #include "../Libraries.h"
 #include "../List.h"
+#include "../RuntimeError.h"
 #include "../String.h"
 #include "../StringObject.h"
 
@@ -11,22 +13,18 @@ namespace library::os {
 
 class SystemFunction : public Function {
 public:
-  virtual Object *call(Vector<Object *> &args) override {
-    if (args.size() == 0 || !args[0])
-      return nullptr;
+  SystemFunction() { type = FunctionType::get({Type::get(TYPE_STRING)}, Type::get(TYPE_NIL)); }
 
+  virtual EvalResult call(Vector<Object *> &args) override {
     StringObject *str = args[0]->as_string();
-    if (!str)
-      return nullptr;
-
     system(str->str.c_str());
-    return nullptr;
+    return (Object *)nullptr;
   }
 };
 
 class LsFunction : public Function {
 public:
-  virtual Object *call(Vector<Object *> &args) override {
+  virtual EvalResult call(Vector<Object *> &args) override {
 
     String dir_to_read = ".";
 
@@ -38,19 +36,18 @@ public:
 
     List *l = new List();
 
-    DIR *d;
-    struct dirent *dir;
-        d = opendir(dir_to_read.c_str());
-    if (d) {
-      while ((dir = readdir(d)) != NULL)
-        l->backing_vector.push_back(new StringObject(dir->d_name));
-      closedir(d);
-    }
+    DIR *d = opendir(dir_to_read.c_str());
+    dirent *dir;
 
+    if (!d)
+      return new RuntimeError("ls(): failed to open directory");
+
+    while ((dir = readdir(d)) != NULL)
+      l->backing_vector.push_back(new StringObject(dir->d_name));
+    closedir(d);
     return l;
   }
 };
-
 
 void load(GlobalContext &ctx) {
   Context *os = new Context(nullptr);

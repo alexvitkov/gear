@@ -10,5 +10,5 @@ public:
   virtual type_t get_type() override;
   virtual StringObject* as_string() override;
   virtual Object* clone() override;
-  virtual Object *dot(String) override;
+  virtual EvalResult dot(String) override;
 };

@@ -18,6 +18,7 @@ set(SOURCES
   src/Context.cpp
   src/List.cpp
   src/Reference.cpp
+  src/RuntimeError.cpp
   src/ObjectPtr.cpp
   src/If.cpp
   src/Type.cpp

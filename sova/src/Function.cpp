@@ -1,8 +1,10 @@
 #include "Function.h"
 #include "FunctionType.h"
+#include "Object.h"
+#include "RuntimeError.h"
 #include <assert.h>
 
-Object *Function::invoke(Vector<Object *> &args) {
+EvalResult Function::invoke(Vector<Object *> &args) {
   Vector<Object *> evaled_args;
 
   for (Object *o : args)
@@ -20,7 +22,7 @@ Object *Function::invoke(Vector<Object *> &args) {
           evaled_args.push_back((*default_values)[default_value_index]);
         }
       } else {
-        assert(!"Argument count mismatch");
+        return new RuntimeError("argument type mistmatch");
       }
     }
 
@@ -29,8 +31,9 @@ Object *Function::invoke(Vector<Object *> &args) {
       Type *expected = type->param_types[i];
 
       if (actual != expected) {
-        cout << "Type mismatch on arg " << (int)(i+1) << ". Expected " << expected << ", but got " << actual << "\n";
-        assert(0);
+        cout << "Type mismatch on arg " << (int)(i + 1) << ". Expected " << expected << ", but got " << actual
+             << "\n";
+        return new RuntimeError("argument type mismatch");
       }
     }
   }
