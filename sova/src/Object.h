@@ -1,8 +1,8 @@
 #pragma once
 #include "Common.h"
 #include "Ostream.h"
-#include "String.h"
-#include "Vector.h"
+#include <LTL/String.h>
+#include <LTL/Vector.h>
 
 // VOLATILE - if you define new entries here, you must also add them in the
 // register_builtin_types function in Type.cpp

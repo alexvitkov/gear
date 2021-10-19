@@ -1,5 +1,5 @@
 #include "Ostream.h"
-#include "String.h"
+#include <LTL/String.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

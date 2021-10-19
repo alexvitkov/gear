@@ -7,7 +7,6 @@ set(SOURCES
   src/Block.cpp
   src/Bool.cpp
   src/Number.cpp
-  src/String.cpp
   src/StringObject.cpp
   src/Call.cpp
   src/Form.cpp
@@ -32,10 +31,14 @@ set(SOURCES
 
   src/library/Core.cpp)
 
+add_subdirectory(../LTL LTL)
+
 add_executable(sova
   ${SOURCES}
   src/library/OS.cpp
   src/main.cpp)
+
+target_link_libraries(sova ltl)
 
 target_compile_definitions(sova PUBLIC
   SOVA_LIB_CORE
@@ -45,6 +48,8 @@ add_executable(test
   ${SOURCES}
   src/library/Test.cpp
   src/test_main.cpp)
+
+target_link_libraries(test ltl)
 
 target_compile_definitions(test PUBLIC
   SOVA_LIB_CORE

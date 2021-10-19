@@ -1,7 +1,7 @@
 #pragma once
 #include "Type.h"
-#include "Vector.h"
-#include "String.h"
+#include <LTL/Vector.h>
+#include <LTL/String.h>
 
 class FunctionType : public Type {
 public:

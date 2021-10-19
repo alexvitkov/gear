@@ -1,12 +1,12 @@
 #pragma once
-#include "Common.h"
+#include <stdint.h>
 #include <initializer_list>
 #include <new>
 #include <stdlib.h>
 #include <utility>
 
 template <typename T> class Vector {
-  u32 _size, _capacity;
+  uint32_t _size, _capacity;
   T *items;
 
   void copy(const Vector &other) {
@@ -14,7 +14,7 @@ template <typename T> class Vector {
     _capacity = _size;
     items = (T *)malloc(sizeof(T) * _capacity);
 
-    for (u32 i = 0; i < _size; i++)
+    for (uint32_t i = 0; i < _size; i++)
       new (&items[i]) T(other.items[i]);
   }
 
@@ -23,7 +23,7 @@ template <typename T> class Vector {
 
   void destroy() {
     if (items) {
-      for (u32 i = 0; i < _size; i++)
+      for (uint32_t i = 0; i < _size; i++)
         items[i].~T();
       free(items);
     }
@@ -76,7 +76,7 @@ public:
   void grow(int new_capacity) {
     T *new_items = (T *)malloc(sizeof(T) * new_capacity);
 
-    for (u32 i = 0; i < _size; i++) {
+    for (uint32_t i = 0; i < _size; i++) {
       new (&new_items[i]) T(std::move(items[i]));
     }
 
@@ -85,14 +85,14 @@ public:
     _capacity = new_capacity;
   }
 
-  void resize(u32 new_size) {
+  void resize(uint32_t new_size) {
     if (_capacity < new_size)
       grow(new_size);
 
-    for (u32 i = _size; i < new_size; i++)
+    for (uint32_t i = _size; i < new_size; i++)
       items[i] = {};
 
-    for (u32 i = new_size; i < _size; i++)
+    for (uint32_t i = new_size; i < _size; i++)
       items[i].~T();
 
     _size = new_size;
@@ -122,17 +122,17 @@ public:
   }
 
   void clear() {
-    for (u32 i = 0; i < _size; i++)
+    for (uint32_t i = 0; i < _size; i++)
       items[i].~T();
     _size = 0;
   }
 
-  T &operator[](u32 i) { return items[i]; }
-  T operator[](u32 i) const { return items[i]; }
+  T &operator[](uint32_t i) { return items[i]; }
+  T operator[](uint32_t i) const { return items[i]; }
 
   T &back() { return items[_size - 1]; }
 
-  u32 size() const { return _size; }
+  uint32_t size() const { return _size; }
   T* data() { return items; };
 
   T *begin() { return items; }
@@ -142,7 +142,7 @@ public:
     if (_size != other._size || !items || !other.items)
       return false;
 
-    for (u32 i = 0; i < _size; i++)
+    for (uint32_t i = 0; i < _size; i++)
       if (items[i] != other.items[i])
         return false;
 

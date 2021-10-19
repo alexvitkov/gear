@@ -1,8 +1,8 @@
 #pragma once
 #include "OperatorData.h"
 #include "Ostream.h"
-#include "Vector.h"
-#include "String.h"
+#include <LTL/Vector.h>
+#include <LTL/String.h>
 
 enum TokenType {
   TOK_EOF = 0,

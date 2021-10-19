@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Common.h"
-#include "Vector.h"
-#include "String.h"
+#include <LTL/Vector.h>
+#include <LTL/String.h>
 
 class Context;
 class GlobalContext;
