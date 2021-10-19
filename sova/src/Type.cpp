@@ -2,7 +2,7 @@
 #include "Context.h"
 #include "Object.h"
 
-Type::Type(type_t id, String name) : id(id), name(name) {}
+Type::Type(type_t id, String name) : Context(nullptr), id(id), name(name) {}
 
 type_t Type::get_type() { return TYPE_TYPE; }
 

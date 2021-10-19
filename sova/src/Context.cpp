@@ -63,7 +63,7 @@ void Context::print(Ostream &o) {
   o << "})";
 }
 
-class LValue *Context::dot(String name) {
+Object *Context::dot(String name) {
   return new ContextFieldAccessor(this, name);
 }
 

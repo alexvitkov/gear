@@ -1,0 +1,10 @@
+foo := context({
+    x := 1;
+    y := 2;
+});
+
+test.eq("initial context assignment works", foo.x, 1);
+test.eq("initial context assignment works", foo.y, 2);
+
+foo.z := 3;
+test.eq("assignment to context objects works", foo.z, 3);

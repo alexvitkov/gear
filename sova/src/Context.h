@@ -20,7 +20,7 @@ public:
 
   virtual type_t get_type() override;
   virtual void print(Ostream &o) override;
-  virtual class LValue *dot(String) override;
+  virtual Object *dot(String) override;
   virtual void iterate_references(Vector<Object *> &) override;
 };
 
