@@ -29,8 +29,6 @@ void run_test_file(char *filename, char *code) {
     no_runtime_errors = false;
     cout << (Object *)res.get_error() << "\n";
   }
-
-  cout << "\n\n";
 }
 
 void run_all_tests() {

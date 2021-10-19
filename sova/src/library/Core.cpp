@@ -309,7 +309,7 @@ class ContextForm : public Form {
 public:
   virtual EvalResult invoke(Vector<Object *> &args) override {
 
-    if (args.size() != 1 || !args[0] || args[0]->as_block())
+    if (args.size() != 1 || !args[0] || !args[0]->as_block())
       return new RuntimeError("context expects a block as its argument");
 
     Block *block = args[0]->as_block();
