@@ -26,7 +26,7 @@ void end_case(bool suc) {
 
 class AstEqTestForm : public Form {
 
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override {
     if (args.size() != 3)
       return new OneOffError("test.ast_eq expects 3 arguments");
     
@@ -45,13 +45,13 @@ class AstEqTestForm : public Form {
 
 class EqTestForm : public Form {
 
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override {
     StringObject *s = args[0]->as_string();
 
     begin_case(s->str);
 
-    auto lhs = eval(args[1]);
-    auto rhs = eval(args[2]);
+    auto lhs = eval(args[1], 0);
+    auto rhs = eval(args[2], 0);
 
     if (lhs.is_error() || rhs.is_error())
       end_case(false);

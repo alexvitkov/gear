@@ -8,7 +8,7 @@ public:
 
   While(Object *condition, Object *body);
 
-  virtual EvalResult interpret() override;
+  virtual EvalResult interpret(EvalFlags_t) override;
   virtual void print(Ostream &o) override;
   virtual type_t get_type() override;
   virtual void iterate_references(Vector<Object *> &out) override;

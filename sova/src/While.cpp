@@ -6,7 +6,7 @@
 While::While(Object *condition, Object *body)
     : condition(condition), body(body) {}
 
-EvalResult While::interpret() {
+EvalResult While::interpret(EvalFlags_t flags) {
   Object *value = nullptr;
 
 

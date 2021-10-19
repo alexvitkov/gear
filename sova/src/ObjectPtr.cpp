@@ -3,7 +3,7 @@
 
 ObjectPtr::ObjectPtr(Object* parent, Object **obj) : parent(parent), obj(obj) {}
 
-EvalResult ObjectPtr::interpret() { return eval_to_lvalue ? this : *obj; }
+EvalResult ObjectPtr::interpret(EvalFlags_t flags) { return flags & EVAL_LVALUE ? this : *obj; }
 
 Object *ObjectPtr::set(Context &ctx, Object *value, bool define_new) { return (*obj = value); }
 

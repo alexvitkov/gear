@@ -6,7 +6,7 @@ public:
   String name;
 
   Reference(String name);
-  virtual EvalResult interpret() override;
+  virtual EvalResult interpret(EvalFlags_t) override;
   Object *set(Context &, Object *value, bool define_new) override;
   virtual void print(Ostream &o) override;
   virtual class Reference *as_reference() override;

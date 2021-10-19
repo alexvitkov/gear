@@ -4,8 +4,8 @@
 
 Reference::Reference(String name) : name(name) {}
 
-EvalResult Reference::interpret() {
-  if (eval_to_lvalue)
+EvalResult Reference::interpret(EvalFlags_t flags) {
+  if (flags & EVAL_LVALUE)
     return this;
   else
     return get_context().resolve(name);

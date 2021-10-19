@@ -43,6 +43,10 @@ enum TypeId : uint32_t {
 };
 
 typedef uint32_t type_t;
+typedef uint32_t EvalFlags_t;
+
+const EvalFlags_t EVAL_LVALUE = 0x01;
+const EvalFlags_t EVAL_BLOCK_RETURN_CONTEXT = 0x02;
 
 class Object {
   bool marked_for_gc;
@@ -58,7 +62,7 @@ public:
   virtual bool equals(Object *other);
   virtual Object *clone();
 
-  virtual EvalResult interpret();
+  virtual EvalResult interpret(EvalFlags_t flags = 0);
   virtual EvalResult square_brackets(const Vector<Object *> &args);
   virtual EvalResult dot(String);
 
@@ -79,12 +83,9 @@ bool equals(Object *, Object *);
 void print_obvject_newline(Ostream &);
 Object *clone(Object *o);
 
-EvalResult eval(Object *obj);
+EvalResult eval(Object *obj, EvalFlags_t flags = 0);
 extern thread_local Vector<class Context *> context_stack;
 Context &get_context();
 GlobalContext &global();
 
 extern thread_local int indent;
-
-extern thread_local bool eval_to_lvalue;
-extern thread_local bool eval_block_return_context;

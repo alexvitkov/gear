@@ -6,7 +6,7 @@
 
 Function::Function(FunctionType *type) : type(type) {}
 
-EvalResult Function::invoke(Vector<Object *> &args) {
+EvalResult Function::invoke(Vector<Object *> &args, EvalFlags_t) {
   Vector<Object *> evaled_args;
 
   for (Object *o : args)

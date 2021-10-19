@@ -152,17 +152,13 @@ public:
 
   AssignForm(bool define_new) : define_new(define_new){};
 
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override {
     if (args.size() != 2)
       return new OneOffError("assign form needs two arguments");
 
     Object *evaled_lhs;
 
-    {
-      Save<bool> save(eval_to_lvalue);
-      eval_to_lvalue = true;
-      evaled_lhs = TRY(eval(args[0]));
-    }
+      evaled_lhs = TRY(eval(args[0], EVAL_LVALUE));
 
     if (!evaled_lhs || !evaled_lhs->as_lvalue())
       return new OneOffError("left hand side of := and = must be a lvalue");
@@ -176,7 +172,7 @@ public:
 
 class DotForm : public Form {
 public:
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t flags) override {
     if (args.size() != 2)
       return new OneOffError("dot form expects two arguments");
 
@@ -188,12 +184,12 @@ public:
       return new OneOffError("dot second argument must be an identifier");
     Reference *rhs = args[1]->as_reference();
 
-    return eval(lhs->dot(rhs->name));
+    return eval(lhs->dot(rhs->name), flags);
   }
 };
 
 class MacroForm : public Form {
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override {
     if (args.size() != 2 || !args[0] || !args[1])
       return new OneOffError("invalid macro");
 
@@ -228,7 +224,7 @@ public:
 // this parses a single expression.
 // it takes in a list of delimtiers as varargs
 class ParseForm : public Form {
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override {
     Vector<TokenType> delims;
 
     // parse the delimiters
@@ -289,7 +285,7 @@ public:
 
 class QuoteForm : public Form {
 public:
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override {
     if (args.size() != 1)
       return new OneOffError("quote expects a single argument");
 
@@ -311,18 +307,14 @@ public:
 
 class ContextForm : public Form {
 public:
-  virtual EvalResult invoke(Vector<Object *> &args) override {
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override {
 
     if (args.size() != 1 || !args[0] || !args[0]->as_block())
       return new OneOffError("context expects a block as its argument");
 
     Block *block = args[0]->as_block();
 
-    // TODO save
-    bool eval_block_return_context_old = eval_block_return_context;
-    eval_block_return_context = true;
-    auto res = TRY(block->interpret());
-    eval_block_return_context = eval_block_return_context_old;
+    auto res = TRY(block->interpret(EVAL_BLOCK_RETURN_CONTEXT));
     return res;
   }
 };

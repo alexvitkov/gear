@@ -18,7 +18,7 @@ bool truthy(Object *o) {
   return true;
 }
 
-EvalResult If::interpret() {
+EvalResult If::interpret(EvalFlags_t flags) {
   Object *evaled_cond = eval(condition);
   return eval(truthy(evaled_cond) ? if_true : if_false);
 }

@@ -10,7 +10,7 @@ const bool ALWAYS_BRACKETS = true;
 
 Call::Call(Object *fn, Vector<Object *> args, char brackets) : fn(fn), args(args), brackets(brackets) {}
 
-EvalResult Call::interpret() {
+EvalResult Call::interpret(EvalFlags_t flags) {
   auto it = fn->interpret();
   Object *interpreted = TRY(it);
 
@@ -20,7 +20,7 @@ EvalResult Call::interpret() {
       if (!form)
         return new NotAFunctionError(this);
 
-      return form->invoke(args);
+      return form->invoke(args, flags);
     }
 
     case '[': {

@@ -8,7 +8,7 @@ class ObjectPtr : public LValue {
 public:
   ObjectPtr(Object *parent, Object **obj);
 
-  virtual EvalResult interpret() override;
+  virtual EvalResult interpret(EvalFlags_t) override;
   virtual Object *set(Context &, Object *value, bool define_new) override;
   virtual type_t get_type() override;
   virtual void iterate_references(Vector<Object *> &out) override;

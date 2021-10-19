@@ -4,7 +4,7 @@
 
 class ArrowForm : public Form {
 public:
-  virtual EvalResult invoke(Vector<Object *> &args) override;
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t) override;
 };
 
 class Lambda : public Function {

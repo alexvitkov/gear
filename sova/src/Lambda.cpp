@@ -4,7 +4,7 @@
 #include "Reference.h"
 #include "RuntimeError.h"
 
-EvalResult ArrowForm::invoke(Vector<Object *> &args) {
+EvalResult ArrowForm::invoke(Vector<Object *> &args, EvalFlags_t) {
 
   if (args.size() != 2)
     return new OneOffError("=> expects two arguments");

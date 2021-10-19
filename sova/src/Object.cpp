@@ -21,19 +21,17 @@ void print_obvject_newline(Ostream &o) {
     o << "    ";
 }
 
-EvalResult eval(Object *obj) {
+EvalResult eval(Object *obj, EvalFlags_t flags) {
   if (!obj)
     return EvalResult((Object *)nullptr);
 
-  // cout << "begin eval " << obj << "\n";
-  auto res = obj->interpret();
-  // cout << obj << " ---> " <<res << "\n";
+  auto res = obj->interpret(flags);
   return res;
 }
 
 bool Object::equals(Object *other) { return this == other; }
 
-EvalResult Object::interpret() { return this; }
+EvalResult Object::interpret(EvalFlags_t) { return this; }
 
 bool equals(Object *lhs, Object *rhs) {
   if (lhs == rhs)

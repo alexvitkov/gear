@@ -5,7 +5,7 @@
 #include "RuntimeError.h"
 #include <assert.h>
 
-EvalResult Block::interpret() {
+EvalResult Block::interpret(EvalFlags_t flags) {
   Context *child_ctx = 0;
 
   if (create_own_context) {
@@ -21,7 +21,7 @@ EvalResult Block::interpret() {
   if (create_own_context)
     context_stack.pop_back();
 
-  if (eval_block_return_context) {
+  if (flags & EVAL_BLOCK_RETURN_CONTEXT) {
     assert(create_own_context);
     child_ctx->parent = nullptr;
     return child_ctx;

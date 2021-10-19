@@ -13,7 +13,7 @@ public:
 
   virtual void print(Ostream &o) override;
 
-  virtual EvalResult invoke(Vector<Object *> &args) override;
+  virtual EvalResult invoke(Vector<Object *> &args, EvalFlags_t flags) override;
   virtual EvalResult call(Vector<Object *> &args) = 0;
   virtual type_t get_type() override;
 };

@@ -78,7 +78,7 @@ Object *ContextFieldAccessor::set(Context &ctx, Object *value, bool define_new) 
   return value;
 }
 
-EvalResult ContextFieldAccessor::interpret() { return eval_to_lvalue ? this : map->resolve_map[name]; }
+EvalResult ContextFieldAccessor::interpret(EvalFlags_t flags) { return (flags & EVAL_LVALUE) ? this : map->resolve_map[name]; }
 
 type_t Context::get_type() { return TYPE_CONTEXT; }
 type_t ContextFieldAccessor::get_type() { return TYPE_CONTEXT_FIELD_ACCESSOR; }

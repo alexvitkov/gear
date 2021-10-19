@@ -51,6 +51,6 @@ public:
   virtual type_t get_type() override;
 
   virtual Object *set(Context &, Object *value, bool define_new) override;
-  virtual EvalResult interpret() override;
+  virtual EvalResult interpret(EvalFlags_t) override;
   virtual void iterate_references(Vector<Object *> &) override;
 };

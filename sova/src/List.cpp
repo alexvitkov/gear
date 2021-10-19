@@ -45,8 +45,8 @@ Object *ListAccessor::set(Context &, Object *value, bool define_new) {
   return value;
 }
 
-EvalResult ListAccessor::interpret() {
-  if (eval_to_lvalue)
+EvalResult ListAccessor::interpret(EvalFlags_t flags) {
+  if (flags & EVAL_LVALUE)
     return (Object*)this;
   else {
     if (index >= list->backing_vector.size())

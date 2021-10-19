@@ -4,7 +4,7 @@
 #include "Reference.h"
 #include "RuntimeError.h"
 
-EvalResult FormForm::invoke(Vector<Object *> &args) {
+EvalResult FormForm::invoke(Vector<Object *> &args, EvalFlags_t) {
 
   if (args.size() != 2)
     return new OneOffError("'form' expects two arguments");
@@ -61,7 +61,7 @@ void LambdaForm::print(Ostream &o) {
   o << "," << body << ")";
 }
 
-EvalResult LambdaForm::invoke(Vector<Object *> &args) {
+EvalResult LambdaForm::invoke(Vector<Object *> &args, EvalFlags_t) {
   if (args.size() != param_names.size())
     return new OneOffError("argument count mismatch");
 
