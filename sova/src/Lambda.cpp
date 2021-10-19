@@ -35,7 +35,8 @@ EvalResult ArrowForm::invoke(Vector<Object *> &args) {
   return new Lambda(param_names, args[1]);
 }
 
-Lambda::Lambda(Vector<String> param_names, Object *body) : param_names(param_names), body(body) {}
+// TODO TYPE
+Lambda::Lambda(Vector<String> param_names, Object *body) : Function(nullptr), param_names(param_names), body(body) {}
 
 void Lambda::print(Ostream &o) {
   switch (param_names.size()) {

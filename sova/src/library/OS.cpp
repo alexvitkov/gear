@@ -13,7 +13,7 @@ namespace library::os {
 
 class SystemFunction : public Function {
 public:
-  SystemFunction() { type = FunctionType::get({Type::get(TYPE_STRING)}, Type::get(TYPE_NIL)); }
+  SystemFunction() : Function(FunctionType::get({Type::get(TYPE_STRING)}, Type::get(TYPE_NIL))) {}
 
   virtual EvalResult call(Vector<Object *> &args) override {
     StringObject *str = args[0]->as_string();
@@ -24,6 +24,8 @@ public:
 
 class LsFunction : public Function {
 public:
+  LsFunction() : Function(nullptr) {} // TODO TYPE
+
   virtual EvalResult call(Vector<Object *> &args) override {
 
     String dir_to_read = ".";

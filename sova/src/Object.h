@@ -14,6 +14,7 @@ typedef Result<Object *, RuntimeError *> EvalResult;
 // register_builtin_types function in Type.cpp
 enum TypeId : uint32_t {
   TYPE_NIL,
+  TYPE_OBJECT,
 
   TYPE_BOOL,
   TYPE_NUMBER,

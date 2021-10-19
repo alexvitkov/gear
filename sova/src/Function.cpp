@@ -4,6 +4,8 @@
 #include "RuntimeError.h"
 #include <assert.h>
 
+Function::Function(FunctionType *type) : type(type) {}
+
 EvalResult Function::invoke(Vector<Object *> &args) {
   Vector<Object *> evaled_args;
 
@@ -22,7 +24,7 @@ EvalResult Function::invoke(Vector<Object *> &args) {
           evaled_args.push_back((*default_values)[default_value_index]);
         }
       } else {
-        return new RuntimeError("argument type mistmatch");
+        return new RuntimeError("argument count mistmatch");
       }
     }
 
@@ -30,7 +32,7 @@ EvalResult Function::invoke(Vector<Object *> &args) {
       Type *actual = ::get_type(evaled_args[i]);
       Type *expected = type->param_types[i];
 
-      if (actual != expected) {
+      if (!actual->casts_to(expected)) {
         cout << "Type mismatch on arg " << (int)(i + 1) << ". Expected " << expected << ", but got " << actual
              << "\n";
         return new RuntimeError("argument type mismatch");

@@ -1,0 +1,7 @@
+test.eq("type works on numbers", type(123), Number);
+test.eq("type works on strings", type("foo"), String);
+test.eq("type works on nil", type(nil), Nil);
+
+test.eq("type works on AST calls", type('(foo())), Call);
+test.eq("type works on AST if expressions", type('(if (3) 4)), If);
+test.eq("type works on AST while loops", type('(while (3) 4)), While);

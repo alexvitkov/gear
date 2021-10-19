@@ -10,7 +10,6 @@ template <typename ValueT, typename ErrorT> class Result {
   ValueT _value;
   ErrorT _error;
 
-
 public:
   Result(ValueT val) {
     _value = val;
@@ -38,8 +37,9 @@ public:
   operator ValueT() { return get_value(); }
 };
 
-#define TRY(__result__)                                                                                      \
+#define TRY(expr)                                                                                            \
   ({                                                                                                         \
+    auto __result__ = (expr);                                                                                \
     if (__result__.is_error())                                                                               \
       return __result__;                                                                                     \
     __result__.get_value();                                                                                  \

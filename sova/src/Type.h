@@ -17,6 +17,8 @@ public:
   static void init(class GlobalContext &);
   static type_t get_new_id();
   static Type *get(type_t t);
+
+  bool casts_to(Type *other);
 };
 
 Type *get_type(Object *obj);

@@ -11,7 +11,9 @@ bool no_runtime_errors = true;
 
 thread_local GlobalContext _global;
 
-void run_test(char *filename, char *code) {
+void run_test_file(char *filename, char *code) {
+
+  cout << filename << ":\n";
 
   _global = GlobalContext();
   context_stack = {&_global};
@@ -27,6 +29,8 @@ void run_test(char *filename, char *code) {
     no_runtime_errors = false;
     cout << (Object *)res.get_error() << "\n";
   }
+
+  cout << "\n\n";
 }
 
 void run_all_tests() {
@@ -50,7 +54,7 @@ void run_all_tests() {
         cout << "Failed to read " << path << ": " << (int)res << "\n";
         continue;
       }
-      run_test(dir->d_name, buf);
+      run_test_file(dir->d_name, buf);
     }
     closedir(d);
   }

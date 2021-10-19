@@ -9,6 +9,8 @@ public:
   FunctionType *type = 0;
   Vector<Object *> *default_values = 0;
 
+  Function(FunctionType *type);
+
   virtual void print(Ostream &o) override;
 
   virtual EvalResult invoke(Vector<Object *> &args) override;

@@ -35,9 +35,7 @@ class AstEqTestForm : public Form {
       
     StringObject *s = args[0]->as_string();
 
-    StringStream ss;
-    ss << s->str << ": (" << args[1] << "), (" << args[2] << ")";
-    begin_case(ss.str());
+    begin_case(s->str);
 
     end_case(::equals(args[1], args[2]));
     return (Object *)nullptr;
@@ -50,11 +48,16 @@ class EqTestForm : public Form {
   virtual EvalResult invoke(Vector<Object *> &args) override {
     StringObject *s = args[0]->as_string();
 
-    StringStream ss;
-    ss << s->str << ": (" << args[1] << "), (" << args[2] << ")";
-    begin_case(ss.str());
+    begin_case(s->str);
 
-    end_case(::equals(eval(args[1]), eval(args[2])));
+    auto lhs = eval(args[1]);
+    auto rhs = eval(args[2]);
+
+    if (lhs.is_error() || rhs.is_error())
+      end_case(false);
+    else
+      end_case(::equals(lhs, rhs));
+
     return (Object *)nullptr;
   }
 };

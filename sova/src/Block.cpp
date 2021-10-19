@@ -59,7 +59,8 @@ class BlockPushFunction : public Function {
   Block *block;
 
 public:
-  BlockPushFunction(Block *block) : block(block) {}
+  // TODO TYPE
+  BlockPushFunction(Block *block) : Function(nullptr), block(block) {}
 
   virtual EvalResult call(Vector<Object *> &args) override {
     for (auto arg : args)

@@ -24,6 +24,10 @@ using Accumulator = double (*)(double, double);
 using Comparator = bool (*)(double, double);
 
 class AddFunction : public Function {
+
+public:
+  AddFunction() : Function(nullptr) {} // TODO TYPE
+
   virtual EvalResult call(Vector<Object *> &args) override {
     if (args.size() != 2 || !args[0] || !args[1])
       return new RuntimeError("+ expects two non-nil arguments. TODO");
@@ -53,6 +57,8 @@ class AddFunction : public Function {
 
 template <Accumulator Acc> class ArithmeticFunction : public Function {
 public:
+  ArithmeticFunction() : Function(nullptr) {} // TODO TYPE
+
   virtual EvalResult call(Vector<Object *> &args) override {
     double val;
 
@@ -75,14 +81,13 @@ public:
 
 template <Comparator Compare> class ComparisonFunction : public Function {
 public:
-  ComparisonFunction() {
-    type = FunctionType::get(
-        {
-            Type::get(TYPE_NUMBER),
-            Type::get(TYPE_NUMBER),
-        },
-        Type::get(TYPE_BOOL));
-  }
+  ComparisonFunction()
+      : Function(FunctionType::get(
+            {
+                Type::get(TYPE_NUMBER),
+                Type::get(TYPE_NUMBER),
+            },
+            Type::get(TYPE_BOOL))) {}
 
   virtual EvalResult call(Vector<Object *> &args) override {
     Number *lhs = args[0]->as_number();
@@ -95,7 +100,14 @@ class EqFunction : public Function {
   bool negate;
 
 public:
-  EqFunction(bool negate) : negate(negate) {}
+  EqFunction(bool negate)
+      : Function(FunctionType::get(
+            {
+                Type::get(TYPE_OBJECT),
+                Type::get(TYPE_OBJECT),
+            },
+            Type::get(TYPE_BOOL))),
+        negate(negate) {}
 
   virtual EvalResult call(Vector<Object *> &args) override {
     if (args.size() != 2)
@@ -107,7 +119,12 @@ public:
 
 class UnaryMinusFunction : public Function {
 public:
-  UnaryMinusFunction() { type = FunctionType::get({Type::get(TYPE_NUMBER)}, Type::get(TYPE_NUMBER)); }
+  UnaryMinusFunction()
+      : Function(FunctionType::get(
+            {
+                Type::get(TYPE_NUMBER),
+            },
+            Type::get(TYPE_NUMBER))) {}
 
   virtual EvalResult call(Vector<Object *> &args) override {
     return new Number(-args[0]->as_number()->value);
@@ -116,7 +133,12 @@ public:
 
 class NotFunction : public Function {
 public:
-  NotFunction() { type = FunctionType::get({Type::get(TYPE_BOOL)}, Type::get(TYPE_BOOL)); }
+  NotFunction()
+      : Function(FunctionType::get(
+            {
+                Type::get(TYPE_BOOL),
+            },
+            Type::get(TYPE_BOOL))) {}
 
   virtual EvalResult call(Vector<Object *> &args) override {
     return args[0]->as_bool()->value ? &False : &True;
@@ -185,6 +207,10 @@ class MacroForm : public Form {
 };
 
 class EmitFunction : public Function {
+
+public:
+  EmitFunction() : Function(FunctionType::get({Type::get(TYPE_OBJECT)}, Type::get(TYPE_NIL))) {}
+
   virtual EvalResult call(Vector<Object *> &args) override {
     auto parser = global().parser;
     if (!parser || parser->blocks.size() == 0)
@@ -235,6 +261,9 @@ class ParseForm : public Form {
 };
 
 class ExpectTokenFunction : public Function {
+public:
+  ExpectTokenFunction() : Function(FunctionType::get({Type::get(TYPE_STRING)}, Type::get(TYPE_NIL))) {}
+
   virtual EvalResult call(Vector<Object *> &args) override {
     if (args.size() != 1 || !args[0] || !args[0]->as_string())
       return new RuntimeError("expect_token() requires a single string argument");
@@ -266,12 +295,14 @@ public:
 
 class EvalFunction : public Function {
 public:
-  virtual EvalResult call(Vector<Object *> &args) override {
-    if (args.size() != 1)
-      return new RuntimeError("eval expects a single argument");
+  EvalFunction()
+      : Function(FunctionType::get(
+            {
+                Type::get(TYPE_OBJECT),
+            },
+            Type::get(TYPE_OBJECT))) {}
 
-    return eval(args[0]);
-  }
+  virtual EvalResult call(Vector<Object *> &args) override { return eval(args[0]); }
 };
 
 class ContextForm : public Form {
@@ -294,6 +325,8 @@ public:
 
 class ListFunction : public Function {
 public:
+  ListFunction() : Function(nullptr) {} // TODO TYPE
+
   virtual EvalResult call(Vector<Object *> &args) override {
     List *list = new List();
     list->backing_vector = args;
@@ -303,6 +336,8 @@ public:
 
 class PrintFunction : public Function {
 public:
+  PrintFunction() : Function(nullptr) {} // TODO TYPE
+
   virtual EvalResult call(Vector<Object *> &args) override {
     for (int i = 0; i < args.size(); i++) {
 
@@ -316,26 +351,25 @@ public:
       else
         cout << "\n";
     }
-    return (Object*)nullptr;
+    return (Object *)nullptr;
   }
 };
 
 class RunGCFunction : public Function {
 public:
+  RunGCFunction() : Function(FunctionType::get({}, Type::get(TYPE_NIL))) {}
+
   virtual EvalResult call(Vector<Object *> &args) override {
     run_gc = true;
-    return (Object*)nullptr;
+    return (Object *)nullptr;
   }
 };
 
 class GetTypeFunction : public Function {
 public:
-  virtual EvalResult call(Vector<Object *> &args) override {
-    if (args.size() != 1)
-      return new RuntimeError("type() expects a single argument");
+  GetTypeFunction() : Function(FunctionType::get({Type::get(TYPE_OBJECT)}, Type::get(TYPE_TYPE))) {}
 
-    return ::get_type(args[0]);
-  }
+  virtual EvalResult call(Vector<Object *> &args) override { return ::get_type(args[0]); }
 };
 
 static double add(double a, double b) { return a + b; }

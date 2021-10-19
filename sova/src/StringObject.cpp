@@ -35,14 +35,9 @@ class SubstringFunction : public Function {
   StringObject *s;
 
 public:
-  SubstringFunction(StringObject *s) : s(s) {
-    type = FunctionType::get(
-        {
-            Type::get(TYPE_NUMBER),
-            Type::get(TYPE_NUMBER),
-        },
-        Type::get(TYPE_STRING));
-
+  SubstringFunction(StringObject *s)
+      : Function(FunctionType::get({Type::get(TYPE_NUMBER), Type::get(TYPE_NUMBER)}, Type::get(TYPE_STRING))),
+        s(s) {
     default_values = new Vector<Object *>({new Number(-1)});
   }
 
